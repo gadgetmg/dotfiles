@@ -1,0 +1,43 @@
+(defsrc
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  caps a    s    d    f    g    h    j    k    l    ;    '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           spc            ralt rmet rctl
+)
+
+(defcfg
+  concurrent-tap-hold yes
+  process-unmapped-keys yes
+)
+
+(defalias
+  sym (layer-toggle symbol)  
+
+  a (tap-hold 200 200 a lmet)
+  s (tap-hold 200 200 s lalt)
+  d (tap-hold 200 200 d lctl)
+  f (tap-hold 200 200 f lsft)
+  j (tap-hold 200 200 j rsft)
+  k (tap-hold 200 200 k rctl)
+  l (tap-hold 200 200 l lalt)
+  ; (tap-hold 200 200 ; lmet)
+
+  spc (tap-hold 200 200 spc @sym)
+)
+
+(deflayer base
+  grv  1    2    3    4    5    6    7    8    9    0    -    =    bspc
+  tab  q    w    e    r    t    y    u    i    o    p    [    ]    \
+  esc  @a   @s   @d   @f   g    h    @j   @k   @l   @;   '    ret
+  lsft z    x    c    v    b    n    m    ,    .    /    rsft
+  lctl lmet lalt           @spc           ralt rmet rctl
+)
+
+(deflayer symbol
+  f12  f1   f2   f3   f4   f5   f6   f7   f8   f9   f10  f11  _    _
+  _    _    _    _    _    _    _    _    _    _    _    _    _    _
+  lrld lmet lalt lctl lsft _    _    -    =    [    ]    \    _
+  _    _    _    _    _    _    _    _    _    _    _    _
+  _    _    _              _              _    _    _
+)
