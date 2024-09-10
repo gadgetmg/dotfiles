@@ -6,3 +6,5 @@
 	email = gadgetmg@pm.me
 [push]
 	autoSetupRemote = true
+[core]
+	autocrlf = true
