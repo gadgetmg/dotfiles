@@ -8,3 +8,6 @@
 	autoSetupRemote = true
 [core]
 	autocrlf = true
+[commit]
+	gpgsign = true
+
