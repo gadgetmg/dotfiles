@@ -7,7 +7,9 @@
 [push]
 	autoSetupRemote = true
 [core]
+{{- if eq .chezmoi.os "windows" }}
 	autocrlf = true
+{{- end }}
 [commit]
 	gpgsign = true
 
