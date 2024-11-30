@@ -5,7 +5,7 @@ If ($env:APPDATA) {
     }
 
     If (-Not (Test-Path $env:LOCALAPPDATA\nvim-data)) {
-        New-Item -Path $env:LOCALAPPDATA\nvim-data -ItemType Junction -Value $env:USERPROFILE\.local\share\nvim-data
+        New-Item -Path $env:LOCALAPPDATA\nvim-data -ItemType Junction -Value $env:USERPROFILE\.local\share\nvim
     }
 
     If (-Not (Test-Path $env:APPDATA\kanata)) {

@@ -3,8 +3,7 @@ require("nvchad.configs.lspconfig").defaults()
 
 local lspconfig = require "lspconfig"
 
--- EXAMPLE
-local servers = { "html", "cssls", "yamlls", "jsonls" }
+local servers = { "yamlls", "jsonls" }
 local nvlsp = require "nvchad.configs.lspconfig"
 
 -- lsps with default config
@@ -21,5 +20,5 @@ lspconfig.powershell_es.setup {
   on_attach = nvlsp.on_attach,
   on_init = nvlsp.on_init,
   capabilities = nvlsp.capabilities,
-  bundle_path = "~/.local/share/nvim-data/mason/packages/powershell-editor-services",
+  bundle_path = "~/.local/share/nvim/mason/packages/powershell-editor-services",
 }
