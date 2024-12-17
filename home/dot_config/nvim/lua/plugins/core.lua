@@ -1,3 +1,4 @@
+local windows = vim.fn.has("win32")
 return {
   { "catppuccin/nvim" },
   {
@@ -32,20 +33,21 @@ return {
     },
   },
   {
-    "hrsh7th/nvim-cmp",
-    opts = function(_, opts)
-      local cmp = require("cmp")
-      opts.mapping["<CR>"] = cmp.mapping({
-        i = function(fallback)
-          if cmp.visible() and cmp.get_active_entry() then
-            cmp.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = false })
-          else
-            fallback()
-          end
-        end,
-        s = cmp.mapping.confirm({ select = true }),
-        c = cmp.mapping.confirm({ behavior = cmp.ConfirmBehavior.Replace, select = true }),
-      })
-    end,
+    "Saghen/blink.cmp",
+    opts = {
+      keymap = { preset = "default" },
+    },
+  },
+  -- Disable chezmoi plugins on Windows (not compatible)
+  { "xvzc/chezmoi.nvim", enabled = not windows },
+  { "alker0/chezmoi.vim", enabled = not windows },
+  -- Disable nil_ls language server on Windows (requires VC++ linker)
+  {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        nil_ls = { enabled = not windows },
+      },
+    },
   },
 }
