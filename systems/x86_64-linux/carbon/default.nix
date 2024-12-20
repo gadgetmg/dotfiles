@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }: {
+{ pkgs, ... }: {
   imports = [ ./disks.nix ];
 
   facter.reportPath = ./facter.json;
@@ -26,13 +26,21 @@
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.sddm.extraPackages = with pkgs.kdePackages; [sddm-kcm];
   services.openssh.enable = true;
+  services.pipewire.enable = true;
 
+  programs.nix-ld.enable = true;
   programs.zsh.enable = true;
   programs.firefox.enable = true;
   programs.steam.enable = true;
+  programs.git.enable = true;
 
   networking.networkmanager.enable = true;
+
+  console.keyMap = "colemak";
+  
+  time.timeZone = "America/New_York";
 
   environment.systemPackages = with pkgs; [ sbctl ];
 
