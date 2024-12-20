@@ -1,4 +1,3 @@
-local windows = vim.fn.has("win32")
 return {
   { "catppuccin/nvim" },
   {
@@ -36,18 +35,6 @@ return {
     "Saghen/blink.cmp",
     opts = {
       keymap = { preset = "default" },
-    },
-  },
-  -- Disable chezmoi plugins on Windows (not compatible)
-  { "xvzc/chezmoi.nvim", enabled = not windows },
-  { "alker0/chezmoi.vim", enabled = not windows },
-  -- Disable nil_ls language server on Windows (requires VC++ linker)
-  {
-    "neovim/nvim-lspconfig",
-    opts = {
-      servers = {
-        nil_ls = { enabled = not windows },
-      },
     },
   },
 }
