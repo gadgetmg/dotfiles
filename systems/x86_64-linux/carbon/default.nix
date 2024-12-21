@@ -18,6 +18,7 @@
     };
   };
 
+  boot.initrd.systemd.enable = true;
   boot.lanzaboote = {
     enable = true;
     enrollKeys = true;
