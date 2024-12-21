@@ -76,6 +76,7 @@
       starship
       unzip
       wget
+      wl-clipboard
       zellij
     ];
   };
