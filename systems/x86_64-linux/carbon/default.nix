@@ -1,4 +1,5 @@
-{ pkgs, ... }: {
+{ pkgs, lib, ... }:
+{
   imports = [ ./disks.nix ];
 
   facter.reportPath = ./facter.json;
@@ -26,9 +27,11 @@
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
-  services.displayManager.sddm.extraPackages = with pkgs.kdePackages; [sddm-kcm];
+  services.displayManager.sddm.extraPackages = with pkgs.kdePackages; [ sddm-kcm ];
   services.openssh.enable = true;
   services.pipewire.enable = true;
+
+  systemd.network.wait-online.enable = false;
 
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
@@ -39,7 +42,7 @@
   networking.networkmanager.enable = true;
 
   console.keyMap = "colemak";
-  
+
   time.timeZone = "America/New_York";
 
   environment.systemPackages = with pkgs; [ sbctl ];
@@ -50,8 +53,30 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
     ];
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+    ];
     shell = pkgs.zsh;
+    packages = with pkgs; [
+      cargo
+      chezmoi
+      discord-canary
+      fzf
+      gcc
+      git
+      lazygit
+      lua5_1
+      luarocks
+      neovim
+      nixfmt-rfc-style
+      nodejs
+      ripgrep
+      starship
+      unzip
+      wget
+      zellij
+    ];
   };
 
   system.stateVersion = "24.11";

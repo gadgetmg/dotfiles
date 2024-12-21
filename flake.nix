@@ -25,13 +25,16 @@
     };
   };
 
-  outputs = inputs:
+  outputs =
+    inputs:
     inputs.snowfall-lib.mkFlake {
       inherit inputs;
 
       src = ./.;
 
-      channels-config = { allowUnfree = true; };
+      channels-config = {
+        allowUnfree = true;
+      };
 
       systems.modules.nixos = with inputs; [
         nixos-facter-modules.nixosModules.facter
