@@ -3,3 +3,6 @@
 -- Add any additional options here
 
 vim.g.snacks_animate = false
+
+-- needed for orgmode on Windows
+vim.opt.shellslash = true
