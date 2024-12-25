@@ -35,6 +35,17 @@ return {
     "Saghen/blink.cmp",
     opts = {
       keymap = { preset = "default" },
+      sources = {
+        per_filetype = {
+          org = { "orgmode" },
+        },
+        providers = {
+          orgmode = {
+            name = "Orgmode",
+            module = "orgmode.org.autocompletion.blink",
+          },
+        },
+      },
     },
   },
   { "imsnif/kdl.vim" },
