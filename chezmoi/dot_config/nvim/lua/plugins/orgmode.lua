@@ -12,8 +12,6 @@ return {
       org_default_notes_file = "~/Documents/Notes/refile.org",
       org_todo_keywords = { "TODO(t)", "PROJECT", "WAITING", "|", "DONE", "DELEGATED(l)" },
       win_border = "single",
-      org_log_done = "note",
-      org_log_repeat = "note",
       org_log_into_drawer = "LOGBOOK",
       org_startup_indented = true,
       org_blank_before_new_entry = { heading = false, plain_list_item = false },
