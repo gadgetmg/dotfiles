@@ -1,0 +1,23 @@
+source $HOME/.config/plasma-workspace/env/editor.sh
+
+if [[ -v ZELLIJ ]]; then
+else
+  ZJ_SESSIONS=$(zellij list-sessions -n | grep -v "EXITED" | cut -d' ' -f1)
+  NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
+
+  if [ "${NO_SESSIONS}" -ge 2 ]; then
+    SESSION="$(echo "${ZJ_SESSIONS}" | sk)"
+  else
+    SESSION=$ZJ_SESSIONS
+  fi
+  if [ -n "$SESSION" ]; then
+    zellij --session $SESSION action new-tab --layout compact --cwd $PWD
+    zellij attach $SESSION
+  else
+    zellij
+  fi
+  exit
+fi
+
+bindkey -v
+eval "$(starship init zsh)"
