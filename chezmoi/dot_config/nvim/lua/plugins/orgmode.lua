@@ -8,20 +8,19 @@ return {
     event = "VeryLazy",
     ft = { "org" },
     opts = {
-      org_agenda_files = "~/Documents/Notes/**/*",
-      org_default_notes_file = "~/Documents/Notes/refile.org",
-      org_todo_keywords = { "TODO(t)", "PROJECT", "WAITING", "|", "DONE", "DELEGATED(l)" },
-      win_border = "single",
-      org_log_into_drawer = "LOGBOOK",
+      org_agenda_files = { "~/Documents/Notes/projects/*.org", "~/Documents/Notes/todos.org" },
+      org_default_notes_file = "~/Documents/Notes/todos.org",
+      org_todo_keywords = { "TODO(t)", "PROJ", "WAIT", "|", "DONE" },
+      org_log_repeat = false,
       org_startup_indented = true,
       org_blank_before_new_entry = { heading = false, plain_list_item = false },
       org_capture_templates = {
-        t = { description = "Task", template = "* TODO %?\n%u" },
+        t = { description = "Task", target = "~/Documents/Notes/inbox.org", template = "* TODO %?" },
+        p = { description = "Task (now)", template = "* TODO [#A] %?\nDEADLINE: %t" },
+        j = { description = "Journal", target = "~/Documents/Notes/journal.org", datetree = true, template = "- %U %?" },
       },
       calendar_week_start_day = 0,
-      mappings = {
-        org_return_uses_meta_return = true,
-      },
+      org_agenda_start_on_weekday = false,
       ui = {
         menu = {
           handler = function(data)
