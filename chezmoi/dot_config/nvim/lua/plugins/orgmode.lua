@@ -12,6 +12,7 @@ return {
       org_default_notes_file = "~/Documents/Notes/todos.org",
       org_todo_keywords = { "TODO(t)", "PROJ", "WAIT", "|", "DONE" },
       org_log_repeat = false,
+      org_startup_folded = 'content',
       org_startup_indented = true,
       org_blank_before_new_entry = { heading = false, plain_list_item = false },
       org_capture_templates = {
