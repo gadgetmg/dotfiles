@@ -1,4 +1,4 @@
-{ pkgs, lib, ... }:
+{ pkgs, ... }:
 {
   imports = [ ./disks.nix ];
 
@@ -31,6 +31,7 @@
   services.displayManager.sddm.extraPackages = with pkgs.kdePackages; [ sddm-kcm ];
   services.openssh.enable = true;
   services.pipewire.enable = true;
+  services.xserver.xkb.variant = "colemak";
 
   systemd.network.wait-online.enable = false;
 
@@ -63,6 +64,7 @@
       cargo
       chezmoi
       discord-canary
+      foot
       fzf
       gcc
       git
@@ -73,6 +75,7 @@
       nixfmt-rfc-style
       nodejs
       ripgrep
+      skim
       starship
       unzip
       wget
