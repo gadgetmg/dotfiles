@@ -4,7 +4,12 @@ If ($env:APPDATA) {
         New-Item -Path $env:LOCALAPPDATA\nvim -ItemType Junction -Value $env:USERPROFILE\.config\nvim
     }
 
-    If (-Not (Test-Path $env:LOCALAPPDATA\nvim-data)) {
+    If (-Not (Test-Path $env:USERPROFILE\.local\share\nvim)) {
+        If (Test-Path $env:LOCALAPPDATA\nvim-data) {
+            Move-Item -Path $env:LOCALAPPDATA\nvim-data -Destination $env:USERPROFILE\.local\share\nvim
+        } else {
+            New-Item -Path $env:USERPROFILE\.local\share\nvim -ItemType Directory
+        }
         New-Item -Path $env:LOCALAPPDATA\nvim-data -ItemType Junction -Value $env:USERPROFILE\.local\share\nvim
     }
 
