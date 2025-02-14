@@ -23,6 +23,8 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    nixos-wsl.url = "github:nix-community/NixOS-WSL/main";
   };
 
   outputs =
@@ -36,11 +38,18 @@
         allowUnfree = true;
       };
 
-      systems.modules.nixos = with inputs; [
+      systems.hosts.carbon.modules = with inputs; [
         nixos-facter-modules.nixosModules.facter
         disko.nixosModules.disko
         lanzaboote.nixosModules.lanzaboote
         sops-nix.nixosModules.sops
+      ];
+
+      systems.hosts.wsl.modules = with inputs; [
+        nixos-wsl.nixosModules.default
+	{
+	  wsl.enable = true;
+	}
       ];
     };
 }
