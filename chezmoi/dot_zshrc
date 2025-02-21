@@ -21,5 +21,15 @@ else
   exit
 fi
 
+alias k="kubectl"
+alias kg="kubectl get -o wide"
+alias ka="kubectl get -o wide all"
+alias kp="kubectl get -o wide pods"
+alias ks="kubectl get -o wide services"
+alias kaf="kubectl apply -f"
+alias kak="kubectl apply -k"
+alias kn="kubectl config set-context --current --namespace"
+
 bindkey -v
+eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
