@@ -33,6 +33,8 @@
   services.pipewire.enable = true;
   services.onedrive.enable = true;
   services.xserver.xkb.variant = "colemak";
+  virtualisation.docker.enable = true;
+  virtualisation.docker.storageDriver = "btrfs";
 
   systemd.network.wait-online.enable = false;
 
@@ -59,6 +61,7 @@
     extraGroups = [
       "wheel"
       "networkmanager"
+      "docker"
     ];
     shell = pkgs.zsh;
     packages = with pkgs; [
