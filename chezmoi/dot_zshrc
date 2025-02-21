@@ -1,4 +1,6 @@
-source $HOME/.config/plasma-workspace/env/editor.sh
+if [ -f $HOME/.config/plasma-workspace/env/editor.sh ]; then
+  source $HOME/.config/plasma-workspace/env/editor.sh
+fi
 
 if [[ -v ZELLIJ ]]; then
 else
