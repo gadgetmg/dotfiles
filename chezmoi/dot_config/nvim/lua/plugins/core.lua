@@ -32,6 +32,14 @@ return {
     },
   },
   {
+    "neovim/nvim-lspconfig",
+    opts = {
+      servers = {
+        marksman = { mason = false },
+      },
+    },
+  },
+  {
     "Saghen/blink.cmp",
     opts = {
       keymap = { preset = "default" },
