@@ -8,6 +8,9 @@ return {
           node_incremental = "<CR>",
         },
       },
+      indent = {
+        disable = { "yaml" },
+      },
     },
   },
 }
