@@ -2,6 +2,10 @@
 -- Default keymaps that are always set: https://github.com/LazyVim/LazyVim/blob/main/lua/lazyvim/config/keymaps.lua
 -- Add any additional keymaps here
 
+-- Center focus after C-u / C-d
+vim.keymap.set("n", "<C-u>", "<C-u>zz", { remap = true })
+vim.keymap.set("n", "<C-d>", "<C-d>zz", { remap = true })
+
 -- Move to window using the <ctrl> arrow keys
 vim.keymap.set("n", "<C-Left>", "<C-w>h", { desc = "Go to Left Window", remap = true })
 vim.keymap.set("n", "<C-Down>", "<C-w>j", { desc = "Go to Lower Window", remap = true })
