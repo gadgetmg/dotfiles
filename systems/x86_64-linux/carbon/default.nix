@@ -21,27 +21,70 @@
   boot.initrd.systemd.enable = true;
   boot.lanzaboote = {
     enable = true;
-    enrollKeys = true;
     pkiBundle = "/etc/secureboot";
   };
+  boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelModules = [ "nct6775" ];
+  boot.kernelParams = [ "amdgpu.ppfeaturemask=0xfff7ffff" ];
+
+  hardware.enableAllFirmware = true;
+  hardware.graphics = with pkgs; {
+    package = upstream.mesa.drivers;
+    package32 = pkgsi686Linux.upstream.mesa.drivers;
+  };
+  system.replaceDependencies.replacements = with pkgs; [
+    {
+      oldDependency = mesa.out;
+      newDependency = upstream.mesa.out;
+    }
+    {
+      oldDependency = pkgsi686Linux.mesa.out;
+      newDependency = pkgsi686Linux.upstream.mesa.out;
+    }
+  ];
 
   services.desktopManager.plasma6.enable = true;
   services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
   services.displayManager.sddm.extraPackages = with pkgs.kdePackages; [ sddm-kcm ];
+  services.displayManager.sddm.wayland.enable = true;
+  services.netdata.enable = true;
+  services.netdata.configDir."go.d/sensors.conf" = pkgs.writeText "sensors.conf" ''
+    jobs:
+      - name: sensors
+        binary_path: ${pkgs.lm_sensors}/bin/sensors
+  '';
+  services.netdata.package = pkgs.netdata.override {
+    withCloudUi = true;
+  };
+  services.onedrive.enable = true;
   services.openssh.enable = true;
   services.pipewire.enable = true;
-  services.onedrive.enable = true;
+  services.pipewire.lowLatency.enable = true;
   services.xserver.xkb.variant = "colemak";
+
   virtualisation.docker.enable = true;
   virtualisation.docker.storageDriver = "btrfs";
 
   systemd.network.wait-online.enable = false;
 
+  systemd.services.lact = {
+    description = "AMDGPU Control Daemon";
+    after = [ "multi-user.target" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.lact}/bin/lact daemon";
+      Nice = "-10";
+      Restart = "on-failure";
+    };
+    enable = true;
+  };
+
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
   programs.firefox.enable = true;
   programs.steam.enable = true;
+  programs.steam.remotePlay.openFirewall = true;
+  programs.steam.platformOptimizations.enable = true;
   programs.git.enable = true;
 
   networking.networkmanager.enable = true;
@@ -50,7 +93,20 @@
 
   time.timeZone = "America/New_York";
 
-  environment.systemPackages = with pkgs; [ sbctl ];
+  environment.systemPackages = with pkgs; [
+    btop
+    git
+    htop
+    iftop
+    iotop
+    lact
+    libreoffice
+    lm_sensors
+    nvtopPackages.amd
+    sbctl
+    unigine-heaven
+    zenmonitor
+  ];
 
   users.users."matt" = {
     isNormalUser = true;
@@ -59,30 +115,41 @@
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
     ];
     extraGroups = [
-      "wheel"
-      "networkmanager"
       "docker"
+      "networkmanager"
+      "wheel"
+      "wireshark"
     ];
     shell = pkgs.zsh;
     packages = with pkgs; [
+      bat
+      bind
       cargo
       chezmoi
-      discord-canary
+      direnv
+      discord
+      emacs
       foot
       fzf
       gcc
-      git
+      gh
       lazygit
       lua5_1
       luarocks
+      mangohud
       neovim
       nixfmt-rfc-style
       nodejs
+      openssl
       ripgrep
       skim
       starship
+      tcpdump
+      tigervnc
       unzip
       wget
+      wineWowPackages.stableFull
+      wireshark
       wl-clipboard
       zellij
     ];
