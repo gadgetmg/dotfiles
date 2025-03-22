@@ -23,30 +23,39 @@
     enable = true;
     pkiBundle = "/etc/secureboot";
   };
-  boot.kernelPackages = pkgs.linuxPackages_zen;
+  boot.kernelPackages = pkgs.linuxPackages_testing;
   boot.kernelModules = [ "nct6775" ];
   boot.kernelParams = [ "amdgpu.ppfeaturemask=0xfff7ffff" ];
 
+  hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
   hardware.graphics = with pkgs; {
-    package = upstream.mesa.drivers;
-    package32 = pkgsi686Linux.upstream.mesa.drivers;
+    package = upstream-mesa;
+    package32 = pkgsi686Linux.upstream-mesa;
   };
   system.replaceDependencies.replacements = with pkgs; [
     {
+      oldDependency = hwdata;
+      newDependency = upstream-hwdata;
+    }
+    {
       oldDependency = mesa.out;
-      newDependency = upstream.mesa.out;
+      newDependency = upstream-mesa.out;
     }
     {
       oldDependency = pkgsi686Linux.mesa.out;
-      newDependency = pkgsi686Linux.upstream.mesa.out;
+      newDependency = pkgsi686Linux.upstream-mesa.out;
     }
   ];
 
+  jovian.steam.enable = true;
+  jovian.steam.user = "matt";
+  jovian.steamos.useSteamOSConfig = false;
+  jovian.hardware.has.amd.gpu = true;
+
   services.desktopManager.plasma6.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.extraPackages = with pkgs.kdePackages; [ sddm-kcm ];
-  services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.ly.enable = true;
+  services.displayManager.defaultSession = "plasma";
   services.netdata.enable = true;
   services.netdata.configDir."go.d/sensors.conf" = pkgs.writeText "sensors.conf" ''
     jobs:
@@ -66,18 +75,8 @@
   virtualisation.docker.storageDriver = "btrfs";
 
   systemd.network.wait-online.enable = false;
-
-  systemd.services.lact = {
-    description = "AMDGPU Control Daemon";
-    after = [ "multi-user.target" ];
-    wantedBy = [ "multi-user.target" ];
-    serviceConfig = {
-      ExecStart = "${pkgs.lact}/bin/lact daemon";
-      Nice = "-10";
-      Restart = "on-failure";
-    };
-    enable = true;
-  };
+  systemd.packages = with pkgs; [ lact ];
+  systemd.services.lactd.wantedBy = [ "multi-user.target" ];
 
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
@@ -85,6 +84,7 @@
   programs.steam.enable = true;
   programs.steam.remotePlay.openFirewall = true;
   programs.steam.platformOptimizations.enable = true;
+  programs.steam.extraPackages = with pkgs; [ gamescope ];
   programs.git.enable = true;
 
   networking.networkmanager.enable = true;
@@ -94,18 +94,24 @@
   time.timeZone = "America/New_York";
 
   environment.systemPackages = with pkgs; [
-    btop
+    btop-rocm
+    furmark
     git
+    git-lfs
     htop
     iftop
     iotop
     lact
     libreoffice
+    llama-cpp
     lm_sensors
     nvtopPackages.amd
+    resources
     sbctl
     unigine-heaven
-    zenmonitor
+    unigine-superposition
+    unigine-valley
+    vulkan-tools
   ];
 
   users.users."matt" = {
