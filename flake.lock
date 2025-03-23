@@ -232,11 +232,11 @@
     "linux-firmware": {
       "flake": false,
       "locked": {
-        "lastModified": 1742382614,
-        "narHash": "sha256-bBBdJPQUhUDQa0cBOOLfvYhv7sybaK+T+ebFmvNO7jI=",
+        "lastModified": 1742672101,
+        "narHash": "sha256-/314E3GvMI+c9t+nHeKoZVN90UBUEgVZP3zXPmnM9UE=",
         "ref": "refs/heads/main",
-        "rev": "430633ec9398a44575ed86f92e36541d5feebdd6",
-        "revCount": 4644,
+        "rev": "710a336b31981773a3a16e7909fd83daeaec9db1",
+        "revCount": 4653,
         "type": "git",
         "url": "https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git"
       },

@@ -6,22 +6,23 @@
 
   sops.defaultSopsFile = ./secrets.yaml;
   sops.secrets = {
-    "secureboot/keys/db/db.key".path = "/etc/secureboot/keys/db/db.key";
-    "secureboot/keys/db/db.pem".path = "/etc/secureboot/keys/db/db.pem";
-    "secureboot/keys/KEK/KEK.key".path = "/etc/secureboot/keys/KEK/KEK.key";
-    "secureboot/keys/KEK/KEK.pem".path = "/etc/secureboot/keys/KEK/KEK.pem";
-    "secureboot/keys/PK/PK.key".path = "/etc/secureboot/keys/PK/PK.key";
-    "secureboot/keys/PK/PK.pem".path = "/etc/secureboot/keys/PK/PK.pem";
+    "secureboot/keys/db/db.key".path = "/var/lib/sbctl/keys/db/db.key";
+    "secureboot/keys/db/db.pem".path = "/var/lib/sbctl/keys/db/db.pem";
+    "secureboot/keys/KEK/KEK.key".path = "/var/lib/sbctl/keys/KEK/KEK.key";
+    "secureboot/keys/KEK/KEK.pem".path = "/var/lib/sbctl/keys/KEK/KEK.pem";
+    "secureboot/keys/PK/PK.key".path = "/var/lib/sbctl/keys/PK/PK.key";
+    "secureboot/keys/PK/PK.pem".path = "/var/lib/sbctl/keys/PK/PK.pem";
     "secureboot/GUID" = {
-      path = "/etc/secureboot/GUID";
+      path = "/var/lib/sbctl/GUID";
       mode = "644";
     };
   };
 
+  boot.loader.systemd-boot.memtest86.enable = true;
   boot.initrd.systemd.enable = true;
   boot.lanzaboote = {
     enable = true;
-    pkiBundle = "/etc/secureboot";
+    pkiBundle = "/var/lib/sbctl";
   };
   boot.kernelPackages = pkgs.linuxPackages_testing;
   boot.kernelModules = [ "nct6775" ];
@@ -30,21 +31,21 @@
   hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
   hardware.graphics = with pkgs; {
-    package = upstream-mesa;
-    package32 = pkgsi686Linux.upstream-mesa;
+    package = upstream.mesa;
+    package32 = pkgsi686Linux.upstream.mesa;
   };
   system.replaceDependencies.replacements = with pkgs; [
     {
       oldDependency = hwdata;
-      newDependency = upstream-hwdata;
+      newDependency = upstream.hwdata;
     }
     {
       oldDependency = mesa.out;
-      newDependency = upstream-mesa.out;
+      newDependency = upstream.mesa.out;
     }
     {
       oldDependency = pkgsi686Linux.mesa.out;
-      newDependency = pkgsi686Linux.upstream-mesa.out;
+      newDependency = pkgsi686Linux.upstream.mesa.out;
     }
   ];
 
@@ -53,8 +54,10 @@
   jovian.steamos.useSteamOSConfig = false;
   jovian.hardware.has.amd.gpu = true;
 
+  services.btrfs.autoScrub.enable = true;
   services.desktopManager.plasma6.enable = true;
-  services.displayManager.ly.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm.wayland.enable = true;
   services.displayManager.defaultSession = "plasma";
   services.netdata.enable = true;
   services.netdata.configDir."go.d/sensors.conf" = pkgs.writeText "sensors.conf" ''
@@ -77,6 +80,8 @@
   systemd.network.wait-online.enable = false;
   systemd.packages = with pkgs; [ lact ];
   systemd.services.lactd.wantedBy = [ "multi-user.target" ];
+  systemd.extraConfig = ''DefaultTimeoutStopSec=10s'';
+  systemd.user.extraConfig = ''DefaultTimeoutStopSec=10s'';
 
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
@@ -86,6 +91,8 @@
   programs.steam.platformOptimizations.enable = true;
   programs.steam.extraPackages = with pkgs; [ gamescope ];
   programs.git.enable = true;
+  programs.gamemode.enable = true;
+  programs.gamemode.enableRenice = true;
 
   networking.networkmanager.enable = true;
 
@@ -98,6 +105,7 @@
     furmark
     git
     git-lfs
+    heroic
     htop
     iftop
     iotop
