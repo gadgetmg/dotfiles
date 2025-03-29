@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ config, pkgs, ... }:
 {
   imports = [ ./disks.nix ];
 
@@ -25,9 +25,15 @@
     pkiBundle = "/var/lib/sbctl";
   };
   boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
   boot.kernelModules = [ "nct6775" ];
   boot.kernelParams = [ "amdgpu.ppfeaturemask=0xfff7ffff" ];
 
+  hardware.amdgpu.amdvlk = {
+    enable = true;
+    support32Bit.enable = true;
+    supportExperimental.enable = true;
+  };
   hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
   hardware.graphics = with pkgs; {
@@ -35,10 +41,6 @@
     package32 = pkgsi686Linux.upstream.mesa;
   };
   system.replaceDependencies.replacements = with pkgs; [
-    {
-      oldDependency = hwdata;
-      newDependency = upstream.hwdata;
-    }
     {
       oldDependency = mesa.out;
       newDependency = upstream.mesa.out;
@@ -156,6 +158,7 @@
       nodejs
       openssl
       ripgrep
+      ryzen-monitor-ng
       skim
       starship
       tcpdump

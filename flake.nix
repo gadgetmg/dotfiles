@@ -8,7 +8,7 @@
     };
 
     mesa = {
-      url = "git+https://gitlab.freedesktop.org/mesa/mesa.git";
+      url = "git+https://gitlab.freedesktop.org/mesa/mesa";
       flake = false;
     };
 

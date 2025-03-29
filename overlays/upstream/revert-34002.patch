@@ -1,0 +1,5589 @@
+diff --git a/src/egl/drivers/dri2/egl_dri2.c b/src/egl/drivers/dri2/egl_dri2.c
+index 23da76c6230..23823fc86d6 100644
+--- a/src/egl/drivers/dri2/egl_dri2.c
++++ b/src/egl/drivers/dri2/egl_dri2.c
+@@ -75,7 +75,7 @@
+ #include "egl_dri2.h"
+ #include "egldefines.h"
+ #include "mapi/glapi/glapi.h"
+-#include "dispatch.h"
++#include "mesa/main/dispatch.h"
+ 
+ #define NUM_ATTRIBS 16
+ 
+diff --git a/src/egl/drivers/wgl/egl_wgl.c b/src/egl/drivers/wgl/egl_wgl.c
+index 7f6ab9e52bc..a97abe156f9 100644
+--- a/src/egl/drivers/wgl/egl_wgl.c
++++ b/src/egl/drivers/wgl/egl_wgl.c
+@@ -47,7 +47,7 @@
+ 
+ #include "util/u_call_once.h"
+ #include "mapi/glapi/glapi.h"
+-#include "dispatch.h"
++#include "mesa/main/dispatch.h"
+ 
+ #include <GL/mesa_glinterop.h>
+ 
+diff --git a/src/gallium/frontends/glx/xlib/glx_api.c b/src/gallium/frontends/glx/xlib/glx_api.c
+index bb661031913..1985b896d85 100644
+--- a/src/gallium/frontends/glx/xlib/glx_api.c
++++ b/src/gallium/frontends/glx/xlib/glx_api.c
+@@ -41,7 +41,7 @@
+ #include "xm_api.h"
+ #include "main/errors.h"
+ #include "main/config.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "mapi/glapi/glapi.h"
+ #include "util/compiler.h"
+ #include "util/u_math.h"
+diff --git a/src/gallium/frontends/glx/xlib/glx_usefont.c b/src/gallium/frontends/glx/xlib/glx_usefont.c
+index ddf9aeea43b..d73ae6fd71a 100644
+--- a/src/gallium/frontends/glx/xlib/glx_usefont.c
++++ b/src/gallium/frontends/glx/xlib/glx_usefont.c
+@@ -34,7 +34,7 @@
+ #include <stdio.h>
+ #include <GL/glx.h>
+ #include "main/errors.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "mapi/glapi/glapi.h"
+ 
+ 
+diff --git a/src/gallium/targets/libgl-xlib/libgl-xlib.sym b/src/gallium/targets/libgl-xlib/libgl-xlib.sym
+index 529213809ba..446d8d29238 100644
+--- a/src/gallium/targets/libgl-xlib/libgl-xlib.sym
++++ b/src/gallium/targets/libgl-xlib/libgl-xlib.sym
+@@ -1,5 +1,6 @@
+ {
+ 	global:
++                _mesa_glapi_Dispatch;
+                 _mesa_glapi_tls_Dispatch;
+                 _mesa_glapi_get_dispatch_table_size; # only for tests
+                 _mesa_glapi_get_proc_offset; # only for tests
+diff --git a/src/glx/apple/apple_glapi.c b/src/glx/apple/apple_glapi.c
+index cab61c451be..9fd0f65d50c 100644
+--- a/src/glx/apple/apple_glapi.c
++++ b/src/glx/apple/apple_glapi.c
+@@ -61,6 +61,7 @@ static void _apple_glapi_create_table(void) {
+ 
+     _glapi_table_patch(__applegl_api, "ReadPixels", __applegl_glReadPixels);
+     _glapi_table_patch(__applegl_api, "CopyPixels", __applegl_glCopyPixels);
++    _glapi_table_patch(__applegl_api, "CopyColorTable", __applegl_glCopyColorTable);
+     _glapi_table_patch(__applegl_api, "DrawBuffers", __applegl_glDrawBuffer);
+     _glapi_table_patch(__applegl_api, "Viewport", __applegl_glViewport);
+ }
+diff --git a/src/glx/apple/apple_xgl_api.h b/src/glx/apple/apple_xgl_api.h
+index 80da881ac66..56e76b0f445 100644
+--- a/src/glx/apple/apple_xgl_api.h
++++ b/src/glx/apple/apple_xgl_api.h
+@@ -32,6 +32,9 @@
+ void __applegl_glReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
+                             GLenum format, GLenum type, void *pixels);
+ void __applegl_glCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum type);
++void __applegl_glCopyColorTable(GLenum target, GLenum internalformat, GLint x, GLint y,
++                                GLsizei width);
++
+ void __applegl_glDrawBuffer(GLenum mode);
+ void __applegl_glDrawBuffers(GLsizei n, const GLenum * bufs);
+ 
+diff --git a/src/glx/apple/apple_xgl_api_read.c b/src/glx/apple/apple_xgl_api_read.c
+index 4e6826a3036..612f5f7b01f 100644
+--- a/src/glx/apple/apple_xgl_api_read.c
++++ b/src/glx/apple/apple_xgl_api_read.c
+@@ -119,3 +119,16 @@ __applegl_glCopyPixels(GLint x, GLint y, GLsizei width, GLsizei height, GLenum t
+ 
+    UnsetRead(&saved);
+ }
++
++void
++__applegl_glCopyColorTable(GLenum target, GLenum internalformat, GLint x, GLint y,
++                 GLsizei width)
++{
++   struct apple_xgl_saved_state saved;
++
++   SetRead(&saved);
++
++   __ogl_framework_api->CopyColorTable(target, internalformat, x, y, width);
++
++   UnsetRead(&saved);
++}
+diff --git a/src/glx/dri2_glx.c b/src/glx/dri2_glx.c
+index 487d9389e72..e8545edb976 100644
+--- a/src/glx/dri2_glx.c
++++ b/src/glx/dri2_glx.c
+@@ -52,7 +52,7 @@
+ #include "loader_dri_helper.h"
+ #include "dri_util.h"
+ #include "mapi/glapi/glapi.h"
+-#include "dispatch.h"
++#include "mesa/main/dispatch.h"
+ 
+ #undef DRI2_MINOR
+ #define DRI2_MINOR 1
+diff --git a/src/glx/drisw_glx.c b/src/glx/drisw_glx.c
+index debe9219730..d8e724af296 100644
+--- a/src/glx/drisw_glx.c
++++ b/src/glx/drisw_glx.c
+@@ -44,7 +44,7 @@
+ #include "loader_dri_helper.h"
+ #include "dri_util.h"
+ #include "mapi/glapi/glapi.h"
+-#include "dispatch.h"
++#include "mesa/main/dispatch.h"
+ 
+ static int xshm_error = 0;
+ static int xshm_opcode = -1;
+@@ -424,7 +424,20 @@ static const __DRIextension *kopper_extensions_noshm[] = {
+ static void
+ drisw_wait_gl(struct glx_context *context)
+ {
++   /* TODO: Calling glFinish directly is the only thing that causes libGL.so
++    * to export all GL functions. This is fragile and needs a proper solution.
++    *
++    * On top of that, this code is only compiled with GLX_DIRECT_RENDERING,
++    * which means that indirect-only libGL (-Dglx-direct=false) doesn't export
++    * any GL functions.
++    *
++    * TODO: Always use CALL_Finish instead of glFinish.
++    */
++#if USE_LIBGLVND
+    CALL_Finish(GET_DISPATCH(), ());
++#else
++   glFinish();
++#endif
+ }
+ 
+ static void
+diff --git a/src/glx/glvnd-symbols.txt b/src/glx/glvnd-symbols.txt
+index ada2c71dd29..4710aa1d53b 100644
+--- a/src/glx/glvnd-symbols.txt
++++ b/src/glx/glvnd-symbols.txt
+@@ -2,3 +2,9 @@ __glx_Main
+ MesaGLInteropGLXExportObject
+ MesaGLInteropGLXFlushObjects
+ MesaGLInteropGLXQueryDeviceInfo
++
++# TODO: These shouldn't be exported:
++glAreTexturesResidentEXT
++glDeleteTexturesEXT
++glGenTexturesEXT
++glIsTextureEXT
+diff --git a/src/glx/libgl-symbols.txt b/src/glx/libgl-symbols.txt
+deleted file mode 100644
+index c89b0b4fd94..00000000000
+--- a/src/glx/libgl-symbols.txt
++++ /dev/null
+@@ -1,1364 +0,0 @@
+-glAccum
+-glActiveShaderProgram
+-glActiveTexture
+-glActiveTextureARB
+-glAlphaFunc
+-glAlphaFuncx
+-glAreTexturesResident
+-glAreTexturesResidentEXT
+-glArrayElement
+-glArrayElementEXT
+-glAttachObjectARB
+-glAttachShader
+-glBegin
+-glBeginConditionalRender
+-glBeginConditionalRenderNV
+-glBeginQuery
+-glBeginQueryARB
+-glBeginQueryIndexed
+-glBeginTransformFeedback
+-glBindAttribLocation
+-glBindAttribLocationARB
+-glBindBuffer
+-glBindBufferARB
+-glBindBufferBase
+-glBindBufferRange
+-glBindBuffersBase
+-glBindBuffersRange
+-glBindFragDataLocation
+-glBindFragDataLocationEXT
+-glBindFragDataLocationIndexed
+-glBindFramebuffer
+-glBindFramebufferEXT
+-glBindImageTexture
+-glBindImageTextures
+-glBindProgramARB
+-glBindProgramPipeline
+-glBindRenderbuffer
+-glBindRenderbufferEXT
+-glBindSampler
+-glBindSamplers
+-glBindTexture
+-glBindTextureEXT
+-glBindTextures
+-glBindTransformFeedback
+-glBindVertexArray
+-glBindVertexBuffer
+-glBindVertexBuffers
+-glBitmap
+-glBlendBarrier
+-glBlendColor
+-glBlendColorEXT
+-glBlendEquation
+-glBlendEquationEXT
+-glBlendEquationi
+-glBlendEquationiARB
+-glBlendEquationSeparate
+-glBlendEquationSeparatei
+-glBlendEquationSeparateiARB
+-glBlendFunc
+-glBlendFunci
+-glBlendFunciARB
+-glBlendFuncSeparate
+-glBlendFuncSeparateEXT
+-glBlendFuncSeparatei
+-glBlendFuncSeparateiARB
+-glBlitFramebuffer
+-glBufferData
+-glBufferDataARB
+-glBufferStorage
+-glBufferSubData
+-glBufferSubDataARB
+-glCallList
+-glCallLists
+-glCheckFramebufferStatus
+-glCheckFramebufferStatusEXT
+-glClampColor
+-glClampColorARB
+-glClear
+-glClearAccum
+-glClearBufferData
+-glClearBufferfi
+-glClearBufferfv
+-glClearBufferiv
+-glClearBufferSubData
+-glClearBufferuiv
+-glClearColor
+-glClearColorIiEXT
+-glClearColorIuiEXT
+-glClearColorx
+-glClearDepth
+-glClearDepthf
+-glClearDepthx
+-glClearIndex
+-glClearStencil
+-glClearTexImage
+-glClearTexSubImage
+-glClientActiveTexture
+-glClientActiveTextureARB
+-glClientWaitSync
+-glClipPlane
+-glClipPlanef
+-glClipPlanex
+-glColor3b
+-glColor3bv
+-glColor3d
+-glColor3dv
+-glColor3f
+-glColor3fv
+-glColor3i
+-glColor3iv
+-glColor3s
+-glColor3sv
+-glColor3ub
+-glColor3ubv
+-glColor3ui
+-glColor3uiv
+-glColor3us
+-glColor3usv
+-glColor4b
+-glColor4bv
+-glColor4d
+-glColor4dv
+-glColor4f
+-glColor4fv
+-glColor4i
+-glColor4iv
+-glColor4s
+-glColor4sv
+-glColor4ub
+-glColor4ubv
+-glColor4ui
+-glColor4uiv
+-glColor4us
+-glColor4usv
+-glColor4x
+-glColorMask
+-glColorMaski
+-glColorMaskIndexedEXT
+-glColorMaterial
+-glColorP3ui
+-glColorP3uiv
+-glColorP4ui
+-glColorP4uiv
+-glColorPointer
+-glColorPointerEXT
+-glColorSubTable
+-glColorTable
+-glColorTableParameterfv
+-glColorTableParameteriv
+-glCompileShader
+-glCompileShaderARB
+-glCompressedTexImage1D
+-glCompressedTexImage1DARB
+-glCompressedTexImage2D
+-glCompressedTexImage2DARB
+-glCompressedTexImage3D
+-glCompressedTexImage3DARB
+-glCompressedTexSubImage1D
+-glCompressedTexSubImage1DARB
+-glCompressedTexSubImage2D
+-glCompressedTexSubImage2DARB
+-glCompressedTexSubImage3D
+-glCompressedTexSubImage3DARB
+-glConvolutionFilter1D
+-glConvolutionFilter2D
+-glConvolutionParameterf
+-glConvolutionParameterfv
+-glConvolutionParameteri
+-glConvolutionParameteriv
+-glCopyBufferSubData
+-glCopyColorSubTable
+-glCopyColorTable
+-glCopyConvolutionFilter1D
+-glCopyConvolutionFilter2D
+-glCopyImageSubData
+-glCopyPixels
+-glCopyTexImage1D
+-glCopyTexImage2D
+-glCopyTexSubImage1D
+-glCopyTexSubImage2D
+-glCopyTexSubImage3D
+-glCopyTexSubImage3DEXT
+-glCreateProgram
+-glCreateProgramObjectARB
+-glCreateShader
+-glCreateShaderObjectARB
+-glCreateShaderProgramv
+-glCullFace
+-glDebugMessageCallback
+-glDebugMessageCallbackARB
+-glDebugMessageControl
+-glDebugMessageControlARB
+-glDebugMessageInsert
+-glDebugMessageInsertARB
+-glDeleteBuffers
+-glDeleteBuffersARB
+-glDeleteFramebuffers
+-glDeleteFramebuffersEXT
+-glDeleteLists
+-glDeleteObjectARB
+-glDeleteProgram
+-glDeleteProgramPipelines
+-glDeleteProgramsARB
+-glDeleteQueries
+-glDeleteQueriesARB
+-glDeleteRenderbuffers
+-glDeleteRenderbuffersEXT
+-glDeleteSamplers
+-glDeleteShader
+-glDeleteSync
+-glDeleteTextures
+-glDeleteTexturesEXT
+-glDeleteTransformFeedbacks
+-glDeleteVertexArrays
+-glDepthFunc
+-glDepthMask
+-glDepthRange
+-glDepthRangeArrayv
+-glDepthRangef
+-glDepthRangeIndexed
+-glDepthRangex
+-glDetachObjectARB
+-glDetachShader
+-glDisable
+-glDisableClientState
+-glDisablei
+-glDisableIndexedEXT
+-glDisableVertexAttribArray
+-glDisableVertexAttribArrayARB
+-glDispatchCompute
+-glDispatchComputeIndirect
+-glDrawArrays
+-glDrawArraysEXT
+-glDrawArraysIndirect
+-glDrawArraysInstanced
+-glDrawArraysInstancedARB
+-glDrawArraysInstancedBaseInstance
+-glDrawArraysInstancedEXT
+-glDrawBuffer
+-glDrawBuffers
+-glDrawBuffersARB
+-glDrawBuffersATI
+-glDrawElements
+-glDrawElementsBaseVertex
+-glDrawElementsIndirect
+-glDrawElementsInstanced
+-glDrawElementsInstancedARB
+-glDrawElementsInstancedBaseInstance
+-glDrawElementsInstancedBaseVertex
+-glDrawElementsInstancedBaseVertexBaseInstance
+-glDrawElementsInstancedEXT
+-glDrawPixels
+-glDrawRangeElements
+-glDrawRangeElementsBaseVertex
+-glDrawRangeElementsEXT
+-glDrawTransformFeedback
+-glDrawTransformFeedbackInstanced
+-glDrawTransformFeedbackStream
+-glDrawTransformFeedbackStreamInstanced
+-glEdgeFlag
+-glEdgeFlagPointer
+-glEdgeFlagPointerEXT
+-glEdgeFlagv
+-glEnable
+-glEnableClientState
+-glEnablei
+-glEnableIndexedEXT
+-glEnableVertexAttribArray
+-glEnableVertexAttribArrayARB
+-glEnd
+-glEndConditionalRender
+-glEndConditionalRenderNV
+-glEndList
+-glEndQuery
+-glEndQueryARB
+-glEndQueryIndexed
+-glEndTransformFeedback
+-glEvalCoord1d
+-glEvalCoord1dv
+-glEvalCoord1f
+-glEvalCoord1fv
+-glEvalCoord2d
+-glEvalCoord2dv
+-glEvalCoord2f
+-glEvalCoord2fv
+-glEvalMesh1
+-glEvalMesh2
+-glEvalPoint1
+-glEvalPoint2
+-glFeedbackBuffer
+-glFenceSync
+-glFinish
+-glFlush
+-glFlushMappedBufferRange
+-glFogCoordd
+-glFogCoorddEXT
+-glFogCoorddv
+-glFogCoorddvEXT
+-glFogCoordf
+-glFogCoordfEXT
+-glFogCoordfv
+-glFogCoordfvEXT
+-glFogCoordPointer
+-glFogCoordPointerEXT
+-glFogf
+-glFogfv
+-glFogi
+-glFogiv
+-glFogx
+-glFogxv
+-glFramebufferParameteri
+-glFramebufferRenderbuffer
+-glFramebufferRenderbufferEXT
+-glFramebufferTexture
+-glFramebufferTexture1D
+-glFramebufferTexture1DEXT
+-glFramebufferTexture2D
+-glFramebufferTexture2DEXT
+-glFramebufferTexture3D
+-glFramebufferTexture3DEXT
+-glFramebufferTextureLayer
+-glFramebufferTextureLayerEXT
+-glFramebufferTextureMultisampleMultiviewOVR
+-glFramebufferTextureMultiviewOVR
+-glFrontFace
+-glFrustum
+-glFrustumf
+-glFrustumx
+-glGenBuffers
+-glGenBuffersARB
+-glGenerateMipmap
+-glGenerateMipmapEXT
+-glGenFramebuffers
+-glGenFramebuffersEXT
+-glGenLists
+-glGenProgramPipelines
+-glGenProgramsARB
+-glGenQueries
+-glGenQueriesARB
+-glGenRenderbuffers
+-glGenRenderbuffersEXT
+-glGenSamplers
+-glGenTextures
+-glGenTexturesEXT
+-glGenTransformFeedbacks
+-glGenVertexArrays
+-glGetActiveAtomicCounterBufferiv
+-glGetActiveAttrib
+-glGetActiveAttribARB
+-glGetActiveUniform
+-glGetActiveUniformARB
+-glGetActiveUniformBlockiv
+-glGetActiveUniformBlockName
+-glGetActiveUniformName
+-glGetActiveUniformsiv
+-glGetAttachedObjectsARB
+-glGetAttachedShaders
+-glGetAttribLocation
+-glGetAttribLocationARB
+-glGetBooleanIndexedvEXT
+-glGetBooleani_v
+-glGetBooleanv
+-glGetBufferParameteri64v
+-glGetBufferParameteriv
+-glGetBufferParameterivARB
+-glGetBufferPointerv
+-glGetBufferPointervARB
+-glGetBufferSubData
+-glGetBufferSubDataARB
+-glGetClipPlane
+-glGetClipPlanef
+-glGetClipPlanex
+-glGetColorTable
+-glGetColorTableParameterfv
+-glGetColorTableParameteriv
+-glGetCompressedTexImage
+-glGetCompressedTexImageARB
+-glGetConvolutionFilter
+-glGetConvolutionParameterfv
+-glGetConvolutionParameteriv
+-glGetDebugMessageLog
+-glGetDebugMessageLogARB
+-glGetDoublei_v
+-glGetDoublev
+-glGetError
+-glGetFixedv
+-glGetFloati_v
+-glGetFloatv
+-glGetFragDataIndex
+-glGetFragDataLocation
+-glGetFragDataLocationEXT
+-glGetFramebufferAttachmentParameteriv
+-glGetFramebufferAttachmentParameterivEXT
+-glGetFramebufferParameteriv
+-glGetGraphicsResetStatus
+-glGetGraphicsResetStatusARB
+-glGetHandleARB
+-glGetHistogram
+-glGetHistogramParameterfv
+-glGetHistogramParameteriv
+-glGetInfoLogARB
+-glGetInteger64i_v
+-glGetInteger64v
+-glGetIntegerIndexedvEXT
+-glGetIntegeri_v
+-glGetIntegerv
+-glGetLightfv
+-glGetLightiv
+-glGetLightxv
+-glGetMapdv
+-glGetMapfv
+-glGetMapiv
+-glGetMaterialfv
+-glGetMaterialiv
+-glGetMaterialxv
+-glGetMinmax
+-glGetMinmaxParameterfv
+-glGetMinmaxParameteriv
+-glGetMultisamplefv
+-glGetnColorTableARB
+-glGetnCompressedTexImageARB
+-glGetnConvolutionFilterARB
+-glGetnHistogramARB
+-glGetnMapdvARB
+-glGetnMapfvARB
+-glGetnMapivARB
+-glGetnMinmaxARB
+-glGetnPixelMapfvARB
+-glGetnPixelMapuivARB
+-glGetnPixelMapusvARB
+-glGetnPolygonStippleARB
+-glGetnSeparableFilterARB
+-glGetnTexImageARB
+-glGetnUniformdvARB
+-glGetnUniformfv
+-glGetnUniformfvARB
+-glGetnUniformiv
+-glGetnUniformivARB
+-glGetnUniformuiv
+-glGetnUniformuivARB
+-glGetObjectLabel
+-glGetObjectLabelEXT
+-glGetObjectParameterfvARB
+-glGetObjectParameterivARB
+-glGetObjectPtrLabel
+-glGetPixelMapfv
+-glGetPixelMapuiv
+-glGetPixelMapusv
+-glGetPointerv
+-glGetPointervEXT
+-glGetPolygonStipple
+-glGetProgramBinary
+-glGetProgramEnvParameterdvARB
+-glGetProgramEnvParameterfvARB
+-glGetProgramInfoLog
+-glGetProgramInterfaceiv
+-glGetProgramiv
+-glGetProgramivARB
+-glGetProgramLocalParameterdvARB
+-glGetProgramLocalParameterfvARB
+-glGetProgramPipelineInfoLog
+-glGetProgramPipelineiv
+-glGetProgramResourceIndex
+-glGetProgramResourceiv
+-glGetProgramResourceLocation
+-glGetProgramResourceName
+-glGetProgramStringARB
+-glGetQueryIndexediv
+-glGetQueryiv
+-glGetQueryivARB
+-glGetQueryObjectiv
+-glGetQueryObjectivARB
+-glGetQueryObjectuiv
+-glGetQueryObjectuivARB
+-glGetRenderbufferParameteriv
+-glGetRenderbufferParameterivEXT
+-glGetSamplerParameterfv
+-glGetSamplerParameterIiv
+-glGetSamplerParameterIuiv
+-glGetSamplerParameteriv
+-glGetSeparableFilter
+-glGetShaderInfoLog
+-glGetShaderiv
+-glGetShaderPrecisionFormat
+-glGetShaderSource
+-glGetShaderSourceARB
+-glGetString
+-glGetStringi
+-glGetSynciv
+-glGetTexEnvfv
+-glGetTexEnviv
+-glGetTexEnvxv
+-glGetTexGendv
+-glGetTexGenfv
+-glGetTexGeniv
+-glGetTexImage
+-glGetTexLevelParameterfv
+-glGetTexLevelParameteriv
+-glGetTexParameterfv
+-glGetTexParameterIiv
+-glGetTexParameterIivEXT
+-glGetTexParameterIuiv
+-glGetTexParameterIuivEXT
+-glGetTexParameteriv
+-glGetTexParameterxv
+-glGetTransformFeedbackVarying
+-glGetUniformBlockIndex
+-glGetUniformfv
+-glGetUniformfvARB
+-glGetUniformIndices
+-glGetUniformiv
+-glGetUniformivARB
+-glGetUniformLocation
+-glGetUniformLocationARB
+-glGetUniformuiv
+-glGetUniformuivEXT
+-glGetVertexAttribdv
+-glGetVertexAttribdvARB
+-glGetVertexAttribfv
+-glGetVertexAttribfvARB
+-glGetVertexAttribIiv
+-glGetVertexAttribIivEXT
+-glGetVertexAttribIuiv
+-glGetVertexAttribIuivEXT
+-glGetVertexAttribiv
+-glGetVertexAttribivARB
+-glGetVertexAttribPointerv
+-glGetVertexAttribPointervARB
+-glHint
+-glHistogram
+-glIndexd
+-glIndexdv
+-glIndexf
+-glIndexfv
+-glIndexi
+-glIndexiv
+-glIndexMask
+-glIndexPointer
+-glIndexPointerEXT
+-glIndexs
+-glIndexsv
+-glIndexub
+-glIndexubv
+-glInitNames
+-glInterleavedArrays
+-glInvalidateBufferData
+-glInvalidateBufferSubData
+-glInvalidateFramebuffer
+-glInvalidateSubFramebuffer
+-glInvalidateTexImage
+-glInvalidateTexSubImage
+-glIsBuffer
+-glIsBufferARB
+-glIsEnabled
+-glIsEnabledi
+-glIsEnabledIndexedEXT
+-glIsFramebuffer
+-glIsFramebufferEXT
+-glIsList
+-glIsProgram
+-glIsProgramARB
+-glIsProgramPipeline
+-glIsQuery
+-glIsQueryARB
+-glIsRenderbuffer
+-glIsRenderbufferEXT
+-glIsSampler
+-glIsShader
+-glIsSync
+-glIsTexture
+-glIsTextureEXT
+-glIsTransformFeedback
+-glIsVertexArray
+-glLabelObjectEXT
+-glLightf
+-glLightfv
+-glLighti
+-glLightiv
+-glLightModelf
+-glLightModelfv
+-glLightModeli
+-glLightModeliv
+-glLightModelx
+-glLightModelxv
+-glLightx
+-glLightxv
+-glLineStipple
+-glLineWidth
+-glLineWidthx
+-glLinkProgram
+-glLinkProgramARB
+-glListBase
+-glLoadIdentity
+-glLoadMatrixd
+-glLoadMatrixf
+-glLoadMatrixx
+-glLoadName
+-glLoadTransposeMatrixd
+-glLoadTransposeMatrixdARB
+-glLoadTransposeMatrixf
+-glLoadTransposeMatrixfARB
+-glLockArraysEXT
+-glLogicOp
+-glMap1d
+-glMap1f
+-glMap2d
+-glMap2f
+-glMapBuffer
+-glMapBufferARB
+-glMapBufferRange
+-glMapGrid1d
+-glMapGrid1f
+-glMapGrid2d
+-glMapGrid2f
+-glMaterialf
+-glMaterialfv
+-glMateriali
+-glMaterialiv
+-glMaterialx
+-glMaterialxv
+-glMatrixMode
+-glMemoryBarrier
+-glMemoryBarrierByRegion
+-glMinmax
+-glMinSampleShading
+-glMinSampleShadingARB
+-glMultiDrawArrays
+-glMultiDrawArraysEXT
+-glMultiDrawArraysIndirect
+-glMultiDrawElements
+-glMultiDrawElementsBaseVertex
+-glMultiDrawElementsEXT
+-glMultiDrawElementsIndirect
+-glMultiTexCoord1d
+-glMultiTexCoord1dARB
+-glMultiTexCoord1dv
+-glMultiTexCoord1dvARB
+-glMultiTexCoord1f
+-glMultiTexCoord1fARB
+-glMultiTexCoord1fv
+-glMultiTexCoord1fvARB
+-glMultiTexCoord1i
+-glMultiTexCoord1iARB
+-glMultiTexCoord1iv
+-glMultiTexCoord1ivARB
+-glMultiTexCoord1s
+-glMultiTexCoord1sARB
+-glMultiTexCoord1sv
+-glMultiTexCoord1svARB
+-glMultiTexCoord2d
+-glMultiTexCoord2dARB
+-glMultiTexCoord2dv
+-glMultiTexCoord2dvARB
+-glMultiTexCoord2f
+-glMultiTexCoord2fARB
+-glMultiTexCoord2fv
+-glMultiTexCoord2fvARB
+-glMultiTexCoord2i
+-glMultiTexCoord2iARB
+-glMultiTexCoord2iv
+-glMultiTexCoord2ivARB
+-glMultiTexCoord2s
+-glMultiTexCoord2sARB
+-glMultiTexCoord2sv
+-glMultiTexCoord2svARB
+-glMultiTexCoord3d
+-glMultiTexCoord3dARB
+-glMultiTexCoord3dv
+-glMultiTexCoord3dvARB
+-glMultiTexCoord3f
+-glMultiTexCoord3fARB
+-glMultiTexCoord3fv
+-glMultiTexCoord3fvARB
+-glMultiTexCoord3i
+-glMultiTexCoord3iARB
+-glMultiTexCoord3iv
+-glMultiTexCoord3ivARB
+-glMultiTexCoord3s
+-glMultiTexCoord3sARB
+-glMultiTexCoord3sv
+-glMultiTexCoord3svARB
+-glMultiTexCoord4d
+-glMultiTexCoord4dARB
+-glMultiTexCoord4dv
+-glMultiTexCoord4dvARB
+-glMultiTexCoord4f
+-glMultiTexCoord4fARB
+-glMultiTexCoord4fv
+-glMultiTexCoord4fvARB
+-glMultiTexCoord4i
+-glMultiTexCoord4iARB
+-glMultiTexCoord4iv
+-glMultiTexCoord4ivARB
+-glMultiTexCoord4s
+-glMultiTexCoord4sARB
+-glMultiTexCoord4sv
+-glMultiTexCoord4svARB
+-glMultiTexCoord4x
+-glMultiTexCoordP1ui
+-glMultiTexCoordP1uiv
+-glMultiTexCoordP2ui
+-glMultiTexCoordP2uiv
+-glMultiTexCoordP3ui
+-glMultiTexCoordP3uiv
+-glMultiTexCoordP4ui
+-glMultiTexCoordP4uiv
+-glMultMatrixd
+-glMultMatrixf
+-glMultMatrixx
+-glMultTransposeMatrixd
+-glMultTransposeMatrixdARB
+-glMultTransposeMatrixf
+-glMultTransposeMatrixfARB
+-glNewList
+-glNormal3b
+-glNormal3bv
+-glNormal3d
+-glNormal3dv
+-glNormal3f
+-glNormal3fv
+-glNormal3i
+-glNormal3iv
+-glNormal3s
+-glNormal3sv
+-glNormal3x
+-glNormalP3ui
+-glNormalP3uiv
+-glNormalPointer
+-glNormalPointerEXT
+-glObjectLabel
+-glObjectPtrLabel
+-glOrtho
+-glOrthof
+-glOrthox
+-glPassThrough
+-glPatchParameteri
+-glPauseTransformFeedback
+-glPixelMapfv
+-glPixelMapuiv
+-glPixelMapusv
+-glPixelStoref
+-glPixelStorei
+-glPixelTransferf
+-glPixelTransferi
+-glPixelZoom
+-glPointParameterf
+-glPointParameterfARB
+-glPointParameterfEXT
+-glPointParameterfv
+-glPointParameterfvARB
+-glPointParameterfvEXT
+-glPointParameteri
+-glPointParameteriv
+-glPointParameterx
+-glPointParameterxv
+-glPointSize
+-glPointSizePointerOES
+-glPointSizex
+-glPolygonMode
+-glPolygonOffset
+-glPolygonOffsetx
+-glPolygonStipple
+-glPopAttrib
+-glPopClientAttrib
+-glPopDebugGroup
+-glPopMatrix
+-glPopName
+-glPrimitiveBoundingBox
+-glPrimitiveRestartIndex
+-glPrimitiveRestartIndexNV
+-glPrimitiveRestartNV
+-glPrioritizeTextures
+-glPrioritizeTexturesEXT
+-glProgramBinary
+-glProgramEnvParameter4dARB
+-glProgramEnvParameter4dvARB
+-glProgramEnvParameter4fARB
+-glProgramEnvParameter4fvARB
+-glProgramLocalParameter4dARB
+-glProgramLocalParameter4dvARB
+-glProgramLocalParameter4fARB
+-glProgramLocalParameter4fvARB
+-glProgramParameteri
+-glProgramStringARB
+-glProgramUniform1f
+-glProgramUniform1fv
+-glProgramUniform1i
+-glProgramUniform1iv
+-glProgramUniform1ui
+-glProgramUniform1uiv
+-glProgramUniform2f
+-glProgramUniform2fv
+-glProgramUniform2i
+-glProgramUniform2iv
+-glProgramUniform2ui
+-glProgramUniform2uiv
+-glProgramUniform3f
+-glProgramUniform3fv
+-glProgramUniform3i
+-glProgramUniform3iv
+-glProgramUniform3ui
+-glProgramUniform3uiv
+-glProgramUniform4f
+-glProgramUniform4fv
+-glProgramUniform4i
+-glProgramUniform4iv
+-glProgramUniform4ui
+-glProgramUniform4uiv
+-glProgramUniformMatrix2fv
+-glProgramUniformMatrix2x3fv
+-glProgramUniformMatrix2x4fv
+-glProgramUniformMatrix3fv
+-glProgramUniformMatrix3x2fv
+-glProgramUniformMatrix3x4fv
+-glProgramUniformMatrix4fv
+-glProgramUniformMatrix4x2fv
+-glProgramUniformMatrix4x3fv
+-glProvokingVertex
+-glProvokingVertexEXT
+-glPushAttrib
+-glPushClientAttrib
+-glPushDebugGroup
+-glPushMatrix
+-glPushName
+-glRasterPos2d
+-glRasterPos2dv
+-glRasterPos2f
+-glRasterPos2fv
+-glRasterPos2i
+-glRasterPos2iv
+-glRasterPos2s
+-glRasterPos2sv
+-glRasterPos3d
+-glRasterPos3dv
+-glRasterPos3f
+-glRasterPos3fv
+-glRasterPos3i
+-glRasterPos3iv
+-glRasterPos3s
+-glRasterPos3sv
+-glRasterPos4d
+-glRasterPos4dv
+-glRasterPos4f
+-glRasterPos4fv
+-glRasterPos4i
+-glRasterPos4iv
+-glRasterPos4s
+-glRasterPos4sv
+-glReadBuffer
+-glReadnPixels
+-glReadnPixelsARB
+-glReadPixels
+-glRectd
+-glRectdv
+-glRectf
+-glRectfv
+-glRecti
+-glRectiv
+-glRects
+-glRectsv
+-glReleaseShaderCompiler
+-glRenderbufferStorage
+-glRenderbufferStorageEXT
+-glRenderbufferStorageMultisample
+-glRenderbufferStorageMultisampleEXT
+-glRenderMode
+-glResetHistogram
+-glResetMinmax
+-glResumeTransformFeedback
+-glRotated
+-glRotatef
+-glRotatex
+-glSampleCoverage
+-glSampleCoverageARB
+-glSampleCoveragex
+-glSampleMaski
+-glSamplerParameterf
+-glSamplerParameterfv
+-glSamplerParameteri
+-glSamplerParameterIiv
+-glSamplerParameterIuiv
+-glSamplerParameteriv
+-glScaled
+-glScalef
+-glScalex
+-glScissor
+-glScissorArrayv
+-glScissorIndexed
+-glScissorIndexedv
+-glSecondaryColor3b
+-glSecondaryColor3bEXT
+-glSecondaryColor3bv
+-glSecondaryColor3bvEXT
+-glSecondaryColor3d
+-glSecondaryColor3dEXT
+-glSecondaryColor3dv
+-glSecondaryColor3dvEXT
+-glSecondaryColor3f
+-glSecondaryColor3fEXT
+-glSecondaryColor3fv
+-glSecondaryColor3fvEXT
+-glSecondaryColor3i
+-glSecondaryColor3iEXT
+-glSecondaryColor3iv
+-glSecondaryColor3ivEXT
+-glSecondaryColor3s
+-glSecondaryColor3sEXT
+-glSecondaryColor3sv
+-glSecondaryColor3svEXT
+-glSecondaryColor3ub
+-glSecondaryColor3ubEXT
+-glSecondaryColor3ubv
+-glSecondaryColor3ubvEXT
+-glSecondaryColor3ui
+-glSecondaryColor3uiEXT
+-glSecondaryColor3uiv
+-glSecondaryColor3uivEXT
+-glSecondaryColor3us
+-glSecondaryColor3usEXT
+-glSecondaryColor3usv
+-glSecondaryColor3usvEXT
+-glSecondaryColorP3ui
+-glSecondaryColorP3uiv
+-glSecondaryColorPointer
+-glSecondaryColorPointerEXT
+-glSelectBuffer
+-glSeparableFilter2D
+-glShadeModel
+-glShaderBinary
+-glShaderSource
+-glShaderSourceARB
+-glStencilFunc
+-glStencilFuncSeparate
+-glStencilMask
+-glStencilMaskSeparate
+-glStencilOp
+-glStencilOpSeparate
+-glTexBuffer
+-glTexBufferARB
+-glTexBufferRange
+-glTexCoord1d
+-glTexCoord1dv
+-glTexCoord1f
+-glTexCoord1fv
+-glTexCoord1i
+-glTexCoord1iv
+-glTexCoord1s
+-glTexCoord1sv
+-glTexCoord2d
+-glTexCoord2dv
+-glTexCoord2f
+-glTexCoord2fv
+-glTexCoord2i
+-glTexCoord2iv
+-glTexCoord2s
+-glTexCoord2sv
+-glTexCoord3d
+-glTexCoord3dv
+-glTexCoord3f
+-glTexCoord3fv
+-glTexCoord3i
+-glTexCoord3iv
+-glTexCoord3s
+-glTexCoord3sv
+-glTexCoord4d
+-glTexCoord4dv
+-glTexCoord4f
+-glTexCoord4fv
+-glTexCoord4i
+-glTexCoord4iv
+-glTexCoord4s
+-glTexCoord4sv
+-glTexCoordP1ui
+-glTexCoordP1uiv
+-glTexCoordP2ui
+-glTexCoordP2uiv
+-glTexCoordP3ui
+-glTexCoordP3uiv
+-glTexCoordP4ui
+-glTexCoordP4uiv
+-glTexCoordPointer
+-glTexCoordPointerEXT
+-glTexEnvf
+-glTexEnvfv
+-glTexEnvi
+-glTexEnviv
+-glTexEnvx
+-glTexEnvxv
+-glTexGend
+-glTexGendv
+-glTexGenf
+-glTexGenfv
+-glTexGeni
+-glTexGeniv
+-glTexImage1D
+-glTexImage2D
+-glTexImage2DMultisample
+-glTexImage3D
+-glTexImage3DEXT
+-glTexImage3DMultisample
+-glTexParameterf
+-glTexParameterfv
+-glTexParameteri
+-glTexParameterIiv
+-glTexParameterIivEXT
+-glTexParameterIuiv
+-glTexParameterIuivEXT
+-glTexParameteriv
+-glTexParameterx
+-glTexParameterxv
+-glTexStorage1D
+-glTexStorage2D
+-glTexStorage2DMultisample
+-glTexStorage3D
+-glTexStorage3DMultisample
+-glTexStorageAttribs2DEXT
+-glTexStorageAttribs3DEXT
+-glTexSubImage1D
+-glTexSubImage2D
+-glTexSubImage3D
+-glTexSubImage3DEXT
+-glTextureBarrierNV
+-glTextureStorage1DEXT
+-glTextureStorage2DEXT
+-glTextureStorage3DEXT
+-glTextureView
+-glTransformFeedbackVaryings
+-glTranslated
+-glTranslatef
+-glTranslatex
+-glUniform1f
+-glUniform1fARB
+-glUniform1fv
+-glUniform1fvARB
+-glUniform1i
+-glUniform1iARB
+-glUniform1iv
+-glUniform1ivARB
+-glUniform1ui
+-glUniform1uiEXT
+-glUniform1uiv
+-glUniform1uivEXT
+-glUniform2f
+-glUniform2fARB
+-glUniform2fv
+-glUniform2fvARB
+-glUniform2i
+-glUniform2iARB
+-glUniform2iv
+-glUniform2ivARB
+-glUniform2ui
+-glUniform2uiEXT
+-glUniform2uiv
+-glUniform2uivEXT
+-glUniform3f
+-glUniform3fARB
+-glUniform3fv
+-glUniform3fvARB
+-glUniform3i
+-glUniform3iARB
+-glUniform3iv
+-glUniform3ivARB
+-glUniform3ui
+-glUniform3uiEXT
+-glUniform3uiv
+-glUniform3uivEXT
+-glUniform4f
+-glUniform4fARB
+-glUniform4fv
+-glUniform4fvARB
+-glUniform4i
+-glUniform4iARB
+-glUniform4iv
+-glUniform4ivARB
+-glUniform4ui
+-glUniform4uiEXT
+-glUniform4uiv
+-glUniform4uivEXT
+-glUniformBlockBinding
+-glUniformMatrix2fv
+-glUniformMatrix2fvARB
+-glUniformMatrix2x3fv
+-glUniformMatrix2x4fv
+-glUniformMatrix3fv
+-glUniformMatrix3fvARB
+-glUniformMatrix3x2fv
+-glUniformMatrix3x4fv
+-glUniformMatrix4fv
+-glUniformMatrix4fvARB
+-glUniformMatrix4x2fv
+-glUniformMatrix4x3fv
+-glUnlockArraysEXT
+-glUnmapBuffer
+-glUnmapBufferARB
+-glUseProgram
+-glUseProgramObjectARB
+-glUseProgramStages
+-glValidateProgram
+-glValidateProgramARB
+-glValidateProgramPipeline
+-glVertex2d
+-glVertex2dv
+-glVertex2f
+-glVertex2fv
+-glVertex2i
+-glVertex2iv
+-glVertex2s
+-glVertex2sv
+-glVertex3d
+-glVertex3dv
+-glVertex3f
+-glVertex3fv
+-glVertex3i
+-glVertex3iv
+-glVertex3s
+-glVertex3sv
+-glVertex4d
+-glVertex4dv
+-glVertex4f
+-glVertex4fv
+-glVertex4i
+-glVertex4iv
+-glVertex4s
+-glVertex4sv
+-glVertexAttrib1d
+-glVertexAttrib1dARB
+-glVertexAttrib1dv
+-glVertexAttrib1dvARB
+-glVertexAttrib1f
+-glVertexAttrib1fARB
+-glVertexAttrib1fv
+-glVertexAttrib1fvARB
+-glVertexAttrib1s
+-glVertexAttrib1sARB
+-glVertexAttrib1sv
+-glVertexAttrib1svARB
+-glVertexAttrib2d
+-glVertexAttrib2dARB
+-glVertexAttrib2dv
+-glVertexAttrib2dvARB
+-glVertexAttrib2f
+-glVertexAttrib2fARB
+-glVertexAttrib2fv
+-glVertexAttrib2fvARB
+-glVertexAttrib2s
+-glVertexAttrib2sARB
+-glVertexAttrib2sv
+-glVertexAttrib2svARB
+-glVertexAttrib3d
+-glVertexAttrib3dARB
+-glVertexAttrib3dv
+-glVertexAttrib3dvARB
+-glVertexAttrib3f
+-glVertexAttrib3fARB
+-glVertexAttrib3fv
+-glVertexAttrib3fvARB
+-glVertexAttrib3s
+-glVertexAttrib3sARB
+-glVertexAttrib3sv
+-glVertexAttrib3svARB
+-glVertexAttrib4bv
+-glVertexAttrib4bvARB
+-glVertexAttrib4d
+-glVertexAttrib4dARB
+-glVertexAttrib4dv
+-glVertexAttrib4dvARB
+-glVertexAttrib4f
+-glVertexAttrib4fARB
+-glVertexAttrib4fv
+-glVertexAttrib4fvARB
+-glVertexAttrib4iv
+-glVertexAttrib4ivARB
+-glVertexAttrib4Nbv
+-glVertexAttrib4NbvARB
+-glVertexAttrib4Niv
+-glVertexAttrib4NivARB
+-glVertexAttrib4Nsv
+-glVertexAttrib4NsvARB
+-glVertexAttrib4Nub
+-glVertexAttrib4NubARB
+-glVertexAttrib4Nubv
+-glVertexAttrib4NubvARB
+-glVertexAttrib4Nuiv
+-glVertexAttrib4NuivARB
+-glVertexAttrib4Nusv
+-glVertexAttrib4NusvARB
+-glVertexAttrib4s
+-glVertexAttrib4sARB
+-glVertexAttrib4sv
+-glVertexAttrib4svARB
+-glVertexAttrib4ubv
+-glVertexAttrib4ubvARB
+-glVertexAttrib4uiv
+-glVertexAttrib4uivARB
+-glVertexAttrib4usv
+-glVertexAttrib4usvARB
+-glVertexAttribBinding
+-glVertexAttribDivisor
+-glVertexAttribDivisorARB
+-glVertexAttribFormat
+-glVertexAttribI1i
+-glVertexAttribI1iEXT
+-glVertexAttribI1iv
+-glVertexAttribI1ivEXT
+-glVertexAttribI1ui
+-glVertexAttribI1uiEXT
+-glVertexAttribI1uiv
+-glVertexAttribI1uivEXT
+-glVertexAttribI2i
+-glVertexAttribI2iEXT
+-glVertexAttribI2iv
+-glVertexAttribI2ivEXT
+-glVertexAttribI2ui
+-glVertexAttribI2uiEXT
+-glVertexAttribI2uiv
+-glVertexAttribI2uivEXT
+-glVertexAttribI3i
+-glVertexAttribI3iEXT
+-glVertexAttribI3iv
+-glVertexAttribI3ivEXT
+-glVertexAttribI3ui
+-glVertexAttribI3uiEXT
+-glVertexAttribI3uiv
+-glVertexAttribI3uivEXT
+-glVertexAttribI4bv
+-glVertexAttribI4bvEXT
+-glVertexAttribI4i
+-glVertexAttribI4iEXT
+-glVertexAttribI4iv
+-glVertexAttribI4ivEXT
+-glVertexAttribI4sv
+-glVertexAttribI4svEXT
+-glVertexAttribI4ubv
+-glVertexAttribI4ubvEXT
+-glVertexAttribI4ui
+-glVertexAttribI4uiEXT
+-glVertexAttribI4uiv
+-glVertexAttribI4uivEXT
+-glVertexAttribI4usv
+-glVertexAttribI4usvEXT
+-glVertexAttribIFormat
+-glVertexAttribIPointer
+-glVertexAttribIPointerEXT
+-glVertexAttribLFormat
+-glVertexAttribP1ui
+-glVertexAttribP1uiv
+-glVertexAttribP2ui
+-glVertexAttribP2uiv
+-glVertexAttribP3ui
+-glVertexAttribP3uiv
+-glVertexAttribP4ui
+-glVertexAttribP4uiv
+-glVertexAttribPointer
+-glVertexAttribPointerARB
+-glVertexBindingDivisor
+-glVertexP2ui
+-glVertexP2uiv
+-glVertexP3ui
+-glVertexP3uiv
+-glVertexP4ui
+-glVertexP4uiv
+-glVertexPointer
+-glVertexPointerEXT
+-glViewport
+-glViewportArrayv
+-glViewportIndexedf
+-glViewportIndexedfv
+-glWaitSync
+-glWindowPos2d
+-glWindowPos2dARB
+-glWindowPos2dv
+-glWindowPos2dvARB
+-glWindowPos2f
+-glWindowPos2fARB
+-glWindowPos2fv
+-glWindowPos2fvARB
+-glWindowPos2i
+-glWindowPos2iARB
+-glWindowPos2iv
+-glWindowPos2ivARB
+-glWindowPos2s
+-glWindowPos2sARB
+-glWindowPos2sv
+-glWindowPos2svARB
+-glWindowPos3d
+-glWindowPos3dARB
+-glWindowPos3dv
+-glWindowPos3dvARB
+-glWindowPos3f
+-glWindowPos3fARB
+-glWindowPos3fv
+-glWindowPos3fvARB
+-glWindowPos3i
+-glWindowPos3iARB
+-glWindowPos3iv
+-glWindowPos3ivARB
+-glWindowPos3s
+-glWindowPos3sARB
+-glWindowPos3sv
+-glWindowPos3svARB
+-
+-glXChooseFBConfig
+-glXChooseFBConfigSGIX
+-glXChooseVisual
+-glXCopyContext
+-glXCreateContext
+-glXCreateContextWithConfigSGIX
+-glXCreateGLXPbufferSGIX
+-glXCreateGLXPixmap
+-glXCreateGLXPixmapWithConfigSGIX
+-glXCreateNewContext
+-glXCreatePbuffer
+-glXCreatePixmap
+-glXCreateWindow
+-glXDestroyContext
+-glXDestroyGLXPbufferSGIX
+-glXDestroyGLXPixmap
+-glXDestroyPbuffer
+-glXDestroyPixmap
+-glXDestroyWindow
+-glXFreeContextEXT
+-glXGetClientString
+-glXGetConfig
+-glXGetContextIDEXT
+-glXGetCurrentContext
+-glXGetCurrentDisplay
+-glXGetCurrentDisplayEXT
+-glXGetCurrentDrawable
+-glXGetCurrentReadDrawable
+-glXGetDriverConfig
+-glXGetFBConfigAttrib
+-glXGetFBConfigAttribSGIX
+-glXGetFBConfigFromVisualSGIX
+-glXGetFBConfigs
+-glXGetProcAddress
+-glXGetProcAddressARB
+-glXGetScreenDriver
+-glXGetSelectedEvent
+-glXGetSelectedEventSGIX
+-glXGetVisualFromFBConfig
+-glXGetVisualFromFBConfigSGIX
+-glXImportContextEXT
+-glXIsDirect
+-glXMakeContextCurrent
+-glXMakeCurrent
+-glXMakeCurrentReadSGI
+-glXQueryContext
+-glXQueryContextInfoEXT
+-glXQueryDrawable
+-glXQueryExtension
+-glXQueryExtensionsString
+-glXQueryGLXPbufferSGIX
+-glXQueryServerString
+-glXQueryVersion
+-glXSelectEvent
+-glXSelectEventSGIX
+-glXSwapBuffers
+-glXUseXFont
+-glXWaitGL
+-glXWaitX
+-
+-MesaGLInteropGLXExportObject
+-MesaGLInteropGLXFlushObjects
+-MesaGLInteropGLXQueryDeviceInfo
+diff --git a/src/glx/meson.build b/src/glx/meson.build
+index 7c42053401f..1fe8ac45321 100644
+--- a/src/glx/meson.build
++++ b/src/glx/meson.build
+@@ -50,6 +50,7 @@ files_libglx = files(
+   'render2.c',
+   'renderpix.c',
+   'single2.c',
++  'singlepix.c',
+   'vertarr.c',
+   'xfont.c',
+ )
+@@ -136,7 +137,8 @@ libgl_link = with_glvnd ? [] : [libglapi_bridge]
+ libgl = shared_library(
+   gl_lib_name,
+   [],
+-  link_whole : [libglx, libgl_link],
++  link_with : libgl_link,
++  link_whole : libglx,
+   link_args : [ld_args_bsymbolic, ld_args_gc_sections, extra_ld_args_libgl],
+   dependencies : [
+     dep_libdrm, dep_dl, dep_m, dep_thread, dep_x11, dep_xcb_glx, dep_xcb,
+@@ -147,18 +149,3 @@ libgl = shared_library(
+   darwin_versions : '4.0.0',
+   install : true,
+ )
+-
+-if with_symbols_check
+-  libgl_symbols_file = with_glvnd ? 'glvnd-symbols.txt' : 'libgl-symbols.txt'
+-
+-  test(
+-    'libGL-ABI-check',
+-    symbols_check,
+-    args : [
+-      '--lib', libgl,
+-      '--symbols-file', files(libgl_symbols_file),
+-      symbols_check_args,
+-    ],
+-    suite : ['glx'],
+-  )
+-endif
+diff --git a/src/glx/renderpix.c b/src/glx/renderpix.c
+index e9bf197c3aa..66f5f8a9c63 100644
+--- a/src/glx/renderpix.c
++++ b/src/glx/renderpix.c
+@@ -87,3 +87,88 @@ __glXSendLargeImage(struct glx_context * gc, GLint compsize, GLint dim,
+     /* Free buffer */
+     free((char *) buf);
+ }
++
++/************************************************************************/
++
++/**
++ * Implement GLX protocol for \c glSeparableFilter2D.
++ */
++void
++__indirect_glSeparableFilter2D(GLenum target, GLenum internalformat,
++                               GLsizei width, GLsizei height, GLenum format,
++                               GLenum type, const GLvoid * row,
++                               const GLvoid * column)
++{
++   __GLX_DECLARE_VARIABLES();
++   GLuint compsize2, hdrlen, totalhdrlen, image1len, image2len;
++
++   __GLX_LOAD_VARIABLES();
++   compsize = __glImageSize(width, 1, 1, format, type, 0);
++   compsize2 = __glImageSize(height, 1, 1, format, type, 0);
++   totalhdrlen = __GLX_PAD(__GLX_CONV_FILT_CMD_HDR_SIZE);
++   hdrlen = __GLX_PAD(__GLX_CONV_FILT_HDR_SIZE);
++   image1len = __GLX_PAD(compsize);
++   image2len = __GLX_PAD(compsize2);
++   cmdlen = totalhdrlen + image1len + image2len;
++   if (!gc->currentDpy)
++      return;
++
++   if (cmdlen <= gc->maxSmallRenderCommandSize) {
++      /* Use GLXRender protocol to send small command */
++      __GLX_BEGIN_VARIABLE_WITH_PIXEL(X_GLrop_SeparableFilter2D, cmdlen);
++      __GLX_PUT_LONG(0, target);
++      __GLX_PUT_LONG(4, internalformat);
++      __GLX_PUT_LONG(8, width);
++      __GLX_PUT_LONG(12, height);
++      __GLX_PUT_LONG(16, format);
++      __GLX_PUT_LONG(20, type);
++      pc += hdrlen;
++      if (compsize > 0) {
++         __glFillImage(gc, 1, width, 1, 1, format, type, row, pc,
++                       pixelHeaderPC);
++         pc += image1len;
++      }
++      if (compsize2 > 0) {
++         __glFillImage(gc, 1, height, 1, 1, format, type, column, pc, NULL);
++         pc += image2len;
++      }
++      if ((compsize == 0) && (compsize2 == 0)) {
++         /* Setup default store modes */
++         (void) memcpy(pixelHeaderPC, __glXDefaultPixelStore + 4, 20);
++      }
++      __GLX_END(0);
++   }
++   else {
++      GLubyte *buf;
++      const GLint bufsize = image1len + image2len;
++
++      /* Use GLXRenderLarge protocol to send command */
++      __GLX_BEGIN_VARIABLE_LARGE_WITH_PIXEL(X_GLrop_SeparableFilter2D,
++                                            cmdlen + 4);
++      __GLX_PUT_LONG(0, target);
++      __GLX_PUT_LONG(4, internalformat);
++      __GLX_PUT_LONG(8, width);
++      __GLX_PUT_LONG(12, height);
++      __GLX_PUT_LONG(16, format);
++      __GLX_PUT_LONG(20, type);
++      pc += hdrlen;
++
++      /* Allocate a temporary holding buffer */
++      buf = malloc(bufsize);
++      if (!buf) {
++         __glXSetError(gc, GL_OUT_OF_MEMORY);
++         return;
++      }
++      __glFillImage(gc, 1, width, 1, 1, format, type, row, buf,
++                    pixelHeaderPC);
++
++      __glFillImage(gc, 1, height, 1, 1, format, type, column,
++                    buf + image1len, pixelHeaderPC);
++
++      /* Send large command */
++      __glXSendLargeCommand(gc, gc->pc, (GLint) (pc - gc->pc), buf,
++                            bufsize);
++      /* Free buffer */
++      free((char *) buf);
++   }
++}
+diff --git a/src/glx/single2.c b/src/glx/single2.c
+index 5d1b119196a..69cd3d159a0 100644
+--- a/src/glx/single2.c
++++ b/src/glx/single2.c
+@@ -16,7 +16,7 @@
+ #include <xcb/xcb.h>
+ #include <xcb/glx.h>
+ #include <X11/Xlib-xcb.h>
+-#include "dispatch.h"
++#include "mesa/main/dispatch.h"
+ 
+ #if !defined(__GNUC__)
+ #  define __builtin_expect(x, y) x
+@@ -841,3 +841,47 @@ __indirect_glAreTexturesResident(GLsizei n, const GLuint * textures,
+    }
+    return retval;
+ }
++
++
++/**
++ * This was previously auto-generated, but we need to special-case
++ * how we handle writing into the 'residences' buffer when n%4!=0.
++ */
++#define X_GLvop_AreTexturesResidentEXT 11
++GLboolean
++glAreTexturesResidentEXT(GLsizei n, const GLuint * textures,
++                         GLboolean * residences)
++{
++   struct glx_context *const gc = __glXGetCurrentContext();
++
++   if (gc->isDirect) {
++      return CALL_AreTexturesResident(GET_DISPATCH(), (n, textures, residences));
++   }
++   else {
++      struct glx_context *const gc = __glXGetCurrentContext();
++      Display *const dpy = gc->currentDpy;
++      GLboolean retval = (GLboolean) 0;
++      const GLuint cmdlen = 4 + __GLX_PAD((n * 4));
++      if (__builtin_expect((n >= 0) && (dpy != NULL), 1)) {
++         GLubyte const *pc =
++            __glXSetupVendorRequest(gc, X_GLXVendorPrivateWithReply,
++                                    X_GLvop_AreTexturesResidentEXT,
++                                    cmdlen);
++         (void) memcpy((void *) (pc + 0), (void *) (&n), 4);
++         (void) memcpy((void *) (pc + 4), (void *) (textures), (n * 4));
++         if (n & 3) {
++            /* see comments in __indirect_glAreTexturesResident() */
++            GLboolean *res4 = malloc((n + 3) & ~3);
++            retval = (GLboolean) __glXReadReply(dpy, 1, res4, GL_TRUE);
++            memcpy(residences, res4, n);
++            free(res4);
++         }
++         else {
++            retval = (GLboolean) __glXReadReply(dpy, 1, residences, GL_TRUE);
++         }
++         UnlockDisplay(dpy);
++         SyncHandle();
++      }
++      return retval;
++   }
++}
+diff --git a/src/glx/singlepix.c b/src/glx/singlepix.c
+new file mode 100644
+index 00000000000..f4880293226
+--- /dev/null
++++ b/src/glx/singlepix.c
+@@ -0,0 +1,83 @@
++/*
++ * SGI FREE SOFTWARE LICENSE B (Version 2.0, Sept. 18, 2008)
++ * Copyright (C) 1991-2000 Silicon Graphics, Inc. All Rights Reserved.
++ *
++ * SPDX-License-Identifier: SGI-B-2.0
++ */
++
++#include "packsingle.h"
++#include "indirect.h"
++#include "glapi.h"
++#include <GL/glxproto.h>
++
++void
++__indirect_glGetSeparableFilter(GLenum target, GLenum format, GLenum type,
++                                GLvoid * row, GLvoid * column, GLvoid * span)
++{
++   __GLX_SINGLE_DECLARE_VARIABLES();
++   const __GLXattribute *state;
++   xGLXGetSeparableFilterReply reply;
++   GLubyte *rowBuf, *colBuf;
++
++   if (!dpy)
++      return;
++   __GLX_SINGLE_LOAD_VARIABLES();
++   state = gc->client_state_private;
++
++   /* Send request */
++   __GLX_SINGLE_BEGIN(X_GLsop_GetSeparableFilter, __GLX_PAD(13));
++   __GLX_SINGLE_PUT_LONG(0, target);
++   __GLX_SINGLE_PUT_LONG(4, format);
++   __GLX_SINGLE_PUT_LONG(8, type);
++   __GLX_SINGLE_PUT_CHAR(12, state->storePack.swapEndian);
++   __GLX_SINGLE_READ_XREPLY();
++   compsize = reply.length << 2;
++
++   if (compsize != 0) {
++      GLint width, height;
++      GLint widthsize, heightsize;
++
++      width = reply.width;
++      height = reply.height;
++
++      widthsize = __glImageSize(width, 1, 1, format, type, 0);
++      heightsize = __glImageSize(height, 1, 1, format, type, 0);
++
++      /* Allocate a holding buffer to transform the data from */
++      rowBuf = malloc(widthsize);
++      if (!rowBuf) {
++         /* Throw data away */
++         _XEatData(dpy, compsize);
++         __glXSetError(gc, GL_OUT_OF_MEMORY);
++         UnlockDisplay(dpy);
++         SyncHandle();
++         return;
++      }
++      else {
++         __GLX_SINGLE_GET_CHAR_ARRAY(((char *) rowBuf), widthsize);
++         __glEmptyImage(gc, 1, width, 1, 1, format, type, rowBuf, row);
++         free((char *) rowBuf);
++      }
++      colBuf = malloc(heightsize);
++      if (!colBuf) {
++         /* Throw data away */
++         _XEatData(dpy, compsize - __GLX_PAD(widthsize));
++         __glXSetError(gc, GL_OUT_OF_MEMORY);
++         UnlockDisplay(dpy);
++         SyncHandle();
++         return;
++      }
++      else {
++         __GLX_SINGLE_GET_CHAR_ARRAY(((char *) colBuf), heightsize);
++         __glEmptyImage(gc, 1, height, 1, 1, format, type, colBuf, column);
++         free((char *) colBuf);
++      }
++   }
++   else {
++      /*
++       ** don't modify user's buffer.
++       */
++   }
++   __GLX_SINGLE_END();
++
++}
+diff --git a/src/glx/xfont.c b/src/glx/xfont.c
+index d503d409db7..f1ca7bba032 100644
+--- a/src/glx/xfont.c
++++ b/src/glx/xfont.c
+@@ -37,7 +37,7 @@
+ 
+ #include "glxclient.h"
+ #include "mapi/glapi/glapi.h"
+-#include "dispatch.h"
++#include "mesa/main/dispatch.h"
+ 
+ /* Implementation.  */
+ 
+diff --git a/src/mapi/entry.c b/src/mapi/entry.c
+new file mode 100644
+index 00000000000..d81c67dcb15
+--- /dev/null
++++ b/src/mapi/entry.c
+@@ -0,0 +1,74 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#include <stdlib.h>
++#include <stdint.h>
++
++#include "entry.h"
++#include "glapi/glapi.h"
++#include "util/u_endian.h"
++#include "util/u_thread.h"
++
++#define _U_STRINGIFY(x) #x
++#define U_STRINGIFY(x) _U_STRINGIFY(x)
++
++/* REALLY_INITIAL_EXEC implies __GLIBC__ */
++#if defined(USE_X86_ASM) && defined(REALLY_INITIAL_EXEC)
++#include "entry_x86_tls.h"
++#elif defined(USE_X86_64_ASM) && defined(REALLY_INITIAL_EXEC)
++#include "entry_x86-64_tls.h"
++#elif defined(USE_PPC64LE_ASM) && UTIL_ARCH_LITTLE_ENDIAN && defined(REALLY_INITIAL_EXEC)
++#include "entry_ppc64le_tls.h"
++#else
++
++/* C version of the public entries */
++#define MAPI_TMP_DEFINES
++#define MAPI_TMP_PUBLIC_DECLARES
++#define MAPI_TMP_PUBLIC_ENTRIES
++#include "mapi_tmp.h"
++
++#ifndef MAPI_MODE_BRIDGE
++
++void
++entry_patch_public(void)
++{
++}
++
++mapi_func
++entry_get_public(int slot)
++{
++   /* pubic_entries are defined by MAPI_TMP_PUBLIC_ENTRIES */
++   return public_entries[slot];
++}
++
++#endif /* MAPI_MODE_BRIDGE */
++
++#if defined(_WIN32) && defined(_WINDOWS_)
++#error "Should not include <windows.h> here"
++#endif
++
++#endif /* asm */
+diff --git a/src/mapi/entry.h b/src/mapi/entry.h
+new file mode 100644
+index 00000000000..2d2c4137a94
+--- /dev/null
++++ b/src/mapi/entry.h
+@@ -0,0 +1,40 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#ifndef _ENTRY_H_
++#define _ENTRY_H_
++
++
++typedef void (*mapi_func)(void);
++
++void
++entry_patch_public(void);
++
++mapi_func
++entry_get_public(int slot);
++
++#endif /* _ENTRY_H_ */
+diff --git a/src/mapi/entry_ppc64le_tls.h b/src/mapi/entry_ppc64le_tls.h
+index 7b299785a86..f1fbae509f5 100644
+--- a/src/mapi/entry_ppc64le_tls.h
++++ b/src/mapi/entry_ppc64le_tls.h
+@@ -31,9 +31,6 @@
+ #define HIDDEN
+ #endif
+ 
+-#define _U_STRINGIFY(x) #x
+-#define U_STRINGIFY(x) _U_STRINGIFY(x)
+-
+ // NOTE: These must be powers of two:
+ #define PPC64LE_ENTRY_SIZE 64
+ #define PPC64LE_PAGE_ALIGN 65536
+@@ -65,3 +62,26 @@ __asm__(".text\n"
+    "  ld     12, " slot "*8(11)\n\t"                            \
+    "  mtctr  12\n\t"                                            \
+    "  bctr\n"                                                   \
++
++#define MAPI_TMP_STUB_ASM_GCC
++#include "mapi_tmp.h"
++
++#ifndef MAPI_MODE_BRIDGE
++
++#include <string.h>
++
++void
++entry_patch_public(void)
++{
++}
++
++extern char
++ppc64le_entry_start[] HIDDEN;
++
++mapi_func
++entry_get_public(int slot)
++{
++   return (mapi_func) (ppc64le_entry_start + slot * PPC64LE_ENTRY_SIZE);
++}
++
++#endif /* MAPI_MODE_BRIDGE */
+diff --git a/src/mapi/entry_x86-64_tls.h b/src/mapi/entry_x86-64_tls.h
+index 83542035f0f..fae16e605b9 100644
+--- a/src/mapi/entry_x86-64_tls.h
++++ b/src/mapi/entry_x86-64_tls.h
+@@ -65,3 +65,27 @@ __asm__(".text\n"
+    "jmp *%r11"
+ 
+ #endif
++
++#define MAPI_TMP_STUB_ASM_GCC
++#include "mapi_tmp.h"
++
++#ifndef MAPI_MODE_BRIDGE
++
++#include <string.h>
++
++void
++entry_patch_public(void)
++{
++}
++
++extern char
++x86_64_entry_start[] HIDDEN;
++
++mapi_func
++entry_get_public(int slot)
++{
++   return (mapi_func) (x86_64_entry_start + slot * 32);
++}
++
++
++#endif /* MAPI_MODE_BRIDGE */
+diff --git a/src/mapi/entry_x86_tls.h b/src/mapi/entry_x86_tls.h
+index ac8b4ce9d47..34aa95558b7 100644
+--- a/src/mapi/entry_x86_tls.h
++++ b/src/mapi/entry_x86_tls.h
+@@ -74,8 +74,71 @@ __asm__(".balign 16\n"
+    "movl %gs:(%eax), %eax\n\t"                              \
+    "jmp *(4 * " slot ")(%eax)"
+ 
++#define MAPI_TMP_STUB_ASM_GCC
++#include "mapi_tmp.h"
++
+ #ifndef GLX_X86_READONLY_TEXT
+ __asm__(".balign 16\n"
+         "x86_entry_end:");
+ __asm__(".text");
+ #endif /* GLX_X86_READONLY_TEXT */
++
++#ifndef MAPI_MODE_BRIDGE
++
++extern unsigned long
++x86_current_tls();
++
++extern char x86_entry_start[] HIDDEN;
++extern char x86_entry_end[] HIDDEN;
++
++static inline mapi_func
++entry_generate_or_patch(int, char *, size_t);
++
++void
++entry_patch_public(void)
++{
++#ifndef GLX_X86_READONLY_TEXT
++   char *entry;
++   int slot = 0;
++   for (entry = x86_entry_start; entry < x86_entry_end;
++        entry += X86_ENTRY_SIZE, ++slot)
++      entry_generate_or_patch(slot, entry, X86_ENTRY_SIZE);
++#endif
++}
++
++mapi_func
++entry_get_public(int slot)
++{
++   return (mapi_func) (x86_entry_start + slot * X86_ENTRY_SIZE);
++}
++
++static void
++entry_patch(mapi_func entry, int slot)
++{
++   char *code = (char *) entry;
++   *((unsigned long *) (code + 8)) = slot * sizeof(mapi_func);
++}
++
++static inline mapi_func
++entry_generate_or_patch(int slot, char *code, size_t size)
++{
++   const char code_templ[16] = {
++      0x65, 0xa1, 0x00, 0x00, 0x00, 0x00, /* movl %gs:0x0, %eax */
++      0xff, 0xa0, 0x34, 0x12, 0x00, 0x00, /* jmp *0x1234(%eax) */
++      0x90, 0x90, 0x90, 0x90              /* nop's */
++   };
++   mapi_func entry;
++
++   if (size < sizeof(code_templ))
++      return NULL;
++
++   memcpy(code, code_templ, sizeof(code_templ));
++
++   *((unsigned long *) (code + 2)) = x86_current_tls();
++   entry = (mapi_func) code;
++   entry_patch(entry, slot);
++
++   return entry;
++}
++
++#endif /* MAPI_MODE_BRIDGE */
+diff --git a/src/mapi/es1api/libgles1_public.c b/src/mapi/es1api/libgles1_public.c
+index 3f491b3a1b5..ab543bfcacc 100644
+--- a/src/mapi/es1api/libgles1_public.c
++++ b/src/mapi/es1api/libgles1_public.c
+@@ -5,28 +5,41 @@
+  *    Chia-I Wu <olv@lunarg.com>
+  */
+ 
++#include <stdlib.h>
++#include <stdint.h>
++
++#include "entry.h"
+ #include "glapi/glapi.h"
++#include "util/u_endian.h"
++#include "util/u_thread.h"
+ 
+ /* REALLY_INITIAL_EXEC implies __GLIBC__ */
+ #if defined(USE_X86_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #elif defined(USE_X86_64_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86-64_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #elif defined(USE_PPC64LE_ASM) && UTIL_ARCH_LITTLE_ENDIAN && defined(REALLY_INITIAL_EXEC)
+ #include "entry_ppc64le_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #else
+ 
+ /* C version of the public entries */
+ #define MAPI_TMP_DEFINES
+-#define MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN
++#define MAPI_TMP_PUBLIC_ENTRIES
++#include "mapi_tmp.h"
++
++#ifndef MAPI_MODE_BRIDGE
++
++mapi_func
++entry_get_public(int slot)
++{
++   /* pubic_entries are defined by MAPI_TMP_PUBLIC_ENTRIES */
++   return public_entries[slot];
++}
++
++#endif /* MAPI_MODE_BRIDGE */
+ 
+ #if defined(_WIN32) && defined(_WINDOWS_)
+ #error "Should not include <windows.h> here"
+ #endif
+ 
+ #endif /* asm */
+-
+-#include "es1_glapi_mapi_tmp.h"
+diff --git a/src/mapi/es1api/meson.build b/src/mapi/es1api/meson.build
+index 67576452d1e..008c293223c 100644
+--- a/src/mapi/es1api/meson.build
++++ b/src/mapi/es1api/meson.build
+@@ -4,7 +4,7 @@
+ es1_glapi_mapi_tmp_h = custom_target(
+   'es1_glapi_mapi_tmp.h',
+   input : ['../new/gen_gldispatch_mapi.py', '../glapi/registry/gl.xml'],
+-  output : 'es1_glapi_mapi_tmp.h',
++  output : 'glapi_mapi_tmp.h',
+   command : [prog_python, '@INPUT0@', 'glesv1', '@INPUT1@'],
+   depend_files : glapi_xml_py_deps,
+   capture : true,
+@@ -24,11 +24,13 @@ gles1_def = custom_target(
+ 
+ libglesv1_cm = shared_library(
+   'GLESv1_CM' + get_option('gles-lib-suffix'),
+-  ['libgles1_public.c', es1_glapi_mapi_tmp_h],
++  ['../entry.c', es1_glapi_mapi_tmp_h],
+   vs_module_defs : gles1_def,
+   c_args : [
+     c_msvc_compat_args,
+     _es1_c_args,
++    '-DMAPI_MODE_BRIDGE',
++    '-DMAPI_ABI_HEADER="@0@"'.format(es1_glapi_mapi_tmp_h.full_path()),
+     gcc_lto_quirk,
+   ],
+   gnu_symbol_visibility : 'hidden',
+diff --git a/src/mapi/es2api/libgles2_public.c b/src/mapi/es2api/libgles2_public.c
+index 1c0d08499c1..ab543bfcacc 100644
+--- a/src/mapi/es2api/libgles2_public.c
++++ b/src/mapi/es2api/libgles2_public.c
+@@ -5,27 +5,41 @@
+  *    Chia-I Wu <olv@lunarg.com>
+  */
+ 
++#include <stdlib.h>
++#include <stdint.h>
++
++#include "entry.h"
+ #include "glapi/glapi.h"
++#include "util/u_endian.h"
++#include "util/u_thread.h"
+ 
+ /* REALLY_INITIAL_EXEC implies __GLIBC__ */
+ #if defined(USE_X86_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #elif defined(USE_X86_64_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86-64_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #elif defined(USE_PPC64LE_ASM) && UTIL_ARCH_LITTLE_ENDIAN && defined(REALLY_INITIAL_EXEC)
+ #include "entry_ppc64le_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #else
++
+ /* C version of the public entries */
+ #define MAPI_TMP_DEFINES
+-#define MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN
++#define MAPI_TMP_PUBLIC_ENTRIES
++#include "mapi_tmp.h"
++
++#ifndef MAPI_MODE_BRIDGE
++
++mapi_func
++entry_get_public(int slot)
++{
++   /* pubic_entries are defined by MAPI_TMP_PUBLIC_ENTRIES */
++   return public_entries[slot];
++}
++
++#endif /* MAPI_MODE_BRIDGE */
+ 
+ #if defined(_WIN32) && defined(_WINDOWS_)
+ #error "Should not include <windows.h> here"
+ #endif
+ 
+ #endif /* asm */
+-
+-#include "es2_glapi_mapi_tmp.h"
+diff --git a/src/mapi/es2api/meson.build b/src/mapi/es2api/meson.build
+index 8202e039961..737ae4cf044 100644
+--- a/src/mapi/es2api/meson.build
++++ b/src/mapi/es2api/meson.build
+@@ -4,7 +4,7 @@
+ es2_glapi_mapi_tmp_h = custom_target(
+   'es2_glapi_mapi_tmp.h',
+   input : ['../new/gen_gldispatch_mapi.py', '../glapi/registry/gl.xml'],
+-  output : 'es2_glapi_mapi_tmp.h',
++  output : 'glapi_mapi_tmp.h',
+   command : [prog_python, '@INPUT0@', 'glesv2', '@INPUT1@'],
+   depend_files : glapi_xml_py_deps,
+   capture : true,
+@@ -24,11 +24,13 @@ gles2_def = custom_target(
+ 
+ libgles2 = shared_library(
+   'GLESv2' + get_option('gles-lib-suffix'),
+-  ['libgles2_public.c', es2_glapi_mapi_tmp_h],
++  ['../entry.c', es2_glapi_mapi_tmp_h],
+   vs_module_defs : gles2_def,
+   c_args : [
+     c_msvc_compat_args,
+     _es2_c_args,
++    '-DMAPI_MODE_BRIDGE',
++    '-DMAPI_ABI_HEADER="@0@"'.format(es2_glapi_mapi_tmp_h.full_path()),
+     gcc_lto_quirk,
+   ],
+   gnu_symbol_visibility : 'hidden',
+diff --git a/src/mapi/glapi/gen/api_exec_init.py b/src/mapi/glapi/gen/api_exec_init.py
+index 3372cf37eb0..a5e9698443a 100644
+--- a/src/mapi/glapi/gen/api_exec_init.py
++++ b/src/mapi/glapi/gen/api_exec_init.py
+@@ -49,7 +49,7 @@ header = r"""/**
+ #include "api_exec_decl.h"
+ #include "glapi/glapi.h"
+ #include "main/context.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ 
+ 
+ /**
+diff --git a/src/mapi/glapi/gen/glX_XML.py b/src/mapi/glapi/gen/glX_XML.py
+index 53ef3e42582..744b0a560ed 100644
+--- a/src/mapi/glapi/gen/glX_XML.py
++++ b/src/mapi/glapi/gen/glX_XML.py
+@@ -469,9 +469,7 @@ class glx_function(gl_XML.gl_function):
+         """Returns true if the function is supported on the client
+         side for indirect rendering."""
+ 
+-        return (not self.ignore and self.exec_flavor != 'skip' and (self.offset != -1) and
+-                (self.glx_rop or self.glx_sop or self.glx_vendorpriv or self.vectorequiv or
+-                 self.client_handcode))
++        return not self.ignore and (self.offset != -1) and (self.glx_rop or self.glx_sop or self.glx_vendorpriv or self.vectorequiv or self.client_handcode)
+ 
+ 
+ class glx_function_iterator(object):
+diff --git a/src/mapi/glapi/gen/gl_API.xml b/src/mapi/glapi/gen/gl_API.xml
+index d75d6399215..c838b32ad46 100644
+--- a/src/mapi/glapi/gen/gl_API.xml
++++ b/src/mapi/glapi/gen/gl_API.xml
+@@ -8591,6 +8591,7 @@
+         <param name="textures" type="const GLuint *" count="n"/>
+         <param name="residences" type="GLboolean *" output="true" count="n"/>
+         <return type="GLboolean"/>
++        <glx vendorpriv="11" handcode="client" always_array="true"/>
+     </function>
+ 
+     <function name="BindTextureEXT" alias="BindTexture">
+@@ -8601,16 +8602,19 @@
+     <function name="DeleteTexturesEXT" alias="DeleteTextures">
+         <param name="n" type="GLsizei" counter="true"/>
+         <param name="textures" type="const GLuint *" count="n"/>
++        <glx vendorpriv="12"/>
+     </function>
+ 
+     <function name="GenTexturesEXT" alias="GenTextures">
+         <param name="n" type="GLsizei" counter="true"/>
+         <param name="textures" type="GLuint *" output="true" count="n"/>
++        <glx vendorpriv="13" always_array="true"/>
+     </function>
+ 
+     <function name="IsTextureEXT" alias="IsTexture">
+         <param name="texture" type="GLuint"/>
+         <return type="GLboolean"/>
++        <glx vendorpriv="14"/>
+     </function>
+ 
+     <function name="PrioritizeTexturesEXT" alias="PrioritizeTextures">
+diff --git a/src/mapi/glapi/gen/meson.build b/src/mapi/glapi/gen/meson.build
+index d605bd70fad..74e9ed3f79b 100644
+--- a/src/mapi/glapi/gen/meson.build
++++ b/src/mapi/glapi/gen/meson.build
+@@ -81,26 +81,6 @@ main_api_hw_select_init_h = custom_target(
+   capture : true,
+ )
+ 
+-main_dispatch_h = custom_target(
+-  'dispatch.h',
+-  input : ['gl_table.py', 'gl_and_es_API.xml'],
+-  output : 'dispatch.h',
+-  command : [prog_python, '@INPUT0@', '-f', '@INPUT1@', '-m', 'dispatch'],
+-  depend_files : glapi_xml_py_deps,
+-  capture : true,
+-)
+-
+-idep_dispatch_h = declare_dependency(sources : [main_dispatch_h])
+-
+-main_marshal_generated_h = custom_target(
+-  'marshal_generated.h',
+-  input : ['marshal_generated_h.py', 'gl_and_es_API.xml'],
+-  output : 'marshal_generated.h',
+-  command : [prog_python, '@INPUT0@', '@INPUT1@', sizeof_pointer],
+-  depend_files : glapi_xml_py_deps,
+-  capture : true,
+-)
+-
+ main_unmarshal_table_c = custom_target(
+   'unmarshal_table.c',
+   input : ['unmarshal_table_c.py', 'gl_and_es_API.xml'],
+diff --git a/src/mapi/glapi/gen/static_data.py b/src/mapi/glapi/gen/static_data.py
+index 61ec114ce0a..8318c12cbfb 100644
+--- a/src/mapi/glapi/gen/static_data.py
++++ b/src/mapi/glapi/gen/static_data.py
+@@ -20,9 +20,6 @@
+ # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ # IN THE SOFTWARE.
+ 
+-import os
+-import sys
+-
+ # The list functions present in the dispatch table.
+ all_functions = [
+     "NewList",
+@@ -1682,9 +1679,1308 @@ for name in all_functions:
+ function_count = i
+ 
+ # Exported from libGL.so
+-libgl_public_functions = set()
+-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+-                       '..', '..', '..', 'glx', 'libgl-symbols.txt'), 'r') as f:
+-    for line in f:
+-        if len(line) > 3 and line[0:2] == 'gl' and line[2] != 'X':
+-            libgl_public_functions.add(line[2:].rstrip())
++libgl_public_functions = {
++    "Accum",
++    "ActiveShaderProgram",
++    "ActiveTexture",
++    "ActiveTextureARB",
++    "AlphaFunc",
++    "AlphaFuncx",
++    "AreTexturesResident",
++    "AreTexturesResidentEXT",
++    "ArrayElement",
++    "ArrayElementEXT",
++    "AttachObjectARB",
++    "AttachShader",
++    "Begin",
++    "BeginConditionalRender",
++    "BeginConditionalRenderNV",
++    "BeginQuery",
++    "BeginQueryARB",
++    "BeginQueryIndexed",
++    "BeginTransformFeedback",
++    "BindAttribLocation",
++    "BindAttribLocationARB",
++    "BindBuffer",
++    "BindBufferARB",
++    "BindBufferBase",
++    "BindBufferRange",
++    "BindBuffersBase",
++    "BindBuffersRange",
++    "BindFragDataLocation",
++    "BindFragDataLocationEXT",
++    "BindFragDataLocationIndexed",
++    "BindFramebuffer",
++    "BindFramebufferEXT",
++    "BindImageTexture",
++    "BindImageTextures",
++    "BindProgramARB",
++    "BindProgramPipeline",
++    "BindRenderbuffer",
++    "BindRenderbufferEXT",
++    "BindSampler",
++    "BindSamplers",
++    "BindTexture",
++    "BindTextureEXT",
++    "BindTextures",
++    "BindTransformFeedback",
++    "BindVertexArray",
++    "BindVertexBuffer",
++    "BindVertexBuffers",
++    "Bitmap",
++    "BlendBarrier",
++    "BlendColor",
++    "BlendColorEXT",
++    "BlendEquation",
++    "BlendEquationEXT",
++    "BlendEquationi",
++    "BlendEquationiARB",
++    "BlendEquationSeparate",
++    "BlendEquationSeparatei",
++    "BlendEquationSeparateiARB",
++    "BlendFunc",
++    "BlendFunci",
++    "BlendFunciARB",
++    "BlendFuncSeparate",
++    "BlendFuncSeparateEXT",
++    "BlendFuncSeparatei",
++    "BlendFuncSeparateiARB",
++    "BlitFramebuffer",
++    "BufferData",
++    "BufferDataARB",
++    "BufferStorage",
++    "BufferSubData",
++    "BufferSubDataARB",
++    "CallList",
++    "CallLists",
++    "CheckFramebufferStatus",
++    "CheckFramebufferStatusEXT",
++    "ClampColor",
++    "ClampColorARB",
++    "Clear",
++    "ClearAccum",
++    "ClearBufferData",
++    "ClearBufferfi",
++    "ClearBufferfv",
++    "ClearBufferiv",
++    "ClearBufferSubData",
++    "ClearBufferuiv",
++    "ClearColor",
++    "ClearColorIiEXT",
++    "ClearColorIuiEXT",
++    "ClearColorx",
++    "ClearDepth",
++    "ClearDepthf",
++    "ClearDepthx",
++    "ClearIndex",
++    "ClearStencil",
++    "ClearTexImage",
++    "ClearTexSubImage",
++    "ClientActiveTexture",
++    "ClientActiveTextureARB",
++    "ClientWaitSync",
++    "ClipPlane",
++    "ClipPlanef",
++    "ClipPlanex",
++    "Color3b",
++    "Color3bv",
++    "Color3d",
++    "Color3dv",
++    "Color3f",
++    "Color3fv",
++    "Color3i",
++    "Color3iv",
++    "Color3s",
++    "Color3sv",
++    "Color3ub",
++    "Color3ubv",
++    "Color3ui",
++    "Color3uiv",
++    "Color3us",
++    "Color3usv",
++    "Color4b",
++    "Color4bv",
++    "Color4d",
++    "Color4dv",
++    "Color4f",
++    "Color4fv",
++    "Color4i",
++    "Color4iv",
++    "Color4s",
++    "Color4sv",
++    "Color4ub",
++    "Color4ubv",
++    "Color4ui",
++    "Color4uiv",
++    "Color4us",
++    "Color4usv",
++    "Color4x",
++    "ColorMask",
++    "ColorMaski",
++    "ColorMaskIndexedEXT",
++    "ColorMaterial",
++    "ColorP3ui",
++    "ColorP3uiv",
++    "ColorP4ui",
++    "ColorP4uiv",
++    "ColorPointer",
++    "ColorPointerEXT",
++    "ColorSubTable",
++    "ColorTable",
++    "ColorTableParameterfv",
++    "ColorTableParameteriv",
++    "CompileShader",
++    "CompileShaderARB",
++    "CompressedTexImage1D",
++    "CompressedTexImage1DARB",
++    "CompressedTexImage2D",
++    "CompressedTexImage2DARB",
++    "CompressedTexImage3D",
++    "CompressedTexImage3DARB",
++    "CompressedTexSubImage1D",
++    "CompressedTexSubImage1DARB",
++    "CompressedTexSubImage2D",
++    "CompressedTexSubImage2DARB",
++    "CompressedTexSubImage3D",
++    "CompressedTexSubImage3DARB",
++    "ConvolutionFilter1D",
++    "ConvolutionFilter2D",
++    "ConvolutionParameterf",
++    "ConvolutionParameterfv",
++    "ConvolutionParameteri",
++    "ConvolutionParameteriv",
++    "CopyBufferSubData",
++    "CopyColorSubTable",
++    "CopyColorTable",
++    "CopyConvolutionFilter1D",
++    "CopyConvolutionFilter2D",
++    "CopyImageSubData",
++    "CopyPixels",
++    "CopyTexImage1D",
++    "CopyTexImage2D",
++    "CopyTexSubImage1D",
++    "CopyTexSubImage2D",
++    "CopyTexSubImage3D",
++    "CopyTexSubImage3DEXT",
++    "CreateProgram",
++    "CreateProgramObjectARB",
++    "CreateShader",
++    "CreateShaderObjectARB",
++    "CreateShaderProgramv",
++    "CullFace",
++    "DebugMessageCallback",
++    "DebugMessageCallbackARB",
++    "DebugMessageControl",
++    "DebugMessageControlARB",
++    "DebugMessageInsert",
++    "DebugMessageInsertARB",
++    "DeleteBuffers",
++    "DeleteBuffersARB",
++    "DeleteFramebuffers",
++    "DeleteFramebuffersEXT",
++    "DeleteLists",
++    "DeleteObjectARB",
++    "DeleteProgram",
++    "DeleteProgramPipelines",
++    "DeleteProgramsARB",
++    "DeleteQueries",
++    "DeleteQueriesARB",
++    "DeleteRenderbuffers",
++    "DeleteRenderbuffersEXT",
++    "DeleteSamplers",
++    "DeleteShader",
++    "DeleteSync",
++    "DeleteTextures",
++    "DeleteTexturesEXT",
++    "DeleteTransformFeedbacks",
++    "DeleteVertexArrays",
++    "DepthFunc",
++    "DepthMask",
++    "DepthRange",
++    "DepthRangeArrayv",
++    "DepthRangef",
++    "DepthRangeIndexed",
++    "DepthRangex",
++    "DetachObjectARB",
++    "DetachShader",
++    "Disable",
++    "DisableClientState",
++    "Disablei",
++    "DisableIndexedEXT",
++    "DisableVertexAttribArray",
++    "DisableVertexAttribArrayARB",
++    "DispatchCompute",
++    "DispatchComputeIndirect",
++    "DrawArrays",
++    "DrawArraysEXT",
++    "DrawArraysIndirect",
++    "DrawArraysInstanced",
++    "DrawArraysInstancedARB",
++    "DrawArraysInstancedBaseInstance",
++    "DrawArraysInstancedEXT",
++    "DrawBuffer",
++    "DrawBuffers",
++    "DrawBuffersARB",
++    "DrawBuffersATI",
++    "DrawElements",
++    "DrawElementsBaseVertex",
++    "DrawElementsIndirect",
++    "DrawElementsInstanced",
++    "DrawElementsInstancedARB",
++    "DrawElementsInstancedBaseInstance",
++    "DrawElementsInstancedBaseVertex",
++    "DrawElementsInstancedBaseVertexBaseInstance",
++    "DrawElementsInstancedEXT",
++    "DrawPixels",
++    "DrawRangeElements",
++    "DrawRangeElementsBaseVertex",
++    "DrawRangeElementsEXT",
++    "DrawTransformFeedback",
++    "DrawTransformFeedbackInstanced",
++    "DrawTransformFeedbackStream",
++    "DrawTransformFeedbackStreamInstanced",
++    "EdgeFlag",
++    "EdgeFlagPointer",
++    "EdgeFlagPointerEXT",
++    "EdgeFlagv",
++    "Enable",
++    "EnableClientState",
++    "Enablei",
++    "EnableIndexedEXT",
++    "EnableVertexAttribArray",
++    "EnableVertexAttribArrayARB",
++    "End",
++    "EndConditionalRender",
++    "EndConditionalRenderNV",
++    "EndList",
++    "EndQuery",
++    "EndQueryARB",
++    "EndQueryIndexed",
++    "EndTransformFeedback",
++    "EvalCoord1d",
++    "EvalCoord1dv",
++    "EvalCoord1f",
++    "EvalCoord1fv",
++    "EvalCoord2d",
++    "EvalCoord2dv",
++    "EvalCoord2f",
++    "EvalCoord2fv",
++    "EvalMesh1",
++    "EvalMesh2",
++    "EvalPoint1",
++    "EvalPoint2",
++    "FeedbackBuffer",
++    "FenceSync",
++    "Finish",
++    "Flush",
++    "FlushMappedBufferRange",
++    "FogCoordd",
++    "FogCoorddEXT",
++    "FogCoorddv",
++    "FogCoorddvEXT",
++    "FogCoordf",
++    "FogCoordfEXT",
++    "FogCoordfv",
++    "FogCoordfvEXT",
++    "FogCoordPointer",
++    "FogCoordPointerEXT",
++    "Fogf",
++    "Fogfv",
++    "Fogi",
++    "Fogiv",
++    "Fogx",
++    "Fogxv",
++    "FramebufferParameteri",
++    "FramebufferRenderbuffer",
++    "FramebufferRenderbufferEXT",
++    "FramebufferTexture",
++    "FramebufferTexture1D",
++    "FramebufferTexture1DEXT",
++    "FramebufferTexture2D",
++    "FramebufferTexture2DEXT",
++    "FramebufferTexture3D",
++    "FramebufferTexture3DEXT",
++    "FramebufferTextureARB",
++    "FramebufferTextureLayer",
++    "FramebufferTextureLayerARB",
++    "FramebufferTextureLayerEXT",
++    "FramebufferTextureMultisampleMultiviewOVR",
++    "FramebufferTextureMultiviewOVR",
++    "FrontFace",
++    "Frustum",
++    "Frustumf",
++    "Frustumx",
++    "GenBuffers",
++    "GenBuffersARB",
++    "GenerateMipmap",
++    "GenerateMipmapEXT",
++    "GenFramebuffers",
++    "GenFramebuffersEXT",
++    "GenLists",
++    "GenProgramPipelines",
++    "GenProgramsARB",
++    "GenQueries",
++    "GenQueriesARB",
++    "GenRenderbuffers",
++    "GenRenderbuffersEXT",
++    "GenSamplers",
++    "GenTextures",
++    "GenTexturesEXT",
++    "GenTransformFeedbacks",
++    "GenVertexArrays",
++    "GetActiveAtomicCounterBufferiv",
++    "GetActiveAttrib",
++    "GetActiveAttribARB",
++    "GetActiveUniform",
++    "GetActiveUniformARB",
++    "GetActiveUniformBlockiv",
++    "GetActiveUniformBlockName",
++    "GetActiveUniformName",
++    "GetActiveUniformsiv",
++    "GetAttachedObjectsARB",
++    "GetAttachedShaders",
++    "GetAttribLocation",
++    "GetAttribLocationARB",
++    "GetBooleani_v",
++    "GetBooleanIndexedvEXT",
++    "GetBooleanv",
++    "GetBufferParameteri64v",
++    "GetBufferParameteriv",
++    "GetBufferParameterivARB",
++    "GetBufferPointerv",
++    "GetBufferPointervARB",
++    "GetBufferSubData",
++    "GetBufferSubDataARB",
++    "GetClipPlane",
++    "GetClipPlanef",
++    "GetClipPlanex",
++    "GetColorTable",
++    "GetColorTableParameterfv",
++    "GetColorTableParameteriv",
++    "GetCompressedTexImage",
++    "GetCompressedTexImageARB",
++    "GetConvolutionFilter",
++    "GetConvolutionParameterfv",
++    "GetConvolutionParameteriv",
++    "GetDebugMessageLog",
++    "GetDebugMessageLogARB",
++    "GetDoublei_v",
++    "GetDoublev",
++    "GetError",
++    "GetFixedv",
++    "GetFloati_v",
++    "GetFloatv",
++    "GetFragDataIndex",
++    "GetFragDataLocation",
++    "GetFragDataLocationEXT",
++    "GetFramebufferAttachmentParameteriv",
++    "GetFramebufferAttachmentParameterivEXT",
++    "GetFramebufferParameteriv",
++    "GetGraphicsResetStatus",
++    "GetGraphicsResetStatusARB",
++    "GetHandleARB",
++    "GetHistogram",
++    "GetHistogramParameterfv",
++    "GetHistogramParameteriv",
++    "GetInfoLogARB",
++    "GetInteger64i_v",
++    "GetInteger64v",
++    "GetIntegeri_v",
++    "GetIntegerIndexedvEXT",
++    "GetIntegerv",
++    "GetLightfv",
++    "GetLightiv",
++    "GetLightxv",
++    "GetMapdv",
++    "GetMapfv",
++    "GetMapiv",
++    "GetMaterialfv",
++    "GetMaterialiv",
++    "GetMaterialxv",
++    "GetMinmax",
++    "GetMinmaxParameterfv",
++    "GetMinmaxParameteriv",
++    "GetMultisamplefv",
++    "GetnColorTableARB",
++    "GetnCompressedTexImageARB",
++    "GetnConvolutionFilterARB",
++    "GetnHistogramARB",
++    "GetnMapdvARB",
++    "GetnMapfvARB",
++    "GetnMapivARB",
++    "GetnMinmaxARB",
++    "GetnPixelMapfvARB",
++    "GetnPixelMapuivARB",
++    "GetnPixelMapusvARB",
++    "GetnPolygonStippleARB",
++    "GetnSeparableFilterARB",
++    "GetnTexImageARB",
++    "GetnUniformdvARB",
++    "GetnUniformfv",
++    "GetnUniformfvARB",
++    "GetnUniformiv",
++    "GetnUniformivARB",
++    "GetnUniformuiv",
++    "GetnUniformuivARB",
++    "GetObjectLabel",
++    "GetObjectLabelEXT",
++    "GetObjectParameterfvARB",
++    "GetObjectParameterivARB",
++    "GetObjectPtrLabel",
++    "GetPixelMapfv",
++    "GetPixelMapuiv",
++    "GetPixelMapusv",
++    "GetPointerv",
++    "GetPointervEXT",
++    "GetPolygonStipple",
++    "GetProgramBinary",
++    "GetProgramEnvParameterdvARB",
++    "GetProgramEnvParameterfvARB",
++    "GetProgramInfoLog",
++    "GetProgramInterfaceiv",
++    "GetProgramiv",
++    "GetProgramivARB",
++    "GetProgramLocalParameterdvARB",
++    "GetProgramLocalParameterfvARB",
++    "GetProgramPipelineInfoLog",
++    "GetProgramPipelineiv",
++    "GetProgramResourceIndex",
++    "GetProgramResourceiv",
++    "GetProgramResourceLocation",
++    "GetProgramResourceName",
++    "GetProgramStringARB",
++    "GetQueryIndexediv",
++    "GetQueryiv",
++    "GetQueryivARB",
++    "GetQueryObjectiv",
++    "GetQueryObjectivARB",
++    "GetQueryObjectuiv",
++    "GetQueryObjectuivARB",
++    "GetRenderbufferParameteriv",
++    "GetRenderbufferParameterivEXT",
++    "GetSamplerParameterfv",
++    "GetSamplerParameterIiv",
++    "GetSamplerParameterIuiv",
++    "GetSamplerParameteriv",
++    "GetSeparableFilter",
++    "GetShaderInfoLog",
++    "GetShaderiv",
++    "GetShaderPrecisionFormat",
++    "GetShaderSource",
++    "GetShaderSourceARB",
++    "GetString",
++    "GetStringi",
++    "GetSynciv",
++    "GetTexEnvfv",
++    "GetTexEnviv",
++    "GetTexEnvxv",
++    "GetTexGendv",
++    "GetTexGenfv",
++    "GetTexGeniv",
++    "GetTexImage",
++    "GetTexLevelParameterfv",
++    "GetTexLevelParameteriv",
++    "GetTexParameterfv",
++    "GetTexParameterIiv",
++    "GetTexParameterIivEXT",
++    "GetTexParameterIuiv",
++    "GetTexParameterIuivEXT",
++    "GetTexParameteriv",
++    "GetTexParameterxv",
++    "GetTransformFeedbackVarying",
++    "GetUniformBlockIndex",
++    "GetUniformfv",
++    "GetUniformfvARB",
++    "GetUniformIndices",
++    "GetUniformiv",
++    "GetUniformivARB",
++    "GetUniformLocation",
++    "GetUniformLocationARB",
++    "GetUniformuiv",
++    "GetUniformuivEXT",
++    "GetVertexAttribdv",
++    "GetVertexAttribdvARB",
++    "GetVertexAttribfv",
++    "GetVertexAttribfvARB",
++    "GetVertexAttribIiv",
++    "GetVertexAttribIivEXT",
++    "GetVertexAttribIuiv",
++    "GetVertexAttribIuivEXT",
++    "GetVertexAttribiv",
++    "GetVertexAttribivARB",
++    "GetVertexAttribPointerv",
++    "GetVertexAttribPointervARB",
++    "Hint",
++    "Histogram",
++    "Indexd",
++    "Indexdv",
++    "Indexf",
++    "Indexfv",
++    "Indexi",
++    "Indexiv",
++    "IndexMask",
++    "IndexPointer",
++    "IndexPointerEXT",
++    "Indexs",
++    "Indexsv",
++    "Indexub",
++    "Indexubv",
++    "InitNames",
++    "InterleavedArrays",
++    "InvalidateBufferData",
++    "InvalidateBufferSubData",
++    "InvalidateFramebuffer",
++    "InvalidateSubFramebuffer",
++    "InvalidateTexImage",
++    "InvalidateTexSubImage",
++    "IsBuffer",
++    "IsBufferARB",
++    "IsEnabled",
++    "IsEnabledi",
++    "IsEnabledIndexedEXT",
++    "IsFramebuffer",
++    "IsFramebufferEXT",
++    "IsList",
++    "IsProgram",
++    "IsProgramARB",
++    "IsProgramPipeline",
++    "IsQuery",
++    "IsQueryARB",
++    "IsRenderbuffer",
++    "IsRenderbufferEXT",
++    "IsSampler",
++    "IsShader",
++    "IsSync",
++    "IsTexture",
++    "IsTextureEXT",
++    "IsTransformFeedback",
++    "IsVertexArray",
++    "LabelObjectEXT",
++    "Lightf",
++    "Lightfv",
++    "Lighti",
++    "Lightiv",
++    "LightModelf",
++    "LightModelfv",
++    "LightModeli",
++    "LightModeliv",
++    "LightModelx",
++    "LightModelxv",
++    "Lightx",
++    "Lightxv",
++    "LineStipple",
++    "LineWidth",
++    "LineWidthx",
++    "LinkProgram",
++    "LinkProgramARB",
++    "ListBase",
++    "LoadIdentity",
++    "LoadMatrixd",
++    "LoadMatrixf",
++    "LoadMatrixx",
++    "LoadName",
++    "LoadTransposeMatrixd",
++    "LoadTransposeMatrixdARB",
++    "LoadTransposeMatrixf",
++    "LoadTransposeMatrixfARB",
++    "LockArraysEXT",
++    "LogicOp",
++    "Map1d",
++    "Map1f",
++    "Map2d",
++    "Map2f",
++    "MapBuffer",
++    "MapBufferARB",
++    "MapBufferRange",
++    "MapGrid1d",
++    "MapGrid1f",
++    "MapGrid2d",
++    "MapGrid2f",
++    "Materialf",
++    "Materialfv",
++    "Materiali",
++    "Materialiv",
++    "Materialx",
++    "Materialxv",
++    "MatrixMode",
++    "MemoryBarrier",
++    "MemoryBarrierByRegion",
++    "Minmax",
++    "MinSampleShading",
++    "MinSampleShadingARB",
++    "MultiDrawArrays",
++    "MultiDrawArraysEXT",
++    "MultiDrawArraysIndirect",
++    "MultiDrawElements",
++    "MultiDrawElementsBaseVertex",
++    "MultiDrawElementsEXT",
++    "MultiDrawElementsIndirect",
++    "MultiTexCoord1d",
++    "MultiTexCoord1dARB",
++    "MultiTexCoord1dv",
++    "MultiTexCoord1dvARB",
++    "MultiTexCoord1f",
++    "MultiTexCoord1fARB",
++    "MultiTexCoord1fv",
++    "MultiTexCoord1fvARB",
++    "MultiTexCoord1i",
++    "MultiTexCoord1iARB",
++    "MultiTexCoord1iv",
++    "MultiTexCoord1ivARB",
++    "MultiTexCoord1s",
++    "MultiTexCoord1sARB",
++    "MultiTexCoord1sv",
++    "MultiTexCoord1svARB",
++    "MultiTexCoord2d",
++    "MultiTexCoord2dARB",
++    "MultiTexCoord2dv",
++    "MultiTexCoord2dvARB",
++    "MultiTexCoord2f",
++    "MultiTexCoord2fARB",
++    "MultiTexCoord2fv",
++    "MultiTexCoord2fvARB",
++    "MultiTexCoord2i",
++    "MultiTexCoord2iARB",
++    "MultiTexCoord2iv",
++    "MultiTexCoord2ivARB",
++    "MultiTexCoord2s",
++    "MultiTexCoord2sARB",
++    "MultiTexCoord2sv",
++    "MultiTexCoord2svARB",
++    "MultiTexCoord3d",
++    "MultiTexCoord3dARB",
++    "MultiTexCoord3dv",
++    "MultiTexCoord3dvARB",
++    "MultiTexCoord3f",
++    "MultiTexCoord3fARB",
++    "MultiTexCoord3fv",
++    "MultiTexCoord3fvARB",
++    "MultiTexCoord3i",
++    "MultiTexCoord3iARB",
++    "MultiTexCoord3iv",
++    "MultiTexCoord3ivARB",
++    "MultiTexCoord3s",
++    "MultiTexCoord3sARB",
++    "MultiTexCoord3sv",
++    "MultiTexCoord3svARB",
++    "MultiTexCoord4d",
++    "MultiTexCoord4dARB",
++    "MultiTexCoord4dv",
++    "MultiTexCoord4dvARB",
++    "MultiTexCoord4f",
++    "MultiTexCoord4fARB",
++    "MultiTexCoord4fv",
++    "MultiTexCoord4fvARB",
++    "MultiTexCoord4i",
++    "MultiTexCoord4iARB",
++    "MultiTexCoord4iv",
++    "MultiTexCoord4ivARB",
++    "MultiTexCoord4s",
++    "MultiTexCoord4sARB",
++    "MultiTexCoord4sv",
++    "MultiTexCoord4svARB",
++    "MultiTexCoord4x",
++    "MultiTexCoordP1ui",
++    "MultiTexCoordP1uiv",
++    "MultiTexCoordP2ui",
++    "MultiTexCoordP2uiv",
++    "MultiTexCoordP3ui",
++    "MultiTexCoordP3uiv",
++    "MultiTexCoordP4ui",
++    "MultiTexCoordP4uiv",
++    "MultMatrixd",
++    "MultMatrixf",
++    "MultMatrixx",
++    "MultTransposeMatrixd",
++    "MultTransposeMatrixdARB",
++    "MultTransposeMatrixf",
++    "MultTransposeMatrixfARB",
++    "NewList",
++    "Normal3b",
++    "Normal3bv",
++    "Normal3d",
++    "Normal3dv",
++    "Normal3f",
++    "Normal3fv",
++    "Normal3i",
++    "Normal3iv",
++    "Normal3s",
++    "Normal3sv",
++    "Normal3x",
++    "NormalP3ui",
++    "NormalP3uiv",
++    "NormalPointer",
++    "NormalPointerEXT",
++    "ObjectLabel",
++    "ObjectPtrLabel",
++    "Ortho",
++    "Orthof",
++    "Orthox",
++    "PassThrough",
++    "PatchParameteri",
++    "PauseTransformFeedback",
++    "PixelMapfv",
++    "PixelMapuiv",
++    "PixelMapusv",
++    "PixelStoref",
++    "PixelStorei",
++    "PixelTransferf",
++    "PixelTransferi",
++    "PixelZoom",
++    "PointParameterf",
++    "PointParameterfARB",
++    "PointParameterfEXT",
++    "PointParameterfv",
++    "PointParameterfvARB",
++    "PointParameterfvEXT",
++    "PointParameteri",
++    "PointParameteriv",
++    "PointParameterx",
++    "PointParameterxv",
++    "PointSize",
++    "PointSizePointerOES",
++    "PointSizex",
++    "PolygonMode",
++    "PolygonOffset",
++    "PolygonOffsetx",
++    "PolygonStipple",
++    "PopAttrib",
++    "PopClientAttrib",
++    "PopDebugGroup",
++    "PopMatrix",
++    "PopName",
++    "PrimitiveBoundingBox",
++    "PrimitiveRestartIndex",
++    "PrimitiveRestartIndexNV",
++    "PrimitiveRestartNV",
++    "PrioritizeTextures",
++    "PrioritizeTexturesEXT",
++    "ProgramBinary",
++    "ProgramEnvParameter4dARB",
++    "ProgramEnvParameter4dvARB",
++    "ProgramEnvParameter4fARB",
++    "ProgramEnvParameter4fvARB",
++    "ProgramLocalParameter4dARB",
++    "ProgramLocalParameter4dvARB",
++    "ProgramLocalParameter4fARB",
++    "ProgramLocalParameter4fvARB",
++    "ProgramParameteri",
++    "ProgramParameteriARB",
++    "ProgramStringARB",
++    "ProgramUniform1f",
++    "ProgramUniform1fv",
++    "ProgramUniform1i",
++    "ProgramUniform1iv",
++    "ProgramUniform1ui",
++    "ProgramUniform1uiv",
++    "ProgramUniform2f",
++    "ProgramUniform2fv",
++    "ProgramUniform2i",
++    "ProgramUniform2iv",
++    "ProgramUniform2ui",
++    "ProgramUniform2uiv",
++    "ProgramUniform3f",
++    "ProgramUniform3fv",
++    "ProgramUniform3i",
++    "ProgramUniform3iv",
++    "ProgramUniform3ui",
++    "ProgramUniform3uiv",
++    "ProgramUniform4f",
++    "ProgramUniform4fv",
++    "ProgramUniform4i",
++    "ProgramUniform4iv",
++    "ProgramUniform4ui",
++    "ProgramUniform4uiv",
++    "ProgramUniformMatrix2fv",
++    "ProgramUniformMatrix2x3fv",
++    "ProgramUniformMatrix2x4fv",
++    "ProgramUniformMatrix3fv",
++    "ProgramUniformMatrix3x2fv",
++    "ProgramUniformMatrix3x4fv",
++    "ProgramUniformMatrix4fv",
++    "ProgramUniformMatrix4x2fv",
++    "ProgramUniformMatrix4x3fv",
++    "ProvokingVertex",
++    "ProvokingVertexEXT",
++    "PushAttrib",
++    "PushClientAttrib",
++    "PushDebugGroup",
++    "PushMatrix",
++    "PushName",
++    "RasterPos2d",
++    "RasterPos2dv",
++    "RasterPos2f",
++    "RasterPos2fv",
++    "RasterPos2i",
++    "RasterPos2iv",
++    "RasterPos2s",
++    "RasterPos2sv",
++    "RasterPos3d",
++    "RasterPos3dv",
++    "RasterPos3f",
++    "RasterPos3fv",
++    "RasterPos3i",
++    "RasterPos3iv",
++    "RasterPos3s",
++    "RasterPos3sv",
++    "RasterPos4d",
++    "RasterPos4dv",
++    "RasterPos4f",
++    "RasterPos4fv",
++    "RasterPos4i",
++    "RasterPos4iv",
++    "RasterPos4s",
++    "RasterPos4sv",
++    "ReadBuffer",
++    "ReadnPixels",
++    "ReadnPixelsARB",
++    "ReadPixels",
++    "Rectd",
++    "Rectdv",
++    "Rectf",
++    "Rectfv",
++    "Recti",
++    "Rectiv",
++    "Rects",
++    "Rectsv",
++    "ReleaseShaderCompiler",
++    "RenderbufferStorage",
++    "RenderbufferStorageEXT",
++    "RenderbufferStorageMultisample",
++    "RenderbufferStorageMultisampleEXT",
++    "RenderMode",
++    "ResetHistogram",
++    "ResetMinmax",
++    "ResumeTransformFeedback",
++    "Rotated",
++    "Rotatef",
++    "Rotatex",
++    "SampleCoverage",
++    "SampleCoverageARB",
++    "SampleCoveragex",
++    "SampleMaski",
++    "SamplerParameterf",
++    "SamplerParameterfv",
++    "SamplerParameteri",
++    "SamplerParameterIiv",
++    "SamplerParameterIuiv",
++    "SamplerParameteriv",
++    "Scaled",
++    "Scalef",
++    "Scalex",
++    "Scissor",
++    "ScissorArrayv",
++    "ScissorIndexed",
++    "ScissorIndexedv",
++    "SecondaryColor3b",
++    "SecondaryColor3bEXT",
++    "SecondaryColor3bv",
++    "SecondaryColor3bvEXT",
++    "SecondaryColor3d",
++    "SecondaryColor3dEXT",
++    "SecondaryColor3dv",
++    "SecondaryColor3dvEXT",
++    "SecondaryColor3f",
++    "SecondaryColor3fEXT",
++    "SecondaryColor3fv",
++    "SecondaryColor3fvEXT",
++    "SecondaryColor3i",
++    "SecondaryColor3iEXT",
++    "SecondaryColor3iv",
++    "SecondaryColor3ivEXT",
++    "SecondaryColor3s",
++    "SecondaryColor3sEXT",
++    "SecondaryColor3sv",
++    "SecondaryColor3svEXT",
++    "SecondaryColor3ub",
++    "SecondaryColor3ubEXT",
++    "SecondaryColor3ubv",
++    "SecondaryColor3ubvEXT",
++    "SecondaryColor3ui",
++    "SecondaryColor3uiEXT",
++    "SecondaryColor3uiv",
++    "SecondaryColor3uivEXT",
++    "SecondaryColor3us",
++    "SecondaryColor3usEXT",
++    "SecondaryColor3usv",
++    "SecondaryColor3usvEXT",
++    "SecondaryColorP3ui",
++    "SecondaryColorP3uiv",
++    "SecondaryColorPointer",
++    "SecondaryColorPointerEXT",
++    "SelectBuffer",
++    "SeparableFilter2D",
++    "ShadeModel",
++    "ShaderBinary",
++    "ShaderSource",
++    "ShaderSourceARB",
++    "StencilFunc",
++    "StencilFuncSeparate",
++    "StencilMask",
++    "StencilMaskSeparate",
++    "StencilOp",
++    "StencilOpSeparate",
++    "TexBuffer",
++    "TexBufferARB",
++    "TexBufferRange",
++    "TexCoord1d",
++    "TexCoord1dv",
++    "TexCoord1f",
++    "TexCoord1fv",
++    "TexCoord1i",
++    "TexCoord1iv",
++    "TexCoord1s",
++    "TexCoord1sv",
++    "TexCoord2d",
++    "TexCoord2dv",
++    "TexCoord2f",
++    "TexCoord2fv",
++    "TexCoord2i",
++    "TexCoord2iv",
++    "TexCoord2s",
++    "TexCoord2sv",
++    "TexCoord3d",
++    "TexCoord3dv",
++    "TexCoord3f",
++    "TexCoord3fv",
++    "TexCoord3i",
++    "TexCoord3iv",
++    "TexCoord3s",
++    "TexCoord3sv",
++    "TexCoord4d",
++    "TexCoord4dv",
++    "TexCoord4f",
++    "TexCoord4fv",
++    "TexCoord4i",
++    "TexCoord4iv",
++    "TexCoord4s",
++    "TexCoord4sv",
++    "TexCoordP1ui",
++    "TexCoordP1uiv",
++    "TexCoordP2ui",
++    "TexCoordP2uiv",
++    "TexCoordP3ui",
++    "TexCoordP3uiv",
++    "TexCoordP4ui",
++    "TexCoordP4uiv",
++    "TexCoordPointer",
++    "TexCoordPointerEXT",
++    "TexEnvf",
++    "TexEnvfv",
++    "TexEnvi",
++    "TexEnviv",
++    "TexEnvx",
++    "TexEnvxv",
++    "TexGend",
++    "TexGendv",
++    "TexGenf",
++    "TexGenfv",
++    "TexGeni",
++    "TexGeniv",
++    "TexImage1D",
++    "TexImage2D",
++    "TexImage2DMultisample",
++    "TexImage3D",
++    "TexImage3DEXT",
++    "TexImage3DMultisample",
++    "TexParameterf",
++    "TexParameterfv",
++    "TexParameteri",
++    "TexParameterIiv",
++    "TexParameterIivEXT",
++    "TexParameterIuiv",
++    "TexParameterIuivEXT",
++    "TexParameteriv",
++    "TexParameterx",
++    "TexParameterxv",
++    "TexStorage1D",
++    "TexStorage2D",
++    "TexStorage2DMultisample",
++    "TexStorage3D",
++    "TexStorage3DMultisample",
++    "TexStorageAttribs2DEXT",
++    "TexStorageAttribs3DEXT",
++    "TexSubImage1D",
++    "TexSubImage2D",
++    "TexSubImage3D",
++    "TexSubImage3DEXT",
++    "TextureBarrierNV",
++    "TextureStorage1DEXT",
++    "TextureStorage2DEXT",
++    "TextureStorage3DEXT",
++    "TextureView",
++    "TransformFeedbackVaryings",
++    "Translated",
++    "Translatef",
++    "Translatex",
++    "Uniform1f",
++    "Uniform1fARB",
++    "Uniform1fv",
++    "Uniform1fvARB",
++    "Uniform1i",
++    "Uniform1iARB",
++    "Uniform1iv",
++    "Uniform1ivARB",
++    "Uniform1ui",
++    "Uniform1uiEXT",
++    "Uniform1uiv",
++    "Uniform1uivEXT",
++    "Uniform2f",
++    "Uniform2fARB",
++    "Uniform2fv",
++    "Uniform2fvARB",
++    "Uniform2i",
++    "Uniform2iARB",
++    "Uniform2iv",
++    "Uniform2ivARB",
++    "Uniform2ui",
++    "Uniform2uiEXT",
++    "Uniform2uiv",
++    "Uniform2uivEXT",
++    "Uniform3f",
++    "Uniform3fARB",
++    "Uniform3fv",
++    "Uniform3fvARB",
++    "Uniform3i",
++    "Uniform3iARB",
++    "Uniform3iv",
++    "Uniform3ivARB",
++    "Uniform3ui",
++    "Uniform3uiEXT",
++    "Uniform3uiv",
++    "Uniform3uivEXT",
++    "Uniform4f",
++    "Uniform4fARB",
++    "Uniform4fv",
++    "Uniform4fvARB",
++    "Uniform4i",
++    "Uniform4iARB",
++    "Uniform4iv",
++    "Uniform4ivARB",
++    "Uniform4ui",
++    "Uniform4uiEXT",
++    "Uniform4uiv",
++    "Uniform4uivEXT",
++    "UniformBlockBinding",
++    "UniformMatrix2fv",
++    "UniformMatrix2fvARB",
++    "UniformMatrix2x3fv",
++    "UniformMatrix2x4fv",
++    "UniformMatrix3fv",
++    "UniformMatrix3fvARB",
++    "UniformMatrix3x2fv",
++    "UniformMatrix3x4fv",
++    "UniformMatrix4fv",
++    "UniformMatrix4fvARB",
++    "UniformMatrix4x2fv",
++    "UniformMatrix4x3fv",
++    "UnlockArraysEXT",
++    "UnmapBuffer",
++    "UnmapBufferARB",
++    "UseProgram",
++    "UseProgramObjectARB",
++    "UseProgramStages",
++    "ValidateProgram",
++    "ValidateProgramARB",
++    "ValidateProgramPipeline",
++    "Vertex2d",
++    "Vertex2dv",
++    "Vertex2f",
++    "Vertex2fv",
++    "Vertex2i",
++    "Vertex2iv",
++    "Vertex2s",
++    "Vertex2sv",
++    "Vertex3d",
++    "Vertex3dv",
++    "Vertex3f",
++    "Vertex3fv",
++    "Vertex3i",
++    "Vertex3iv",
++    "Vertex3s",
++    "Vertex3sv",
++    "Vertex4d",
++    "Vertex4dv",
++    "Vertex4f",
++    "Vertex4fv",
++    "Vertex4i",
++    "Vertex4iv",
++    "Vertex4s",
++    "Vertex4sv",
++    "VertexAttrib1d",
++    "VertexAttrib1dARB",
++    "VertexAttrib1dv",
++    "VertexAttrib1dvARB",
++    "VertexAttrib1f",
++    "VertexAttrib1fARB",
++    "VertexAttrib1fv",
++    "VertexAttrib1fvARB",
++    "VertexAttrib1s",
++    "VertexAttrib1sARB",
++    "VertexAttrib1sv",
++    "VertexAttrib1svARB",
++    "VertexAttrib2d",
++    "VertexAttrib2dARB",
++    "VertexAttrib2dv",
++    "VertexAttrib2dvARB",
++    "VertexAttrib2f",
++    "VertexAttrib2fARB",
++    "VertexAttrib2fv",
++    "VertexAttrib2fvARB",
++    "VertexAttrib2s",
++    "VertexAttrib2sARB",
++    "VertexAttrib2sv",
++    "VertexAttrib2svARB",
++    "VertexAttrib3d",
++    "VertexAttrib3dARB",
++    "VertexAttrib3dv",
++    "VertexAttrib3dvARB",
++    "VertexAttrib3f",
++    "VertexAttrib3fARB",
++    "VertexAttrib3fv",
++    "VertexAttrib3fvARB",
++    "VertexAttrib3s",
++    "VertexAttrib3sARB",
++    "VertexAttrib3sv",
++    "VertexAttrib3svARB",
++    "VertexAttrib4bv",
++    "VertexAttrib4bvARB",
++    "VertexAttrib4d",
++    "VertexAttrib4dARB",
++    "VertexAttrib4dv",
++    "VertexAttrib4dvARB",
++    "VertexAttrib4f",
++    "VertexAttrib4fARB",
++    "VertexAttrib4fv",
++    "VertexAttrib4fvARB",
++    "VertexAttrib4iv",
++    "VertexAttrib4ivARB",
++    "VertexAttrib4Nbv",
++    "VertexAttrib4NbvARB",
++    "VertexAttrib4Niv",
++    "VertexAttrib4NivARB",
++    "VertexAttrib4Nsv",
++    "VertexAttrib4NsvARB",
++    "VertexAttrib4Nub",
++    "VertexAttrib4NubARB",
++    "VertexAttrib4Nubv",
++    "VertexAttrib4NubvARB",
++    "VertexAttrib4Nuiv",
++    "VertexAttrib4NuivARB",
++    "VertexAttrib4Nusv",
++    "VertexAttrib4NusvARB",
++    "VertexAttrib4s",
++    "VertexAttrib4sARB",
++    "VertexAttrib4sv",
++    "VertexAttrib4svARB",
++    "VertexAttrib4ubv",
++    "VertexAttrib4ubvARB",
++    "VertexAttrib4uiv",
++    "VertexAttrib4uivARB",
++    "VertexAttrib4usv",
++    "VertexAttrib4usvARB",
++    "VertexAttribBinding",
++    "VertexAttribDivisor",
++    "VertexAttribDivisorARB",
++    "VertexAttribFormat",
++    "VertexAttribI1i",
++    "VertexAttribI1iEXT",
++    "VertexAttribI1iv",
++    "VertexAttribI1ivEXT",
++    "VertexAttribI1ui",
++    "VertexAttribI1uiEXT",
++    "VertexAttribI1uiv",
++    "VertexAttribI1uivEXT",
++    "VertexAttribI2i",
++    "VertexAttribI2iEXT",
++    "VertexAttribI2iv",
++    "VertexAttribI2ivEXT",
++    "VertexAttribI2ui",
++    "VertexAttribI2uiEXT",
++    "VertexAttribI2uiv",
++    "VertexAttribI2uivEXT",
++    "VertexAttribI3i",
++    "VertexAttribI3iEXT",
++    "VertexAttribI3iv",
++    "VertexAttribI3ivEXT",
++    "VertexAttribI3ui",
++    "VertexAttribI3uiEXT",
++    "VertexAttribI3uiv",
++    "VertexAttribI3uivEXT",
++    "VertexAttribI4bv",
++    "VertexAttribI4bvEXT",
++    "VertexAttribI4i",
++    "VertexAttribI4iEXT",
++    "VertexAttribI4iv",
++    "VertexAttribI4ivEXT",
++    "VertexAttribI4sv",
++    "VertexAttribI4svEXT",
++    "VertexAttribI4ubv",
++    "VertexAttribI4ubvEXT",
++    "VertexAttribI4ui",
++    "VertexAttribI4uiEXT",
++    "VertexAttribI4uiv",
++    "VertexAttribI4uivEXT",
++    "VertexAttribI4usv",
++    "VertexAttribI4usvEXT",
++    "VertexAttribIFormat",
++    "VertexAttribIPointer",
++    "VertexAttribIPointerEXT",
++    "VertexAttribLFormat",
++    "VertexAttribP1ui",
++    "VertexAttribP1uiv",
++    "VertexAttribP2ui",
++    "VertexAttribP2uiv",
++    "VertexAttribP3ui",
++    "VertexAttribP3uiv",
++    "VertexAttribP4ui",
++    "VertexAttribP4uiv",
++    "VertexAttribPointer",
++    "VertexAttribPointerARB",
++    "VertexBindingDivisor",
++    "VertexP2ui",
++    "VertexP2uiv",
++    "VertexP3ui",
++    "VertexP3uiv",
++    "VertexP4ui",
++    "VertexP4uiv",
++    "VertexPointer",
++    "VertexPointerEXT",
++    "Viewport",
++    "ViewportArrayv",
++    "ViewportIndexedf",
++    "ViewportIndexedfv",
++    "WaitSync",
++    "WindowPos2d",
++    "WindowPos2dARB",
++    "WindowPos2dv",
++    "WindowPos2dvARB",
++    "WindowPos2f",
++    "WindowPos2fARB",
++    "WindowPos2fv",
++    "WindowPos2fvARB",
++    "WindowPos2i",
++    "WindowPos2iARB",
++    "WindowPos2iv",
++    "WindowPos2ivARB",
++    "WindowPos2s",
++    "WindowPos2sARB",
++    "WindowPos2sv",
++    "WindowPos2svARB",
++    "WindowPos3d",
++    "WindowPos3dARB",
++    "WindowPos3dv",
++    "WindowPos3dvARB",
++    "WindowPos3f",
++    "WindowPos3fARB",
++    "WindowPos3fv",
++    "WindowPos3fvARB",
++    "WindowPos3i",
++    "WindowPos3iARB",
++    "WindowPos3iv",
++    "WindowPos3ivARB",
++    "WindowPos3s",
++    "WindowPos3sARB",
++    "WindowPos3sv",
++    "WindowPos3svARB",
++}
+diff --git a/src/mapi/glapi/glapi.h b/src/mapi/glapi/glapi.h
+index 265f88ab2b5..ab1606b2366 100644
+--- a/src/mapi/glapi/glapi.h
++++ b/src/mapi/glapi/glapi.h
+@@ -77,7 +77,9 @@ _GLAPI_EXPORT extern __THREAD_INITIAL_EXEC struct _glapi_table * _mesa_glapi_tls
+ _GLAPI_EXPORT extern __THREAD_INITIAL_EXEC void * _mesa_glapi_tls_Context;
+ #endif
+ 
+-#if DETECT_OS_WINDOWS && !defined(MAPI_MODE_SHARED_GLAPI)
++_GLAPI_EXPORT extern const struct _glapi_table *_mesa_glapi_Dispatch;
++
++#if DETECT_OS_WINDOWS && !defined(MAPI_MODE_GLAPI)
+ # define GET_DISPATCH() _mesa_glapi_get_dispatch()
+ # define GET_CURRENT_CONTEXT(C)  struct gl_context *C = (struct gl_context *) _mesa_glapi_get_context()
+ #else
+@@ -127,6 +129,9 @@ _glapi_table_patch(struct _glapi_table *, const char *name, void *wrapper);
+ #endif
+ 
+ 
++void
++_glapi_set_nop_handler(_glapi_nop_handler_proc func);
++
+ /** Return pointer to new dispatch table filled with no-op functions */
+ struct _glapi_table *
+ _glapi_new_nop_table(void);
+diff --git a/src/mapi/glapi/libgl_public.c b/src/mapi/glapi/libgl_public.c
+index 8ff83c389ba..ab543bfcacc 100644
+--- a/src/mapi/glapi/libgl_public.c
++++ b/src/mapi/glapi/libgl_public.c
+@@ -5,28 +5,41 @@
+  *    Chia-I Wu <olv@lunarg.com>
+  */
+ 
++#include <stdlib.h>
++#include <stdint.h>
++
++#include "entry.h"
+ #include "glapi/glapi.h"
++#include "util/u_endian.h"
++#include "util/u_thread.h"
+ 
+ /* REALLY_INITIAL_EXEC implies __GLIBC__ */
+ #if defined(USE_X86_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #elif defined(USE_X86_64_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86-64_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #elif defined(USE_PPC64LE_ASM) && UTIL_ARCH_LITTLE_ENDIAN && defined(REALLY_INITIAL_EXEC)
+ #include "entry_ppc64le_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
+ #else
+ 
+ /* C version of the public entries */
+ #define MAPI_TMP_DEFINES
+-#define MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN
++#define MAPI_TMP_PUBLIC_ENTRIES
++#include "mapi_tmp.h"
++
++#ifndef MAPI_MODE_BRIDGE
++
++mapi_func
++entry_get_public(int slot)
++{
++   /* pubic_entries are defined by MAPI_TMP_PUBLIC_ENTRIES */
++   return public_entries[slot];
++}
++
++#endif /* MAPI_MODE_BRIDGE */
+ 
+ #if defined(_WIN32) && defined(_WINDOWS_)
+ #error "Should not include <windows.h> here"
+ #endif
+ 
+ #endif /* asm */
+-
+-#include "glapi_mapi_tmp.h"
+diff --git a/src/mapi/glapi/meson.build b/src/mapi/glapi/meson.build
+index 2ce8e8ac825..37455f28de8 100644
+--- a/src/mapi/glapi/meson.build
++++ b/src/mapi/glapi/meson.build
+@@ -6,10 +6,12 @@ subdir('gen')
+ inc_glapi = include_directories('.')
+ 
+ bridge_glapi_files = files(
+-  'libgl_public.c',
++  '../entry.c',
++  '../entry.h',
+   '../entry_x86-64_tls.h',
+   '../entry_x86_tls.h',
+   '../entry_ppc64le_tls.h',
++  '../mapi_tmp.h',
+ )
+ bridge_glapi_files += glapi_mapi_tmp_h
+ 
+@@ -17,7 +19,11 @@ if with_dri and ['apple', 'windows'].contains(with_dri_platform)
+   bridge_glapi_files += [glapi_gentable_c, main_dispatch_h]
+ endif
+ 
+-bridge_glapi_args = [gcc_lto_quirk]
++bridge_glapi_args = [
++  '-DMAPI_MODE_BRIDGE',
++  '-DMAPI_ABI_HEADER="@0@"'.format(glapi_mapi_tmp_h.full_path()),
++  gcc_lto_quirk,
++]
+ if with_platform_windows
+   bridge_glapi_args += ['-D_GDI32_']
+ endif
+diff --git a/src/mapi/mapi_abi.py b/src/mapi/mapi_abi.py
+index 0eea9bed892..fd4b0c4c814 100644
+--- a/src/mapi/mapi_abi.py
++++ b/src/mapi/mapi_abi.py
+@@ -219,61 +219,95 @@ class ABIPrinter(object):
+ 
+         # sort entries by their names
+         self.entries_sorted_by_names = sorted(self.entries, key=attrgetter('name'))
++
+         self.indent = ' ' * 3
++        self.noop_warn = 'noop_warn'
++        self.noop_generic = 'noop_generic'
++
++        self.api_defines = []
++        self.api_headers = ['"KHR/khrplatform.h"']
++        self.api_call = 'KHRONOS_APICALL'
++        self.api_entry = 'KHRONOS_APIENTRY'
++        self.api_attrs = 'KHRONOS_APIATTRIBUTES'
++
++        self.c_header = ''
++
++        self.lib_need_noop_array = True
++        self.lib_need_stubs = True
++        self.lib_need_all_entries = True
++        self.lib_need_non_hidden_entries = False
++
++    def c_notice(self):
++        return '/* This file is automatically generated by mapi_abi.py.  Do not modify. */'
++
++    def c_public_includes(self):
++        """Return includes of the client API headers."""
++        defines = ['#define ' + d for d in self.api_defines]
++        includes = ['#include ' + h for h in self.api_headers]
++        return "\n".join(defines + includes)
+ 
+     def need_entry_point(self, ent):
+         """Return True if an entry point is needed for the entry."""
+         # non-handcode hidden aliases may share the entry they alias
+-        return not (ent.hidden and ent.alias and not ent.handcode)
++        use_alias = (ent.hidden and ent.alias and not ent.handcode)
++        return not use_alias
+ 
+-    def c_public_declarations(self):
++    def c_public_declarations(self, prefix):
+         """Return the declarations of public entry points."""
+         decls = []
+         for ent in self.entries:
+             if not self.need_entry_point(ent):
+                 continue
+-            export = 'GLAPI' if not ent.hidden else ''
+-            if not ent.hidden or self.is_shared:
+-                decls.append(self._c_decl(ent, self.prefix, True, export) + ';')
++            export = self.api_call if not ent.hidden else ''
++            if not ent.hidden or not self.lib_need_non_hidden_entries:
++                decls.append(self._c_decl(ent, prefix, True, export) + ';')
+ 
+         return "\n".join(decls)
+ 
+     def _c_function(self, ent, prefix, mangle=False, stringify=False):
+         """Return the function name of an entry."""
+-        formats = { True: '"%s%s"', False: '%s%s' }
+-        fmt = formats[stringify]
++        formats = {
++                True: { True: '%s_STR(%s)', False: '%s(%s)' },
++                False: { True: '"%s%s"', False: '%s%s' },
++        }
++        fmt = formats[prefix.isupper()][stringify]
+         name = ent.name
+         if mangle and ent.hidden:
+-            name = '_dispatch_stub_' + str(ent.name)
++            name = '_dispatch_stub_' + str(ent.slot)
+         return fmt % (prefix, name)
+ 
+-    def _c_function_call(self, ent):
++    def _c_function_call(self, ent, prefix):
+         """Return the function name used for calling."""
+         if ent.handcode:
+             # _c_function does not handle this case
+-            name = '%s%s' % (self.prefix, ent.handcode)
++            formats = { True: '%s(%s)', False: '%s%s' }
++            fmt = formats[prefix.isupper()]
++            name = fmt % (prefix, ent.handcode)
+         elif self.need_entry_point(ent):
+-            name = self._c_function(ent, self.prefix, True)
++            name = self._c_function(ent, prefix, True)
+         else:
+-            name = self._c_function(ent.alias, self.prefix, True)
++            name = self._c_function(ent.alias, prefix, True)
+         return name
+ 
+     def _c_decl(self, ent, prefix, mangle=False, export=''):
+         """Return the C declaration for the entry."""
+-        decl = '%s %s %s(%s)' % (ent.c_return(), 'GLAPIENTRY',
++        decl = '%s %s %s(%s)' % (ent.c_return(), self.api_entry,
+                 self._c_function(ent, prefix, mangle), ent.c_params())
+         if export:
+             decl = export + ' ' + decl
++        if self.api_attrs:
++            decl += ' ' + self.api_attrs
++
+         return decl
+ 
+     def _c_cast(self, ent):
+         """Return the C cast for the entry."""
+         cast = '%s (%s *)(%s)' % (
+-                ent.c_return(), 'GLAPIENTRY', ent.c_params())
++                ent.c_return(), self.api_entry, ent.c_params())
+ 
+         return cast
+ 
+-    def c_public_dispatches(self, no_hidden):
++    def c_public_dispatches(self, prefix, no_hidden):
+         """Return the public dispatch functions."""
+         dispatches = []
+         for ent in self.entries:
+@@ -283,30 +317,40 @@ class ABIPrinter(object):
+             if not self.need_entry_point(ent):
+                 continue
+ 
+-            if0 = '#if 0\n' if ent.handcode else ''
+-            endif = '\n#endif' if ent.handcode else ''
+-            decl = self._c_decl(ent, self.prefix, True, 'GLAPI' if not ent.hidden else '')
+-            ret = 'return ' if ent.ret else ''
++            export = self.api_call if not ent.hidden else ''
++
++            proto = self._c_decl(ent, prefix, True, export)
+             cast = self._c_cast(ent)
+ 
+-            dispatches.append(r"""%s%s
+-{
+-   const struct _glapi_table *_tbl = GET_DISPATCH();
+-   _glapi_proc _func = ((const _glapi_proc *) _tbl)[%d];
+-   %s((%s) _func)(%s);
+-}%s
+-""" % (if0, decl, ent.slot, ret, cast, ent.c_args(), endif))
++            ret = ''
++            if ent.ret:
++                ret = 'return '
++            stmt1 = self.indent
++            stmt1 += 'const struct _glapi_table *_tbl = GET_DISPATCH();'
++            stmt2 = self.indent
++            stmt2 += 'mapi_func _func = ((const mapi_func *) _tbl)[%d];' % (
++                    ent.slot)
++            stmt3 = self.indent
++            stmt3 += '%s((%s) _func)(%s);' % (ret, cast, ent.c_args())
++
++            disp = '%s\n{\n%s\n%s\n%s\n}' % (proto, stmt1, stmt2, stmt3)
++
++            if ent.handcode:
++                disp = '#if 0\n' + disp + '\n#endif'
+ 
+-        return '\n'.join(dispatches)
++            dispatches.append(disp)
+ 
+-    def c_public_initializer(self):
++        return '\n\n'.join(dispatches)
++
++    def c_public_initializer(self, prefix):
+         """Return the initializer for public dispatch functions."""
+         names = []
+         for ent in self.entries:
+             if ent.alias:
+                 continue
+ 
+-            name = '%s(_glapi_proc) %s' % (self.indent, self._c_function_call(ent))
++            name = '%s(mapi_func) %s' % (self.indent,
++                    self._c_function_call(ent, prefix))
+             names.append(name)
+ 
+         return ',\n'.join(names)
+@@ -328,7 +372,7 @@ class ABIPrinter(object):
+                 ('\\0"\n' + self.indent + '"').join(pool) + '";'
+         return (pool_str, offsets)
+ 
+-    def c_stub_initializer(self, pool_offsets):
++    def c_stub_initializer(self, prefix, pool_offsets):
+         """Return the initializer for struct mapi_stub array."""
+         stubs = []
+         for ent in self.entries_sorted_by_names:
+@@ -337,14 +381,14 @@ class ABIPrinter(object):
+ 
+         return ',\n'.join(stubs)
+ 
+-    def c_noop_functions(self):
++    def c_noop_functions(self, prefix, warn_prefix):
+         """Return the noop functions."""
+         noops = []
+         for ent in self.entries:
+             if ent.alias:
+                 continue
+ 
+-            proto = self._c_decl(ent, 'noop', False, 'static')
++            proto = self._c_decl(ent, prefix, False, 'static')
+ 
+             stmt1 = self.indent;
+             space = ''
+@@ -355,8 +399,8 @@ class ABIPrinter(object):
+             if ent.params:
+                 stmt1 += '\n';
+ 
+-            stmt1 += self.indent + '_mesa_noop_entrypoint(%s);' % (
+-                    self._c_function(ent, 'gl', False, True))
++            stmt1 += self.indent + '%s(%s);' % (self.noop_warn,
++                    self._c_function(ent, warn_prefix, False, True))
+ 
+             if ent.ret:
+                 stmt2 = self.indent + 'return (%s) 0;' % (ent.ret)
+@@ -368,13 +412,17 @@ class ABIPrinter(object):
+ 
+         return '\n\n'.join(noops)
+ 
+-    def c_noop_initializer(self):
++    def c_noop_initializer(self, prefix, use_generic):
+         """Return an initializer for the noop dispatch table."""
+-        entries = [self._c_function(ent, 'noop') for ent in self.entries if not ent.alias]
+-        pre = self.indent + '(_glapi_proc) '
++        entries = [self._c_function(ent, prefix)
++                for ent in self.entries if not ent.alias]
++        if use_generic:
++            entries = [self.noop_generic] * len(entries)
++
++        pre = self.indent + '(mapi_func) '
+         return pre + (',\n' + pre).join(entries)
+ 
+-    def c_asm_gcc(self, no_hidden):
++    def c_asm_gcc(self, prefix, no_hidden):
+         asm = []
+ 
+         for ent in self.entries:
+@@ -384,7 +432,7 @@ class ABIPrinter(object):
+             if not self.need_entry_point(ent):
+                 continue
+ 
+-            name = self._c_function(ent, self.prefix, True, True)
++            name = self._c_function(ent, prefix, True, True)
+ 
+             if ent.handcode:
+                 asm.append('#if 0')
+@@ -395,7 +443,7 @@ class ABIPrinter(object):
+             if ent.alias and not (ent.alias.hidden and no_hidden):
+                 asm.append('".globl "%s"\\n"' % (name))
+                 asm.append('".set "%s", "%s"\\n"' % (name,
+-                    self._c_function(ent.alias, self.prefix, True, True)))
++                    self._c_function(ent.alias, prefix, True, True)))
+             else:
+                 asm.append('STUB_ASM_ENTRY(%s)"\\n"' % (name))
+                 asm.append('"\\t"STUB_ASM_CODE("%d")"\\n"' % (ent.slot))
+@@ -407,35 +455,47 @@ class ABIPrinter(object):
+         return "\n".join(asm)
+ 
+     def output_for_lib(self):
+-        print('/* This file is automatically generated by mapi_abi.py.  Do not modify. */')
+-        print()
+-        print('#include "util/glheader.h"\n')
+-        print()
++        print(self.c_notice())
++
++        if self.c_header:
++            print()
++            print(self.c_header)
++
+         print('#define _gloffset_COUNT %d' % (static_data.function_count))
+         print()
+         print('#ifdef MAPI_TMP_DEFINES')
++        print(self.c_public_includes())
+         print()
+         print('#if defined(_WIN32) && defined(_WINDOWS_)')
+         print('#error "Should not include <windows.h> here"')
+         print('#endif')
+         print()
+-        print(self.c_public_declarations())
++        print(self.c_public_declarations(self.prefix_lib))
+         print('#undef MAPI_TMP_DEFINES')
+         print('#endif /* MAPI_TMP_DEFINES */')
+ 
+-        if self.is_shared:
++        if self.lib_need_noop_array:
+             print()
+             print('#ifdef MAPI_TMP_NOOP_ARRAY')
++            print('#if MESA_DEBUG')
+             print()
+-            print(self.c_noop_functions())
++            print(self.c_noop_functions(self.prefix_noop, self.prefix_warn))
+             print()
+-            print('const _glapi_proc table_noop_array[] = {')
+-            print(self.c_noop_initializer())
++            print('const mapi_func table_%s_array[] = {' % (self.prefix_noop))
++            print(self.c_noop_initializer(self.prefix_noop, False))
+             print('};')
+             print()
++            print('#else /* !MESA_DEBUG */')
++            print()
++            print('const mapi_func table_%s_array[] = {' % (self.prefix_noop))
++            print(self.c_noop_initializer(self.prefix_noop, True))
++            print('};')
++            print()
++            print('#endif /* MESA_DEBUG */')
+             print('#undef MAPI_TMP_NOOP_ARRAY')
+             print('#endif /* MAPI_TMP_NOOP_ARRAY */')
+ 
++        if self.lib_need_stubs:
+             pool, pool_offsets = self.c_stub_string_pool()
+             print()
+             print('#ifdef MAPI_TMP_PUBLIC_STUBS')
+@@ -443,17 +503,18 @@ class ABIPrinter(object):
+             print(pool)
+             print()
+             print('static const struct mapi_stub public_stubs[] = {')
+-            print(self.c_stub_initializer(pool_offsets))
++            print(self.c_stub_initializer(self.prefix_lib, pool_offsets))
+             print('};')
+             print('#undef MAPI_TMP_PUBLIC_STUBS')
+             print('#endif /* MAPI_TMP_PUBLIC_STUBS */')
+ 
++        if self.lib_need_all_entries:
+             print()
+             print('#ifdef MAPI_TMP_PUBLIC_ENTRIES')
+-            print(self.c_public_dispatches(False))
++            print(self.c_public_dispatches(self.prefix_lib, False))
+             print()
+-            print('static const _glapi_proc public_entries[] = {')
+-            print(self.c_public_initializer())
++            print('static const mapi_func public_entries[] = {')
++            print(self.c_public_initializer(self.prefix_lib))
+             print('};')
+             print('#undef MAPI_TMP_PUBLIC_ENTRIES')
+             print('#endif /* MAPI_TMP_PUBLIC_ENTRIES */')
+@@ -461,11 +522,12 @@ class ABIPrinter(object):
+             print()
+             print('#ifdef MAPI_TMP_STUB_ASM_GCC')
+             print('__asm__(')
+-            print(self.c_asm_gcc(False))
++            print(self.c_asm_gcc(self.prefix_lib, False))
+             print(');')
+             print('#undef MAPI_TMP_STUB_ASM_GCC')
+             print('#endif /* MAPI_TMP_STUB_ASM_GCC */')
+-        else:
++
++        if self.lib_need_non_hidden_entries:
+             all_hidden = True
+             for ent in self.entries:
+                 if not ent.hidden:
+@@ -474,7 +536,7 @@ class ABIPrinter(object):
+             if not all_hidden:
+                 print()
+                 print('#ifdef MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN')
+-                print(self.c_public_dispatches(True))
++                print(self.c_public_dispatches(self.prefix_lib, True))
+                 print()
+                 print('/* does not need public_entries */')
+                 print('#undef MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN')
+@@ -483,7 +545,7 @@ class ABIPrinter(object):
+                 print()
+                 print('#ifdef MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN')
+                 print('__asm__(')
+-                print(self.c_asm_gcc(True))
++                print(self.c_asm_gcc(self.prefix_lib, True))
+                 print(');')
+                 print('#undef MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN')
+                 print('#endif /* MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN */')
+@@ -495,8 +557,23 @@ class GLAPIPrinter(ABIPrinter):
+         for ent in entries:
+             self._override_for_api(ent)
+         super(GLAPIPrinter, self).__init__(entries)
+-        self.is_shared = False
+-        self.prefix = 'gl'
++
++        self.api_defines = []
++        self.api_headers = []
++        self.api_call = 'GLAPI'
++        self.api_entry = 'GLAPIENTRY'
++        self.api_attrs = ''
++
++        self.lib_need_noop_array = False
++        self.lib_need_stubs = False
++        self.lib_need_all_entries = False
++        self.lib_need_non_hidden_entries = True
++
++        self.prefix_lib = 'GLAPI_PREFIX'
++        self.prefix_noop = 'noop'
++        self.prefix_warn = self.prefix_lib
++
++        self.c_header = self._get_c_header()
+ 
+     def _override_for_api(self, ent):
+         """Override attributes of an entry if necessary for this
+@@ -504,20 +581,45 @@ class GLAPIPrinter(ABIPrinter):
+         # By default, no override is necessary.
+         pass
+ 
++    def _get_c_header(self):
++        header = """#ifndef _GLAPI_TMP_H_
++#define _GLAPI_TMP_H_
++#define GLAPI_PREFIX(func)  gl##func
++#define GLAPI_PREFIX_STR(func)  "gl"#func
++
++#include "util/glheader.h"
++#endif /* _GLAPI_TMP_H_ */"""
++
++        return header
++
+ class SharedGLAPIPrinter(GLAPIPrinter):
+     """Shared GLAPI API Printer"""
+ 
+     def __init__(self, entries):
+         super(SharedGLAPIPrinter, self).__init__(entries)
+-        self.is_shared = True
+-        self.prefix = ''
++
++        self.lib_need_noop_array = True
++        self.lib_need_stubs = True
++        self.lib_need_all_entries = True
++        self.lib_need_non_hidden_entries = False
++
++        self.prefix_lib = 'shared'
++        self.prefix_warn = 'gl'
+ 
+     def _override_for_api(self, ent):
+         ent.hidden = True
+         ent.handcode = False
+ 
++    def _get_c_header(self):
++        header = """#ifndef _GLAPI_TMP_H_
++#define _GLAPI_TMP_H_
++#include "util/glheader.h"
++#endif /* _GLAPI_TMP_H_ */"""
++
++        return header
++
+ def parse_args():
+-    printers = ['glapi', 'shared-glapi']
++    printers = ['glapi', 'es1api', 'es2api', 'shared-glapi']
+ 
+     parser = OptionParser(usage='usage: %prog [options] <xml_file>')
+     parser.add_option('-p', '--printer', dest='printer',
+diff --git a/src/mapi/mapi_tmp.h b/src/mapi/mapi_tmp.h
+new file mode 100644
+index 00000000000..dee3050fe7e
+--- /dev/null
++++ b/src/mapi/mapi_tmp.h
+@@ -0,0 +1,47 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#ifndef MAPI_ABI_HEADER
++#error "MAPI_ABI_HEADER must be defined"
++#endif
++
++/* does not need hidden entries in bridge mode */
++#ifdef MAPI_MODE_BRIDGE
++
++#ifdef MAPI_TMP_PUBLIC_ENTRIES
++#undef MAPI_TMP_PUBLIC_ENTRIES
++#define MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN
++#endif
++
++#ifdef MAPI_TMP_STUB_ASM_GCC
++#undef MAPI_TMP_STUB_ASM_GCC
++#define MAPI_TMP_STUB_ASM_GCC_NO_HIDDEN
++#endif
++
++#endif /* MAPI_MODE_BRIDGE */
++
++#include MAPI_ABI_HEADER
+diff --git a/src/mapi/meson.build b/src/mapi/meson.build
+index 1f32eaea5c6..1abdb2b9bd7 100644
+--- a/src/mapi/meson.build
++++ b/src/mapi/meson.build
+@@ -142,9 +142,6 @@ glapi_xml_py_deps = files(
+   'glapi/gen/static_data.py',
+   'glapi/gen/typeexpr.py',
+   'new/genCommon.py',
+-
+-  # Symbols
+-  '../glx/libgl-symbols.txt',
+ )
+ 
+ subdir('glapi')
+diff --git a/src/mapi/new/gen_gldispatch_mapi.py b/src/mapi/new/gen_gldispatch_mapi.py
+index d3269ac5fc6..195ce4e14e6 100755
+--- a/src/mapi/new/gen_gldispatch_mapi.py
++++ b/src/mapi/new/gen_gldispatch_mapi.py
+@@ -52,7 +52,13 @@ def _main():
+         assert(all(functions[i] == allFunctions[i] for i in range(len(functions))))
+         assert(all(functions[i].slot == i for i in range(len(functions))))
+ 
+-    print('/* This file is automatically generated by gen_gldispatch_mapi.py.  Do not modify. */\n')
++    print(r"""
++/* This file is automatically generated by mapi_abi.py.  Do not modify. */
++
++#ifndef _GLAPI_TMP_H_
++#define _GLAPI_TMP_H_
++#endif /* _GLAPI_TMP_H_ */
++""".lstrip("\n"))
+ 
+     print(generate_defines(functions))
+     if target == "gldispatch":
+@@ -77,7 +83,8 @@ def generate_defines(functions):
+     return text
+ 
+ def generate_noop_array(functions):
+-    text = "#ifdef MAPI_TMP_NOOP_ARRAY\n\n"
++    text = "#ifdef MAPI_TMP_NOOP_ARRAY\n"
++    text += "#if MESA_DEBUG\n\n"
+ 
+     for func in functions:
+         text += "static {f.rt} GLAPIENTRY noop{f.basename}({f.decArgs})\n".format(f=func)
+@@ -87,15 +94,22 @@ def generate_noop_array(functions):
+             for arg in func.args:
+                 text += " (void) {a.name};".format(a=arg)
+             text += "\n"
+-        text += "   _mesa_noop_entrypoint(\"{f.name}\");\n".format(f=func)
++        text += "   noop_warn(\"{f.name}\");\n".format(f=func)
+         if (func.hasReturn()):
+             text += "   return ({f.rt}) 0;\n".format(f=func)
+         text += "}\n\n"
+ 
+-    text += "const _glapi_proc table_noop_array[] = {\n"
++    text += "const mapi_func table_noop_array[] = {\n"
+     for func in functions:
+-        text += "   (_glapi_proc) noop{f.basename},\n".format(f=func)
++        text += "   (mapi_func) noop{f.basename},\n".format(f=func)
++    text += "};\n\n"
++    text += "#else /* !MESA_DEBUG */\n\n"
++    text += "const mapi_func table_noop_array[] = {\n"
++    for i in range(len(functions)):
++        text += "   (mapi_func) noop_generic,\n"
++
+     text += "};\n\n"
++    text += "#endif /* MESA_DEBUG */\n"
+     text += "#undef MAPI_TMP_NOOP_ARRAY\n"
+     text += "#endif /* MAPI_TMP_NOOP_ARRAY */\n"
+     return text
+@@ -120,7 +134,7 @@ def generate_public_entries(functions):
+ GLAPI {f.rt} GLAPIENTRY {f.name}({f.decArgs})
+ {{
+    const struct _glapi_table *_tbl = GET_DISPATCH();
+-   _glapi_proc _func = ((const _glapi_proc *) _tbl)[{f.slot}];
++   mapi_func _func = ((const mapi_func *) _tbl)[{f.slot}];
+    {retStr}(({f.rt} (GLAPIENTRY *)({f.decArgs})) _func)({f.callArgs});
+ }}
+ 
+@@ -132,9 +146,9 @@ GLAPI {f.rt} GLAPIENTRY {f.name}({f.decArgs})
+ 
+ def generate_public_entries_table(functions):
+     text = "#ifdef MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN\n"
+-    text += "static const _glapi_proc public_entries[] = {\n"
++    text += "static const mapi_func public_entries[] = {\n"
+     for func in functions:
+-        text += "   (_glapi_proc) %s,\n" % (func.name,)
++        text += "   (mapi_func) %s,\n" % (func.name,)
+     text += "};\n"
+     text += "#endif /* MAPI_TMP_PUBLIC_ENTRIES_NO_HIDDEN */\n"
+     return text
+diff --git a/src/mapi/shared-glapi/core.c b/src/mapi/shared-glapi/core.c
+index 32fc363d209..ab543bfcacc 100644
+--- a/src/mapi/shared-glapi/core.c
++++ b/src/mapi/shared-glapi/core.c
+@@ -5,273 +5,41 @@
+  *    Chia-I Wu <olv@lunarg.com>
+  */
+ 
+-#include "glapi/glapi.h"
+-
+-struct mapi_stub {
+-   size_t name_offset;
+-   int slot;
+-};
++#include <stdlib.h>
++#include <stdint.h>
+ 
+-/* Implemented in mesa/main/context.c. */
+-void
+-_mesa_noop_entrypoint(const char *name);
+-
+-#define MAPI_TMP_NOOP_ARRAY
+-#define MAPI_TMP_PUBLIC_STUBS
++#include "entry.h"
++#include "glapi/glapi.h"
++#include "util/u_endian.h"
++#include "util/u_thread.h"
+ 
+ /* REALLY_INITIAL_EXEC implies __GLIBC__ */
+ #if defined(USE_X86_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC
+-#include "shared_glapi_mapi_tmp.h"
+-
+-extern unsigned long
+-x86_current_tls();
+-
+-extern char x86_entry_start[] HIDDEN;
+-extern char x86_entry_end[] HIDDEN;
+-
+-static inline _glapi_proc
+-entry_generate_or_patch(int, char *, size_t);
+-
+-static void
+-entry_patch_public(void)
+-{
+-#ifndef GLX_X86_READONLY_TEXT
+-   char *entry;
+-   int slot = 0;
+-   for (entry = x86_entry_start; entry < x86_entry_end;
+-        entry += X86_ENTRY_SIZE, ++slot)
+-      entry_generate_or_patch(slot, entry, X86_ENTRY_SIZE);
+-#endif
+-}
+-
+-static _glapi_proc
+-entry_get_public(int slot)
+-{
+-   return (_glapi_proc) (x86_entry_start + slot * X86_ENTRY_SIZE);
+-}
+-
+-static void
+-entry_patch(_glapi_proc entry, int slot)
+-{
+-   char *code = (char *) entry;
+-   *((unsigned long *) (code + 8)) = slot * sizeof(_glapi_proc);
+-}
+-
+-static inline _glapi_proc
+-entry_generate_or_patch(int slot, char *code, size_t size)
+-{
+-   const char code_templ[16] = {
+-      0x65, 0xa1, 0x00, 0x00, 0x00, 0x00, /* movl %gs:0x0, %eax */
+-      0xff, 0xa0, 0x34, 0x12, 0x00, 0x00, /* jmp *0x1234(%eax) */
+-      0x90, 0x90, 0x90, 0x90              /* nop's */
+-   };
+-   _glapi_proc entry;
+-
+-   if (size < sizeof(code_templ))
+-      return NULL;
+-
+-   memcpy(code, code_templ, sizeof(code_templ));
+-
+-   *((unsigned long *) (code + 2)) = x86_current_tls();
+-   entry = (_glapi_proc) code;
+-   entry_patch(entry, slot);
+-
+-   return entry;
+-}
+-
+ #elif defined(USE_X86_64_ASM) && defined(REALLY_INITIAL_EXEC)
+ #include "entry_x86-64_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC
+-#include "shared_glapi_mapi_tmp.h"
+-
+-#include <string.h>
+-
+-static void
+-entry_patch_public(void)
+-{
+-}
+-
+-extern char
+-x86_64_entry_start[] HIDDEN;
+-
+-static _glapi_proc
+-entry_get_public(int slot)
+-{
+-   return (_glapi_proc) (x86_64_entry_start + slot * 32);
+-}
+-
+ #elif defined(USE_PPC64LE_ASM) && UTIL_ARCH_LITTLE_ENDIAN && defined(REALLY_INITIAL_EXEC)
+ #include "entry_ppc64le_tls.h"
+-#define MAPI_TMP_STUB_ASM_GCC
+-#include "shared_glapi_mapi_tmp.h"
+-
+-#include <string.h>
+-
+-static void
+-entry_patch_public(void)
+-{
+-}
+-
+-extern char
+-ppc64le_entry_start[] HIDDEN;
+-
+-static _glapi_proc
+-entry_get_public(int slot)
+-{
+-   return (_glapi_proc) (ppc64le_entry_start + slot * PPC64LE_ENTRY_SIZE);
+-}
+-
+ #else
+ 
+ /* C version of the public entries */
+ #define MAPI_TMP_DEFINES
+ #define MAPI_TMP_PUBLIC_ENTRIES
+-#include "shared_glapi_mapi_tmp.h"
++#include "mapi_tmp.h"
+ 
+-static void
+-entry_patch_public(void)
+-{
+-}
++#ifndef MAPI_MODE_BRIDGE
+ 
+-static _glapi_proc
++mapi_func
+ entry_get_public(int slot)
+ {
++   /* pubic_entries are defined by MAPI_TMP_PUBLIC_ENTRIES */
+    return public_entries[slot];
+ }
+ 
+-#endif /* asm */
+-
+-/* Current dispatch and current context variables */
+-__THREAD_INITIAL_EXEC struct _glapi_table *_mesa_glapi_tls_Dispatch
+-   = (struct _glapi_table *)table_noop_array;
+-__THREAD_INITIAL_EXEC void *_mesa_glapi_tls_Context;
+-
+-static int
+-stub_compare(const void *key, const void *elem)
+-{
+-   const char *name = (const char *)key;
+-   const struct mapi_stub *stub = (const struct mapi_stub *)elem;
+-
+-   return strcmp(name, &public_string_pool[stub->name_offset]);
+-}
+-
+-/**
+- * Return size of dispatch table struct as number of functions (or
+- * slots).
+- */
+-unsigned
+-_mesa_glapi_get_dispatch_table_size(void)
+-{
+-   return _gloffset_COUNT;
+-}
+-
+-static const struct mapi_stub *
+-_glapi_get_stub(const char *name)
+-{
+-   if (!name || name[0] != 'g' || name[1] != 'l')
+-      return NULL;
+-
+-   return (const struct mapi_stub *)
+-          bsearch(name + 2, public_stubs, ARRAY_SIZE(public_stubs),
+-                  sizeof(public_stubs[0]), stub_compare);
+-}
+-
+-/**
+- * Return offset of entrypoint for named function within dispatch table.
+- */
+-int
+-_mesa_glapi_get_proc_offset(const char *funcName)
+-{
+-   const struct mapi_stub *stub = _glapi_get_stub(funcName);
+-   return stub ? stub->slot : -1;
+-}
+-
+-/**
+- * Return pointer to the named function.  If the function name isn't found
+- * in the name of static functions, try generating a new API entrypoint on
+- * the fly with assembly language.
+- */
+-_glapi_proc
+-_mesa_glapi_get_proc_address(const char *funcName)
+-{
+-   const struct mapi_stub *stub = _glapi_get_stub(funcName);
+-   return stub ? entry_get_public(stub->slot) : NULL;
+-}
+-
+-/**
+- * Return the name of the function at the given dispatch offset.
+- * This is only intended for debugging.
+- */
+-const char *
+-_glapi_get_proc_name(unsigned offset)
+-{
+-   for (unsigned i = 0; i < ARRAY_SIZE(public_stubs); ++i) {
+-      if (public_stubs[i].slot == offset)
+-         return &public_string_pool[public_stubs[i].name_offset];
+-   }
+-
+-   return NULL;
+-}
+-
+-/** Return pointer to new dispatch table filled with no-op functions */
+-struct _glapi_table *
+-_glapi_new_nop_table(void)
+-{
+-   struct _glapi_table *table = malloc(_gloffset_COUNT * sizeof(_glapi_proc));
+-
+-   if (table)
+-      memcpy(table, table_noop_array, _gloffset_COUNT * sizeof(_glapi_proc));
+-   return table;
+-}
+-
+-/**
+- * Set the current context pointer for this thread.
+- * The context pointer is an opaque type which should be cast to
+- * void from the real context pointer type.
+- */
+-void
+-_mesa_glapi_set_context(void *ptr)
+-{
+-   _mesa_glapi_tls_Context = ptr;
+-}
+-
+-/**
+- * Get the current context pointer for this thread.
+- * The context pointer is an opaque type which should be cast from
+- * void to the real context pointer type.
+- */
+-void *
+-_mesa_glapi_get_context(void)
+-{
+-   return _mesa_glapi_tls_Context;
+-}
+-
+-/**
+- * Set the global or per-thread dispatch table pointer.
+- * If the dispatch parameter is NULL we'll plug in the no-op dispatch
+- * table (__glapi_noop_table).
+- */
+-void
+-_mesa_glapi_set_dispatch(struct _glapi_table *tbl)
+-{
+-   static once_flag flag = ONCE_FLAG_INIT;
+-   call_once(&flag, entry_patch_public);
+-
+-   _mesa_glapi_tls_Dispatch =
+-      tbl ? tbl : (struct _glapi_table *)table_noop_array;
+-}
+-
+-/**
+- * Return pointer to current dispatch table for calling thread.
+- */
+-struct _glapi_table *
+-_mesa_glapi_get_dispatch(void)
+-{
+-   return _mesa_glapi_tls_Dispatch;
+-}
++#endif /* MAPI_MODE_BRIDGE */
+ 
+ #if defined(_WIN32) && defined(_WINDOWS_)
+ #error "Should not include <windows.h> here"
+ #endif
++
++#endif /* asm */
+diff --git a/src/mapi/shared-glapi/glapi.c b/src/mapi/shared-glapi/glapi.c
+new file mode 100644
+index 00000000000..f64d104aadf
+--- /dev/null
++++ b/src/mapi/shared-glapi/glapi.c
+@@ -0,0 +1,112 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 1999-2008  Brian Paul   All Rights Reserved.
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#include <string.h>
++#include <stdlib.h>
++#include "glapi/glapi.h"
++#include "table.h"
++#include "stub.h"
++
++/*
++ * _mesa_glapi_Dispatch,
++ * _mesa_glapi_tls_Dispatch, _mesa_glapi_tls_Context,
++ * _mesa_glapi_set_dispatch, and _mesa_glapi_get_dispatch
++ * are defined in u_current.c.
++ */
++
++/**
++ * Return size of dispatch table struct as number of functions (or
++ * slots).
++ */
++unsigned int
++_mesa_glapi_get_dispatch_table_size(void)
++{
++   return _gloffset_COUNT;
++}
++
++static const struct mapi_stub *
++_glapi_get_stub(const char *name)
++{
++   if (!name || name[0] != 'g' || name[1] != 'l')
++      return NULL;
++   name += 2;
++
++   return stub_find_public(name);
++}
++
++/**
++ * Return offset of entrypoint for named function within dispatch table.
++ */
++int
++_mesa_glapi_get_proc_offset(const char *funcName)
++{
++   const struct mapi_stub *stub = _glapi_get_stub(funcName);
++   return (stub) ? stub_get_slot(stub) : -1;
++}
++
++/**
++ * Return pointer to the named function.  If the function name isn't found
++ * in the name of static functions, try generating a new API entrypoint on
++ * the fly with assembly language.
++ */
++_glapi_proc
++_mesa_glapi_get_proc_address(const char *funcName)
++{
++   const struct mapi_stub *stub = _glapi_get_stub(funcName);
++   return (stub) ? (_glapi_proc) stub_get_addr(stub) : NULL;
++}
++
++/**
++ * Return the name of the function at the given dispatch offset.
++ * This is only intended for debugging.
++ */
++const char *
++_glapi_get_proc_name(unsigned int offset)
++{
++   const struct mapi_stub *stub = stub_find_by_slot(offset);
++   return stub ? stub_get_name(stub) : NULL;
++}
++
++/** Return pointer to new dispatch table filled with no-op functions */
++struct _glapi_table *
++_glapi_new_nop_table(void)
++{
++   struct _glapi_table *table;
++
++   table = malloc(_gloffset_COUNT * sizeof(mapi_func));
++   if (table) {
++      memcpy(table, table_noop_array, _gloffset_COUNT * sizeof(mapi_func));
++   }
++   return table;
++}
++
++void
++_glapi_set_nop_handler(_glapi_nop_handler_proc func)
++{
++   table_set_noop_handler(func);
++}
+diff --git a/src/mapi/shared-glapi/meson.build b/src/mapi/shared-glapi/meson.build
+index 3af5f304e6f..b605f0a0d9e 100644
+--- a/src/mapi/shared-glapi/meson.build
++++ b/src/mapi/shared-glapi/meson.build
+@@ -1,10 +1,20 @@
+ # Copyright © 2017 Intel Corporation
+ # SPDX-License-Identifier: MIT
+ 
++files_shared_glapi = files(
++  '../entry.c',
++  '../u_current.c',
++  'glapi.c',
++  'stub.c',
++  'stub.h',
++  'table.c',
++  'table.h',
++)
++
+ shared_glapi_mapi_tmp_h = custom_target(
+   'shared_glapi_mapi_tmp.h',
+   input : ['../mapi_abi.py', '../glapi/gen/gl_and_es_API.xml'],
+-  output : 'shared_glapi_mapi_tmp.h',
++  output : 'glapi_mapi_tmp.h',
+   command : [prog_python, '@INPUT0@', '--printer', 'shared-glapi', '@INPUT1@'],
+   depend_files : glapi_xml_py_deps,
+   capture : true,
+@@ -12,10 +22,11 @@ shared_glapi_mapi_tmp_h = custom_target(
+ 
+ libglapi = static_library(
+   'glapi',
+-  ['core.c', shared_glapi_mapi_tmp_h],
++  [files_shared_glapi, shared_glapi_mapi_tmp_h],
+   c_args : [
+     c_msvc_compat_args,
+-    '-DMAPI_MODE_SHARED_GLAPI',
++    '-DMAPI_MODE_GLAPI',
++    '-DMAPI_ABI_HEADER="@0@"'.format(shared_glapi_mapi_tmp_h.full_path()),
+     gcc_lto_quirk,
+   ],
+   gnu_symbol_visibility : 'hidden',
+diff --git a/src/mapi/shared-glapi/stub.c b/src/mapi/shared-glapi/stub.c
+new file mode 100644
+index 00000000000..0be8258a2ec
+--- /dev/null
++++ b/src/mapi/shared-glapi/stub.c
+@@ -0,0 +1,125 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#include <stdlib.h>
++#include <string.h>
++#include <assert.h>
++#include "c11/threads.h"
++
++#include "util/macros.h"
++#include "util/simple_mtx.h"
++#include "glapi/glapi.h"
++#include "entry.h"
++#include "stub.h"
++#include "table.h"
++
++
++struct mapi_stub {
++   size_t name_offset;
++   int slot;
++};
++
++/* define public_string_pool and public_stubs */
++#define MAPI_TMP_PUBLIC_STUBS
++#include "mapi_tmp.h"
++
++void
++stub_init_once(void)
++{
++   static once_flag flag = ONCE_FLAG_INIT;
++   call_once(&flag, entry_patch_public);
++}
++
++static int
++stub_compare(const void *key, const void *elem)
++{
++   const char *name = (const char *) key;
++   const struct mapi_stub *stub = (const struct mapi_stub *) elem;
++   const char *stub_name;
++
++   stub_name = &public_string_pool[stub->name_offset];
++
++   return strcmp(name, stub_name);
++}
++
++/**
++ * Return the public stub with the given name.
++ */
++const struct mapi_stub *
++stub_find_public(const char *name)
++{
++   return (const struct mapi_stub *) bsearch(name, public_stubs,
++         ARRAY_SIZE(public_stubs), sizeof(public_stubs[0]), stub_compare);
++}
++
++
++static const struct mapi_stub *
++search_table_by_slot(const struct mapi_stub *table, size_t num_entries,
++                     int slot)
++{
++   size_t i;
++   for (i = 0; i < num_entries; ++i) {
++      if (table[i].slot == slot)
++         return &table[i];
++   }
++   return NULL;
++}
++
++const struct mapi_stub *
++stub_find_by_slot(int slot)
++{
++   const struct mapi_stub *stub =
++      search_table_by_slot(public_stubs, ARRAY_SIZE(public_stubs), slot);
++   return stub;
++}
++
++/**
++ * Return the name of a stub.
++ */
++const char *
++stub_get_name(const struct mapi_stub *stub)
++{
++   return &public_string_pool[stub->name_offset];
++}
++
++/**
++ * Return the slot of a stub.
++ */
++int
++stub_get_slot(const struct mapi_stub *stub)
++{
++   return stub->slot;
++}
++
++/**
++ * Return the address of a stub.
++ */
++mapi_func
++stub_get_addr(const struct mapi_stub *stub)
++{
++   return entry_get_public(stub->slot);
++}
+diff --git a/src/mapi/shared-glapi/stub.h b/src/mapi/shared-glapi/stub.h
+new file mode 100644
+index 00000000000..4a0e0d8667d
+--- /dev/null
++++ b/src/mapi/shared-glapi/stub.h
+@@ -0,0 +1,53 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#ifndef _STUB_H_
++#define _STUB_H_
++
++#include "entry.h"
++
++struct mapi_stub;
++
++void
++stub_init_once(void);
++
++const struct mapi_stub *
++stub_find_public(const char *name);
++
++const struct mapi_stub *
++stub_find_by_slot(int slot);
++
++const char *
++stub_get_name(const struct mapi_stub *stub);
++
++int
++stub_get_slot(const struct mapi_stub *stub);
++
++mapi_func
++stub_get_addr(const struct mapi_stub *stub);
++
++#endif /* _STUB_H_ */
+diff --git a/src/mapi/shared-glapi/table.c b/src/mapi/shared-glapi/table.c
+new file mode 100644
+index 00000000000..b0dd51f8622
+--- /dev/null
++++ b/src/mapi/shared-glapi/table.c
+@@ -0,0 +1,80 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#include <stdbool.h>
++#include <stdlib.h>
++#include <stdio.h>
++#include <string.h>
++
++#include "c11/threads.h"
++#include "table.h"
++
++static nop_handler_proc nop_handler = NULL;
++
++void
++table_set_noop_handler(nop_handler_proc func)
++{
++   nop_handler = func;
++}
++
++static bool log_noop;
++
++static void check_debug_env(void)
++{
++   const char *debug = getenv("MESA_DEBUG");
++   if (!debug)
++      debug = getenv("LIBGL_DEBUG");
++   if (debug && strcmp(debug, "silent") != 0)
++      log_noop = true;
++}
++
++static void
++noop_warn(const char *name)
++{
++   if (nop_handler) {
++      nop_handler(name);
++   }
++   else {
++      static once_flag flag = ONCE_FLAG_INIT;
++      call_once(&flag, check_debug_env);
++
++      if (log_noop)
++         fprintf(stderr, "%s is no-op\n", name);
++   }
++}
++
++static int
++noop_generic(void)
++{
++   noop_warn("function");
++   return 0;
++}
++
++/* define noop_array */
++#define MAPI_TMP_DEFINES
++#define MAPI_TMP_NOOP_ARRAY
++#include "mapi_tmp.h"
+diff --git a/src/mapi/shared-glapi/table.h b/src/mapi/shared-glapi/table.h
+new file mode 100644
+index 00000000000..cad80718050
+--- /dev/null
++++ b/src/mapi/shared-glapi/table.h
+@@ -0,0 +1,43 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 2010 LunarG Inc.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
++ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
++ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
++ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
++ * DEALINGS IN THE SOFTWARE.
++ *
++ * Authors:
++ *    Chia-I Wu <olv@lunarg.com>
++ */
++
++#ifndef _TABLE_H_
++#define _TABLE_H_
++
++#include "entry.h"
++#include "mapi_tmp.h"
++
++struct _glapi_table;
++
++extern const mapi_func table_noop_array[];
++
++typedef void (*nop_handler_proc)(const char *name);
++
++void
++table_set_noop_handler(nop_handler_proc func);
++
++#endif /* _TABLE_H_ */
+diff --git a/src/mapi/u_current.c b/src/mapi/u_current.c
+new file mode 100644
+index 00000000000..65e9e1b46ee
+--- /dev/null
++++ b/src/mapi/u_current.c
+@@ -0,0 +1,112 @@
++/*
++ * Mesa 3-D graphics library
++ *
++ * Copyright (C) 1999-2008  Brian Paul   All Rights Reserved.
++ *
++ * Permission is hereby granted, free of charge, to any person obtaining a
++ * copy of this software and associated documentation files (the "Software"),
++ * to deal in the Software without restriction, including without limitation
++ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
++ * and/or sell copies of the Software, and to permit persons to whom the
++ * Software is furnished to do so, subject to the following conditions:
++ *
++ * The above copyright notice and this permission notice shall be included
++ * in all copies or substantial portions of the Software.
++ *
++ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
++ * OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
++ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
++ * THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
++ * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
++ * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
++ * OTHER DEALINGS IN THE SOFTWARE.
++ */
++
++
++/*
++ * This file manages the OpenGL API dispatch layer.
++ * The dispatch table (struct _glapi_table) is basically just a list
++ * of function pointers.
++ * There are functions to set/get the current dispatch table for the
++ * current thread.
++ */
++
++#include "c11/threads.h"
++#include "util/u_thread.h"
++#include "glapi/glapi.h"
++
++#include "table.h"
++#include "stub.h"
++
++/**
++ * \name Current dispatch and current context control variables
++ *
++ * Depending on whether or not multithreading is support, and the type of
++ * support available, several variables are used to store the current context
++ * pointer and the current dispatch table pointer. In the non-threaded case,
++ * the variables \c _mesa_glapi_Dispatch and \c _glapi_Context are used for this
++ * purpose.
++ *
++ * In multi threaded case, The TLS variables \c _mesa_glapi_tls_Dispatch and
++ * \c _mesa_glapi_tls_Context are used. Having \c _mesa_glapi_Dispatch
++ * be hardcoded to \c NULL maintains binary compatability between TLS enabled
++ * loaders and non-TLS DRI drivers. When \c _mesa_glapi_Dispatch
++ * are \c NULL, the thread state data \c ContextTSD are used.
++ */
++/*@{*/
++
++__THREAD_INITIAL_EXEC struct _glapi_table *_mesa_glapi_tls_Dispatch
++   = (struct _glapi_table *) table_noop_array;
++
++__THREAD_INITIAL_EXEC void *_mesa_glapi_tls_Context;
++
++const struct _glapi_table *_mesa_glapi_Dispatch;
++
++/*@}*/
++
++/**
++ * Set the current context pointer for this thread.
++ * The context pointer is an opaque type which should be cast to
++ * void from the real context pointer type.
++ */
++void
++_mesa_glapi_set_context(void *ptr)
++{
++   _mesa_glapi_tls_Context = ptr;
++}
++
++/**
++ * Get the current context pointer for this thread.
++ * The context pointer is an opaque type which should be cast from
++ * void to the real context pointer type.
++ */
++void *
++_mesa_glapi_get_context(void)
++{
++   return _mesa_glapi_tls_Context;
++}
++
++/**
++ * Set the global or per-thread dispatch table pointer.
++ * If the dispatch parameter is NULL we'll plug in the no-op dispatch
++ * table (__glapi_noop_table).
++ */
++void
++_mesa_glapi_set_dispatch(struct _glapi_table *tbl)
++{
++   stub_init_once();
++
++   if (!tbl)
++      tbl = (struct _glapi_table *) table_noop_array;
++
++   _mesa_glapi_tls_Dispatch = tbl;
++}
++
++/**
++ * Return pointer to current dispatch table for calling thread.
++ */
++struct _glapi_table *
++_mesa_glapi_get_dispatch(void)
++{
++   return _mesa_glapi_tls_Dispatch;
++}
+diff --git a/src/mesa/main/api_arrayelt.c b/src/mesa/main/api_arrayelt.c
+index b5cfb94b0f4..805e13d0ecb 100644
+--- a/src/mesa/main/api_arrayelt.c
++++ b/src/mesa/main/api_arrayelt.c
+@@ -42,7 +42,7 @@
+ 
+ #include "macros.h"
+ #include "mtypes.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "varray.h"
+ #include "api_exec_decl.h"
+ 
+diff --git a/src/mesa/main/context.c b/src/mesa/main/context.c
+index f329f4da4e7..7f542e79e19 100644
+--- a/src/mesa/main/context.c
++++ b/src/mesa/main/context.c
+@@ -138,7 +138,7 @@
+ #include "texturebindless.h"
+ #include "program/program.h"
+ #include "math/m_matrix.h"
+-#include "dispatch.h" /* for _gloffset_COUNT */
++#include "main/dispatch.h" /* for _gloffset_COUNT */
+ #include "macros.h"
+ #include "git_sha1.h"
+ 
+@@ -735,8 +735,8 @@ update_default_objects(struct gl_context *ctx)
+  *
+  * \param name  the name of the OpenGL function
+  */
+-void
+-_mesa_noop_entrypoint(const char *name)
++static void
++nop_handler(const char *name)
+ {
+    GET_CURRENT_CONTEXT(ctx);
+    if (ctx) {
+@@ -829,6 +829,7 @@ _mesa_alloc_dispatch_table(bool glthread)
+    }
+ #endif
+ 
++   _glapi_set_nop_handler(nop_handler);
+    return table;
+ }
+ 
+diff --git a/src/mesa/main/context.h b/src/mesa/main/context.h
+index 3ceb8bf960c..4f38464233e 100644
+--- a/src/mesa/main/context.h
++++ b/src/mesa/main/context.h
+@@ -110,9 +110,6 @@ _mesa_share_state(struct gl_context *ctx, struct gl_context *ctxToShare);
+ extern struct gl_context *
+ _mesa_get_current_context(void);
+ 
+-extern void
+-_mesa_noop_entrypoint(const char *name);
+-
+ /*@}*/
+ 
+ extern void
+diff --git a/src/mesa/main/dlist.c b/src/mesa/main/dlist.c
+index 7169d725a24..d120866171a 100644
+--- a/src/mesa/main/dlist.c
++++ b/src/mesa/main/dlist.c
+@@ -45,7 +45,7 @@
+ #include "varray.h"
+ #include "glthread_marshal.h"
+ 
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ 
+ #include "vbo/vbo_save.h"
+ #include "util/u_inlines.h"
+diff --git a/src/mesa/main/eval.c b/src/mesa/main/eval.c
+index a37e10b024b..320e35bd6e9 100644
+--- a/src/mesa/main/eval.c
++++ b/src/mesa/main/eval.c
+@@ -42,7 +42,7 @@
+ #include "eval.h"
+ #include "macros.h"
+ #include "mtypes.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "api_exec_decl.h"
+ 
+ 
+diff --git a/src/mesa/main/glthread_bufferobj.c b/src/mesa/main/glthread_bufferobj.c
+index cb5a0eef552..499a480a339 100644
+--- a/src/mesa/main/glthread_bufferobj.c
++++ b/src/mesa/main/glthread_bufferobj.c
+@@ -22,7 +22,7 @@
+  */
+ 
+ #include "main/glthread_marshal.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "main/bufferobj.h"
+ 
+ /**
+diff --git a/src/mesa/main/glthread_draw.c b/src/mesa/main/glthread_draw.c
+index 95d7a6b3c9f..dc8dd6ccb2c 100644
+--- a/src/mesa/main/glthread_draw.c
++++ b/src/mesa/main/glthread_draw.c
+@@ -31,7 +31,7 @@
+ 
+ #include "api_exec_decl.h"
+ #include "main/glthread_marshal.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "main/varray.h"
+ 
+ static inline unsigned
+diff --git a/src/mesa/main/glthread_get.c b/src/mesa/main/glthread_get.c
+index fc14e3f4e14..51beaedc21a 100644
+--- a/src/mesa/main/glthread_get.c
++++ b/src/mesa/main/glthread_get.c
+@@ -22,7 +22,7 @@
+  */
+ 
+ #include "main/glthread_marshal.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ 
+ uint32_t
+ _mesa_unmarshal_GetIntegerv(struct gl_context *ctx,
+diff --git a/src/mesa/main/glthread_list.c b/src/mesa/main/glthread_list.c
+index ae369ad84c3..46d8ee46079 100644
+--- a/src/mesa/main/glthread_list.c
++++ b/src/mesa/main/glthread_list.c
+@@ -24,7 +24,7 @@
+ #include "c99_alloca.h"
+ 
+ #include "main/glthread_marshal.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ 
+ struct marshal_cmd_CallList
+ {
+diff --git a/src/mesa/main/glthread_pixels.c b/src/mesa/main/glthread_pixels.c
+index a3eb956c97f..5f4836b1cdb 100644
+--- a/src/mesa/main/glthread_pixels.c
++++ b/src/mesa/main/glthread_pixels.c
+@@ -5,7 +5,7 @@
+  */
+ 
+ #include "main/glthread_marshal.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "main/image.h"
+ 
+ #define MAX_BITMAP_BYTE_SIZE     4096
+diff --git a/src/mesa/main/glthread_varray.c b/src/mesa/main/glthread_varray.c
+index d747d6eaa6c..61ccfd202b1 100644
+--- a/src/mesa/main/glthread_varray.c
++++ b/src/mesa/main/glthread_varray.c
+@@ -30,7 +30,7 @@
+ #include "main/glformats.h"
+ #include "main/mtypes.h"
+ #include "main/hash.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "main/varray.h"
+ 
+ static unsigned
+diff --git a/src/mesa/main/meson.build b/src/mesa/main/meson.build
+new file mode 100644
+index 00000000000..fdddc4df3c4
+--- /dev/null
++++ b/src/mesa/main/meson.build
+@@ -0,0 +1,33 @@
++# Copyright © 2017 Intel Corporation
++# SPDX-License-Identifier: MIT
++
++main_dispatch_h = custom_target(
++  'dispatch.h',
++  input : ['../../mapi/glapi/gen/gl_table.py', '../../mapi/glapi/gen/gl_and_es_API.xml'],
++  output : 'dispatch.h',
++  command : [prog_python, '@INPUT0@', '-f', '@INPUT1@', '-m', 'dispatch'],
++  depend_files : glapi_xml_py_deps,
++  capture : true,
++)
++
++idep_dispatch_h = declare_dependency(sources : [main_dispatch_h])
++
++main_marshal_generated_h = custom_target(
++  'marshal_generated.h',
++  input : ['../../mapi/glapi/gen/marshal_generated_h.py', '../../mapi/glapi/gen/gl_and_es_API.xml'],
++  output : 'marshal_generated.h',
++  command : [prog_python, '@INPUT0@', '@INPUT1@', sizeof_pointer],
++  depend_files : glapi_xml_py_deps,
++  capture : true,
++)
++
++if _shader_replacement != ''
++  # shader replacement
++  shader_replacement_h = custom_target(
++    'shader_replacement.h',
++    input: [files(_shader_replacement + '/process_shaders.py')],
++    output: 'shader_replacement.h',
++    command: [prog_python, '@INPUT0@', _shader_replacement, '@OUTPUT@'],
++    build_always: true,
++  )
++endif
+diff --git a/src/mesa/main/robustness.c b/src/mesa/main/robustness.c
+index 2b998448f53..5df4b5f298d 100644
+--- a/src/mesa/main/robustness.c
++++ b/src/mesa/main/robustness.c
+@@ -27,7 +27,7 @@
+ #include "get.h"
+ #include "mtypes.h"
+ #include "macros.h"
+-#include "dispatch.h" /* for _gloffset_COUNT */
++#include "main/dispatch.h" /* for _gloffset_COUNT */
+ #include "api_exec_decl.h"
+ #include "glthread_marshal.h"
+ 
+diff --git a/src/mesa/main/varray.c b/src/mesa/main/varray.c
+index d64c2610d81..8bf277937dc 100644
+--- a/src/mesa/main/varray.c
++++ b/src/mesa/main/varray.c
+@@ -41,7 +41,7 @@
+ #include "varray.h"
+ #include "arrayobj.h"
+ #include "get.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "api_exec_decl.h"
+ 
+ #include "state_tracker/st_atom.h"
+diff --git a/src/mesa/meson.build b/src/mesa/meson.build
+index 6e28cfc5b13..eae2252c878 100644
+--- a/src/mesa/meson.build
++++ b/src/mesa/meson.build
+@@ -2,16 +2,7 @@
+ # SPDX-License-Identifier: MIT
+ 
+ subdir('program')
+-
+-if _shader_replacement != ''
+-  shader_replacement_h = custom_target(
+-    'shader_replacement.h',
+-    input: [files(_shader_replacement + '/process_shaders.py')],
+-    output: 'shader_replacement.h',
+-    command: [prog_python, '@INPUT0@', _shader_replacement, '@OUTPUT@'],
+-    build_always: true,
+-  )
+-endif
++subdir('main')
+ 
+ # files shared between classic mesa and gallium mesa
+ files_libmesa = files(
+diff --git a/src/mesa/vbo/vbo_exec_api.c b/src/mesa/vbo/vbo_exec_api.c
+index 100d2f71d3e..8141a666610 100644
+--- a/src/mesa/vbo/vbo_exec_api.c
++++ b/src/mesa/vbo/vbo_exec_api.c
+@@ -40,7 +40,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
+ #include "main/light.h"
+ #include "main/api_arrayelt.h"
+ #include "main/draw_validate.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "util/bitscan.h"
+ #include "util/u_memory.h"
+ #include "api_exec_decl.h"
+diff --git a/src/mesa/vbo/vbo_exec_eval.c b/src/mesa/vbo/vbo_exec_eval.c
+index 1bada200322..076f0cb6e17 100644
+--- a/src/mesa/vbo/vbo_exec_eval.c
++++ b/src/mesa/vbo/vbo_exec_eval.c
+@@ -29,7 +29,7 @@
+ #include "main/context.h"
+ #include "main/macros.h"
+ #include "math/m_eval.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "vbo_exec.h"
+ #include "vbo_private.h"
+ 
+diff --git a/src/mesa/vbo/vbo_noop.c b/src/mesa/vbo/vbo_noop.c
+index 8d3cb4b3275..3637b649c4e 100644
+--- a/src/mesa/vbo/vbo_noop.c
++++ b/src/mesa/vbo/vbo_noop.c
+@@ -34,7 +34,7 @@
+ 
+ #include "util/glheader.h"
+ #include "main/context.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "main/dlist.h"
+ #include "main/eval.h"
+ #include "vbo_attrib.h"
+diff --git a/src/mesa/vbo/vbo_save_api.c b/src/mesa/vbo/vbo_save_api.c
+index 525bd199bda..583f79e09dd 100644
+--- a/src/mesa/vbo/vbo_save_api.c
++++ b/src/mesa/vbo/vbo_save_api.c
+@@ -110,7 +110,7 @@ USE OR OTHER DEALINGS IN THE SOFTWARE.
+ #include "main/macros.h"
+ #include "main/draw_validate.h"
+ #include "main/api_arrayelt.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "main/state.h"
+ #include "main/varray.h"
+ #include "util/bitscan.h"
+diff --git a/src/mesa/vbo/vbo_save_loopback.c b/src/mesa/vbo/vbo_save_loopback.c
+index db7312503ec..a2076c2ce80 100644
+--- a/src/mesa/vbo/vbo_save_loopback.c
++++ b/src/mesa/vbo/vbo_save_loopback.c
+@@ -30,7 +30,7 @@
+ #include "util/glheader.h"
+ #include "main/enums.h"
+ #include "main/mesa_private.h"
+-#include "dispatch.h"
++#include "main/dispatch.h"
+ #include "glapi/glapi.h"
+ 
+ #include "vbo_private.h"
+-- 
+2.48.1
+
