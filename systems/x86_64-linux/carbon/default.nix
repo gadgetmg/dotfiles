@@ -117,6 +117,7 @@
             ignoreCollisions = true;
             paths = lib.closePropagation [
               mopidy-mpris
+              mopidy-somafm
               mopidy-mpd
               internal.mopidy-autoplay
             ];
