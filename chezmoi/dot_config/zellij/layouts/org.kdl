@@ -5,11 +5,5 @@ layout {
             plugin location="compact-bar"
         }
     }
-    tab name="org" {
-        pane command="nvim" {
-            cwd "~/Documents/Notes/"
-            args "todos.org"
-        }
-    }
     tab focus=true
 }

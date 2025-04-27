@@ -1,4 +1,9 @@
-{ config, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 {
   imports = [ ./disks.nix ];
 
@@ -16,51 +21,63 @@
       path = "/var/lib/sbctl/GUID";
       mode = "644";
     };
+    "openweathermap.env" = {
+      group = "users";
+      mode = "440";
+    };
   };
 
-  boot.loader.systemd-boot.memtest86.enable = true;
   boot.initrd.systemd.enable = true;
   boot.lanzaboote = {
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.kernelPackages = pkgs.linuxPackagesFor (
+    pkgs.linux_testing.override {
+      argsOverride = rec {
+        src = pkgs.fetchurl {
+          url = "https://git.kernel.org/torvalds/t/linux-${version}.tar.gz";
+          sha256 = "sha256-Ntokx3v/cuyLXfMEypL7GWy5O8KiAwwH0hJJBaNbLaI=";
+        };
+        version = "6.15-rc3";
+        modDirVersion = "6.15.0-rc3";
+      };
+    }
+  );
+
   boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
   boot.kernelModules = [ "nct6775" ];
-  boot.kernelParams = [ "amdgpu.ppfeaturemask=0xfff7ffff" ];
+  boot.kernelParams = [
+    "amdgpu.ppfeaturemask=0xfff7ffff"
+    "split_lock_detect=off"
+  ];
 
-  hardware.amdgpu.amdvlk = {
-    enable = true;
-    support32Bit.enable = true;
-    supportExperimental.enable = true;
-  };
   hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
   hardware.graphics = with pkgs; {
     package = upstream.mesa;
     package32 = pkgsi686Linux.upstream.mesa;
   };
-  system.replaceDependencies.replacements = with pkgs; [
-    {
-      oldDependency = mesa.out;
-      newDependency = upstream.mesa.out;
-    }
-    {
-      oldDependency = pkgsi686Linux.mesa.out;
-      newDependency = pkgsi686Linux.upstream.mesa.out;
-    }
+
+  fonts.enableDefaultPackages = true;
+  fonts.packages = with pkgs; [
+    adwaita-fonts
+    noto-fonts
+    nerd-fonts.iosevka
   ];
-
-  jovian.steam.enable = true;
-  jovian.steam.user = "matt";
-  jovian.steamos.useSteamOSConfig = false;
-  jovian.hardware.has.amd.gpu = true;
-
+  fonts.fontconfig.defaultFonts = {
+    sansSerif = [ "Noto Sans" ];
+    serif = [ "Noto Serif" ];
+    monospace = [ "Iosevka Nerd Font" ];
+    emoji = [ "Noto Color Emoji" ];
+  };
   services.btrfs.autoScrub.enable = true;
-  services.desktopManager.plasma6.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
-  services.displayManager.defaultSession = "plasma";
+  services.sunshine.enable = true;
+  services.sunshine.openFirewall = true;
+  services.sunshine.capSysAdmin = true;
+  services.displayManager.ly.enable = true;
+  services.displayManager.defaultSession = "sway";
+  services.logind.killUserProcesses = true;
   services.netdata.enable = true;
   services.netdata.configDir."go.d/sensors.conf" = pkgs.writeText "sensors.conf" ''
     jobs:
@@ -75,6 +92,45 @@
   services.pipewire.enable = true;
   services.pipewire.lowLatency.enable = true;
   services.xserver.xkb.variant = "colemak";
+  services.udisks2 = {
+    enable = true;
+    mountOnMedia = true;
+  };
+  services.blueman.enable = true;
+  services.printing.enable = true;
+  services.avahi = {
+    enable = true;
+    nssmdns4 = true;
+    openFirewall = true;
+  };
+  systemd.user.services.mopidy = {
+    enable = true;
+    description = "Mopidy";
+    wantedBy = [ "default.target" ];
+    script =
+      let
+        mopidy-with-extensions =
+          with pkgs;
+          buildEnv {
+            name = "mopidy-with-extensions-${mopidy.version}";
+            meta.mainProgram = "mopidy";
+            ignoreCollisions = true;
+            paths = lib.closePropagation [
+              mopidy-mpris
+              mopidy-somafm
+              mopidy-notify
+              mopidy-mpd
+            ];
+            pathsToLink = [ "/${mopidyPackages.python.sitePackages}" ];
+            nativeBuildInputs = [ makeWrapper ];
+            postBuild = ''
+              makeWrapper ${lib.getExe mopidy} $out/bin/mopidy \
+                --prefix PYTHONPATH : $out/${mopidyPackages.python.sitePackages}
+            '';
+          };
+      in
+      "${lib.getExe mopidy-with-extensions}";
+  };
 
   virtualisation.docker.enable = true;
   virtualisation.docker.storageDriver = "btrfs";
@@ -87,11 +143,28 @@
 
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
+  programs.chromium.enable = true;
   programs.firefox.enable = true;
   programs.steam.enable = true;
   programs.steam.remotePlay.openFirewall = true;
   programs.steam.platformOptimizations.enable = true;
   programs.steam.extraPackages = with pkgs; [ gamescope ];
+  programs.steam.gamescopeSession.enable = true;
+  programs.steam.gamescopeSession.args = [ "--adaptive-sync" ];
+  programs.gamescope.enable = true;
+  programs.sway.enable = true;
+  programs.sway.wrapperFeatures.gtk = true;
+  programs.sway.extraPackages =
+    with pkgs;
+    lib.mkOptionDefault [
+      i3status-rust
+      kanshi
+      dex
+      xorg.xrandr
+      mako
+      udiskie
+      wayland-pipewire-idle-inhibit
+    ];
   programs.git.enable = true;
   programs.gamemode.enable = true;
   programs.gamemode.enableRenice = true;
@@ -103,6 +176,10 @@
   time.timeZone = "America/New_York";
 
   environment.systemPackages = with pkgs; [
+    adwaita-qt
+    adwaita-qt6
+    adwaita-icon-theme
+    adwaita-icon-theme-legacy
     btop-rocm
     furmark
     git
@@ -111,6 +188,7 @@
     htop
     iftop
     iotop
+    jq
     lact
     libreoffice
     llama-cpp
@@ -140,27 +218,33 @@
     packages = with pkgs; [
       bat
       bind
+      (catppuccin-gtk.override { variant = "mocha"; })
       cargo
       chezmoi
       direnv
       discord
-      emacs
       foot
       fzf
       gcc
       gh
+      kdiskmark
       lazygit
       lua5_1
       luarocks
       mangohud
+      nemo
+      ncmpcpp
       neovim
       nixfmt-rfc-style
       nodejs
+      nwg-look
       openssl
+      protonup-qt
       ripgrep
       ryzen-monitor-ng
       skim
       starship
+      swaybg
       tcpdump
       tigervnc
       unzip
@@ -168,8 +252,21 @@
       wineWowPackages.stableFull
       wireshark
       wl-clipboard
+      ymuse
       zellij
     ];
+  };
+
+  specialisation = {
+    mesa-stable.configuration = {
+      boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
+      hardware.graphics =
+        with pkgs;
+        lib.mkForce {
+          package = mesa;
+          package32 = pkgsi686Linux.mesa;
+        };
+    };
   };
 
   system.stateVersion = "24.11";

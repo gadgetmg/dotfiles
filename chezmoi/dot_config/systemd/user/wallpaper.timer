@@ -1,0 +1,11 @@
+[Unit]
+Description=Update wallpaper
+Requires=wallpaper.service
+
+[Timer]
+Unit=wallpaper.service
+OnCalendar=hourly
+Persistent=True
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,11 @@
+[Desktop Entry]
+Categories=Game;
+Comment=An Open Source Launcher for GOG, Epic Games and Amazon Games
+Exec=heroic --ozone-platform-hint=auto %u
+Icon=com.heroicgameslauncher.hgl
+MimeType=x-scheme-handler/heroic;
+Name=Heroic Games Launcher
+SingleMainWindow=true
+StartupWMClass=heroic
+Terminal=false
+Type=Application

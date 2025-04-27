@@ -4,23 +4,10 @@ fi
 
 if [[ -v ZELLIJ ]]; then
 else
-  ZJ_SESSIONS=$(zellij list-sessions -n | grep -v "EXITED" | cut -d' ' -f1)
-  NO_SESSIONS=$(echo "${ZJ_SESSIONS}" | wc -l)
-
-  if [ "${NO_SESSIONS}" -ge 2 ]; then
-    SESSION="$(echo "${ZJ_SESSIONS}" | sk)"
-  else
-    SESSION=$ZJ_SESSIONS
-  fi
-  if [ -n "$SESSION" ]; then
-    zellij --session $SESSION action new-tab --layout compact --cwd $PWD
-    zellij attach $SESSION
-  else
-    zellij
-  fi
-  exit
+  exec zellij
 fi
 
+alias v="nvim"
 alias k="kubectl"
 alias kg="kubectl get -o wide"
 alias ka="kubectl get -o wide all"
