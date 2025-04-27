@@ -117,9 +117,8 @@
             ignoreCollisions = true;
             paths = lib.closePropagation [
               mopidy-mpris
-              mopidy-somafm
-              mopidy-notify
               mopidy-mpd
+              internal.mopidy-autoplay
             ];
             pathsToLink = [ "/${mopidyPackages.python.sitePackages}" ];
             nativeBuildInputs = [ makeWrapper ];
