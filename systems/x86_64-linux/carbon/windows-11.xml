@@ -1,0 +1,183 @@
+<domain type="kvm">
+  <name>windows-11</name>
+  <uuid>c6530585-1d5d-47e4-b23f-8b659698b77f</uuid>
+  <memory unit="KiB">33554432</memory>
+  <currentMemory unit="KiB">33554432</currentMemory>
+  <memoryBacking>
+    <source type="memfd"/>
+    <access mode="shared"/>
+  </memoryBacking>
+  <vcpu placement="static">16</vcpu>
+  <os>
+    <type arch="x86_64" machine="pc-q35-9.2">hvm</type>
+    <loader readonly="yes" type="pflash" format="raw">/run/libvirt/nix-ovmf/OVMF_CODE.fd</loader>
+    <nvram template="/run/libvirt/nix-ovmf/OVMF_VARS.fd" format="raw">/var/lib/libvirt/images/windows-11.fd</nvram>
+    <boot dev="cdrom"/>
+    <boot dev="hd"/>
+  </os>
+  <features>
+    <acpi/>
+    <apic/>
+    <hyperv mode="custom">
+      <relaxed state="on"/>
+      <vapic state="on"/>
+      <spinlocks state="on" retries="8191"/>
+      <vpindex state="on"/>
+      <runtime state="on"/>
+      <synic state="on"/>
+      <stimer state="on">
+        <direct state="on"/>
+      </stimer>
+      <reset state="on"/>
+      <vendor_id state="on" value=""/>
+      <frequencies state="on"/>
+      <reenlightenment state="on"/>
+      <tlbflush state="on"/>
+      <ipi state="on"/>
+    </hyperv>
+    <kvm>
+      <hidden state="on"/>
+    </kvm>
+  </features>
+  <cpu mode="host-passthrough" check="none" migratable="on">
+    <topology sockets="1" dies="1" clusters="1" cores="8" threads="2"/>
+    <feature policy="require" name="topoext"/>
+  </cpu>
+  <clock offset="localtime">
+    <timer name="rtc" tickpolicy="catchup"/>
+    <timer name="pit" tickpolicy="delay"/>
+    <timer name="hpet" present="no"/>
+    <timer name="hypervclock" present="yes"/>
+  </clock>
+  <on_poweroff>destroy</on_poweroff>
+  <on_reboot>restart</on_reboot>
+  <on_crash>destroy</on_crash>
+  <pm>
+    <suspend-to-mem enabled="no"/>
+    <suspend-to-disk enabled="no"/>
+  </pm>
+  <devices>
+    <emulator>/run/current-system/sw/bin/qemu-system-x86_64</emulator>
+    <disk type="volume" device="disk">
+      <driver name="qemu" type="qcow2" cache="none" discard="unmap"/>
+      <source pool="default" volume="windows-11.qcow2"/>
+      <target dev="vda" bus="virtio"/>
+      <address type="pci" domain="0x0000" bus="0x04" slot="0x00" function="0x0"/>
+    </disk>
+    <controller type="usb" index="0" model="qemu-xhci">
+      <address type="pci" domain="0x0000" bus="0x02" slot="0x00" function="0x0"/>
+    </controller>
+    <controller type="sata" index="0">
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x1f" function="0x2"/>
+    </controller>
+    <controller type="pci" index="0" model="pcie-root"/>
+    <controller type="pci" index="1" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="1" port="0x10"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x0" multifunction="on"/>
+    </controller>
+    <controller type="pci" index="2" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="2" port="0x11"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x1"/>
+    </controller>
+    <controller type="pci" index="3" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="3" port="0x12"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x2"/>
+    </controller>
+    <controller type="pci" index="4" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="4" port="0x13"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x3"/>
+    </controller>
+    <controller type="pci" index="5" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="5" port="0x14"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x4"/>
+    </controller>
+    <controller type="pci" index="6" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="6" port="0x15"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x02" function="0x5"/>
+    </controller>
+    <controller type="pci" index="7" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="7" port="0x8"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x01" function="0x0" multifunction="on"/>
+    </controller>
+    <controller type="pci" index="8" model="pcie-root-port">
+      <model name="pcie-root-port"/>
+      <target chassis="8" port="0x9"/>
+      <address type="pci" domain="0x0000" bus="0x00" slot="0x01" function="0x1"/>
+    </controller>
+    <interface type="bridge">
+      <mac address="52:54:00:25:f7:56"/>
+      <source bridge="virbr0"/>
+      <model type="virtio"/>
+      <address type="pci" domain="0x0000" bus="0x01" slot="0x00" function="0x0"/>
+    </interface>
+    <input type="mouse" bus="ps2"/>
+    <input type="keyboard" bus="ps2"/>
+    <tpm model="tpm-crb">
+      <backend type="emulator" version="2.0"/>
+    </tpm>
+    <audio id="1" type="none"/>
+    <hostdev mode="subsystem" type="pci" managed="yes">
+      <source>
+        <address domain="0x0000" bus="0x2b" slot="0x00" function="0x0"/>
+      </source>
+      <address type="pci" domain="0x0000" bus="0x03" slot="0x00" function="0x0"/>
+    </hostdev>
+    <hostdev mode="subsystem" type="pci" managed="yes">
+      <source>
+        <address domain="0x0000" bus="0x2b" slot="0x00" function="0x1"/>
+      </source>
+      <address type="pci" domain="0x0000" bus="0x06" slot="0x00" function="0x0"/>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x1d50"/>
+        <product id="0x615e"/>
+        <address bus="1" device="11"/>
+      </source>
+      <address type="usb" bus="0" port="2"/>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x1d50"/>
+        <product id="0x615e"/>
+        <address bus="1" device="12"/>
+      </source>
+      <address type="usb" bus="0" port="3"/>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x1038"/>
+        <product id="0x183a"/>
+      </source>
+      <address type="usb" bus="0" port="4"/>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x0909"/>
+        <product id="0x004c"/>
+      </source>
+      <address type="usb" bus="0" port="1.1"/>
+    </hostdev>
+    <hostdev mode="subsystem" type="usb" managed="yes">
+      <source>
+        <vendor id="0x8087"/>
+        <product id="0x0032"/>
+      </source>
+      <address type="usb" bus="0" port="1.2"/>
+    </hostdev>
+    <hub type="usb">
+      <address type="usb" bus="0" port="1"/>
+    </hub>
+    <watchdog model="itco" action="reset"/>
+    <memballoon model="virtio">
+      <address type="pci" domain="0x0000" bus="0x05" slot="0x00" function="0x0"/>
+    </memballoon>
+  </devices>
+</domain>

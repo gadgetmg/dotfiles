@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 {
@@ -32,25 +33,20 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.kernelPackages = pkgs.linuxPackagesFor (
-    pkgs.linux_testing.override {
-      argsOverride = rec {
-        src = pkgs.fetchurl {
-          url = "https://git.kernel.org/torvalds/t/linux-${version}.tar.gz";
-          sha256 = "sha256-Ntokx3v/cuyLXfMEypL7GWy5O8KiAwwH0hJJBaNbLaI=";
-        };
-        version = "6.15-rc3";
-        modDirVersion = "6.15.0-rc3";
-      };
-    }
-  );
+  boot.kernelPackages = pkgs.linuxPackages_testing;
 
   boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
-  boot.kernelModules = [ "nct6775" ];
+  boot.kernelModules = [
+    "nct6775"
+    "vfio_pci"
+    "vfio_iommu_type1"
+    "vfio"
+  ];
   boot.kernelParams = [
     "amdgpu.ppfeaturemask=0xfff7ffff"
     "split_lock_detect=off"
   ];
+  boot.extraModprobeConfig = "options vfio-pci ids=1002:7550,1002:ab40";
 
   hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
@@ -72,9 +68,6 @@
     emoji = [ "Noto Color Emoji" ];
   };
   services.btrfs.autoScrub.enable = true;
-  services.sunshine.enable = true;
-  services.sunshine.openFirewall = true;
-  services.sunshine.capSysAdmin = true;
   services.displayManager.ly.enable = true;
   services.displayManager.defaultSession = "sway";
   services.logind.killUserProcesses = true;
@@ -134,6 +127,89 @@
 
   virtualisation.docker.enable = true;
   virtualisation.docker.storageDriver = "btrfs";
+  virtualisation.docker.autoPrune.enable = true;
+  virtualisation.oci-containers.backend = "docker";
+  virtualisation.oci-containers.containers."wolf" = {
+    autoStart = true;
+    image = "ghcr.io/games-on-whales/wolf:stable";
+    environment = {
+      "HOST_APPS_STATE_FOLDER" = "/etc/wolf";
+      "XDG_RUNTIME_DIR" = "/tmp/sockets";
+    };
+    volumes = [
+      "/dev/:/dev:rw"
+      "/etc/wolf/:/etc/wolf:rw"
+      "/run/udev:/run/udev:rw"
+      "/tmp/sockets:/tmp/sockets:rw"
+      "/var/run/docker.sock:/var/run/docker.sock:rw"
+    ];
+    log-driver = "journald";
+    extraOptions = [
+      "--device=/dev/dri:/dev/dri:rwm"
+      "--device=/dev/uhid:/dev/uhid:rwm"
+      "--device=/dev/uinput:/dev/uinput:rwm"
+      "--network=host"
+    ];
+  };
+  virtualisation.libvirt.enable = true;
+  virtualisation.libvirt.swtpm.enable = true;
+  virtualisation.libvirtd.qemu.ovmf.packages = [
+    (pkgs.OVMFFull.override { msVarsTemplate = true; }).fd
+  ];
+
+  virtualisation.libvirt.connections."qemu:///system" = {
+    pools = [
+      {
+        definition = inputs.nixvirt.lib.pool.writeXML {
+          name = "default";
+          uuid = "f0e6f7ac-1743-4a6d-a039-0ef1d72c78f7";
+          type = "dir";
+          target = {
+            path = "/var/lib/libvirt/images";
+          };
+        };
+        active = true;
+      }
+    ];
+    networks = [
+      {
+        definition = inputs.nixvirt.lib.network.writeXML {
+          name = "default";
+          uuid = "704742fd-87cc-4391-aaf0-1ac32fb1a951";
+          forward = {
+            mode = "nat";
+            nat = {
+              port = {
+                start = 1024;
+                end = 65535;
+              };
+            };
+          };
+          bridge = {
+            name = "virbr0";
+          };
+          mac = {
+            address = "52:54:00:e3:f5:2d";
+          };
+          ip = {
+            address = "192.168.74.1";
+            netmask = "255.255.255.0";
+            dhcp = {
+              range = {
+                start = "192.168.74.2";
+                end = "192.168.74.254";
+              };
+            };
+          };
+        };
+        active = true;
+      }
+    ];
+    domains = [
+      { definition = ./windows-11.xml; }
+      { definition = ./windows-11-qxl.xml; }
+    ];
+  };
 
   systemd.network.wait-online.enable = false;
   systemd.packages = with pkgs; [ lact ];
@@ -147,7 +223,6 @@
   programs.firefox.enable = true;
   programs.steam.enable = true;
   programs.steam.remotePlay.openFirewall = true;
-  programs.steam.platformOptimizations.enable = true;
   programs.steam.extraPackages = with pkgs; [ gamescope ];
   programs.steam.gamescopeSession.enable = true;
   programs.steam.gamescopeSession.args = [ "--adaptive-sync" ];
@@ -199,6 +274,7 @@
     unigine-heaven
     unigine-superposition
     unigine-valley
+    virt-manager
     vulkan-tools
   ];
 
@@ -213,6 +289,7 @@
       "networkmanager"
       "wheel"
       "wireshark"
+      "libvirtd"
     ];
     shell = pkgs.zsh;
     packages = with pkgs; [

@@ -8,7 +8,7 @@
     };
 
     mesa = {
-      url = "git+https://gitlab.freedesktop.org/mesa/mesa";
+      url = "gitlab:mesa/mesa?host=gitlab.freedesktop.org";
       flake = false;
     };
 
@@ -34,6 +34,11 @@
 
     nix-index-database = {
       url = "github:nix-community/nix-index-database";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixvirt = {
+      url = "github:AshleyYakeley/NixVirt";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -91,6 +96,7 @@
         nixos-hardware.nixosModules.common-gpu-amd
         nixos-hardware.nixosModules.common-pc
         nixos-hardware.nixosModules.common-pc-ssd
+        nixvirt.nixosModules.default
         sops-nix.nixosModules.sops
       ];
 
