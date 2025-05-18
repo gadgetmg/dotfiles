@@ -24,6 +24,10 @@ set $menu wmenu-run -l 5 -N 1e1e2e -n cdd6f4 -S 89dceb -s 1e1e2e
 #
 exec_always pkill -HUP kanshi || kanshi
 exec sleep 2 && systemctl --user start wallpaper.service
+output * {
+    allow_tearing yes
+    max_render_time off
+}
 # Default wallpaper (more resolutions are available in /run/current-system/sw/share/backgrounds/sway/)
 # output * bg /run/current-system/sw/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
 
@@ -269,24 +273,16 @@ bar {
     tray_output none
 }
 
-assign [app_id="foot"] 0
-assign [app_id="firefox"] 2
-assign [app_id="nemo"] 4
-assign [class="discord"] 5
-assign [class="steam" title="^Friends List"] 5
-assign [class="steam"] 6
-
-# focus all new windows
-# for_window [app_id=".*" class=".*"] focus
 # hides the blank window xwaylandvideobridge pops up
 for_window [class="xwaylandvideobridge"] kill
+# kills Discord's startup window
 for_window [class="discord" title="^Discord$"] kill
 
 # fullscreen games
 for_window [instance="steam_app_.*"] fullscreen enable
+for_window [app_id="steam_app_.*"] fullscreen enable
 
 exec dex -a -s ~/.config/autostart/
-# exec xwaylandvideobridge
 exec mako
 exec udiskie
 
