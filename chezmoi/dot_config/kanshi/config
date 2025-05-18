@@ -11,7 +11,7 @@ profile {
     transform 90
     position 2560,0
   }
-  exec xrandr --output DP-3 --primary
+  exec xrandr --output DP-1 --primary
   exec swaymsg workspace 0 output '"PanaScope Pixio PX277P Unknown"'
   exec swaymsg workspace 2 output '"PanaScope Pixio PX277P Unknown"'
   exec swaymsg workspace 4 output '"PanaScope Pixio PX277P Unknown"'
