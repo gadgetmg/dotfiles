@@ -1,11 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-
-    linux-firmware = {
-      url = "git+https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git";
-      flake = false;
-    };
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
 
     mesa = {
       url = "gitlab:mesa/mesa?host=gitlab.freedesktop.org";
@@ -59,6 +55,9 @@
 
       systems.modules.nixos = with inputs; [
         nix-index-database.nixosModules.nix-index
+        chaotic.nixosModules.nyx-cache
+        chaotic.nixosModules.nyx-overlay
+        chaotic.nixosModules.nyx-registry
         {
           programs.nix-index-database.comma.enable = true;
           nix.channel.enable = false;

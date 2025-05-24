@@ -33,7 +33,8 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.kernelPackages = pkgs.linuxPackages_testing;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-rc;
+  services.scx.enable = true;
 
   boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
   boot.kernelModules = [
@@ -50,10 +51,6 @@
 
   hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
-  hardware.graphics = with pkgs; {
-    package = upstream.mesa;
-    package32 = pkgsi686Linux.upstream.mesa;
-  };
 
   fonts.enableDefaultPackages = true;
   fonts.packages = with pkgs; [
@@ -84,6 +81,7 @@
   services.openssh.enable = true;
   services.pipewire.enable = true;
   services.pipewire.lowLatency.enable = true;
+  security.rtkit.enable = true;
   services.xserver.xkb.variant = "colemak";
   services.udisks2 = {
     enable = true;
@@ -278,6 +276,10 @@
     vulkan-tools
   ];
 
+  environment.variables = {
+    PROTON_ENABLE_WAYLAND = "1";
+  };
+
   users.users."matt" = {
     isNormalUser = true;
     initialPassword = "matt";
@@ -335,14 +337,11 @@
   };
 
   specialisation = {
-    mesa-stable.configuration = {
-      boot.kernelPackages = lib.mkForce pkgs.linuxPackages_latest;
-      hardware.graphics =
-        with pkgs;
-        lib.mkForce {
-          package = mesa;
-          package32 = pkgsi686Linux.mesa;
-        };
+    mesa-git.configuration = {
+      hardware.graphics = with pkgs; {
+        package = upstream.mesa;
+        package32 = pkgsi686Linux.upstream.mesa;
+      };
     };
   };
 
