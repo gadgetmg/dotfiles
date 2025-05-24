@@ -29,6 +29,6 @@ profile {
   output "Samsung Electric Company QBQ95 0x01000E00" {
     mode 3840x2160@120Hz
     adaptive_sync on
-    scale 1
+    scale 2
   }
 }
