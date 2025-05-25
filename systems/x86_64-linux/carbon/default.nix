@@ -33,10 +33,19 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.kernelPackages = pkgs.linuxPackages_cachyos-rc;
-  services.scx.enable = true;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
+  services.scx.loader = {
+    enable = true;
+    config = {
+      default_sched = "scx_bpfland";
+    };
+  };
 
-  boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
+  # TODO: incompatible with lto kernel
+  #
+  # boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
+  #
+
   boot.kernelModules = [
     "nct6775"
     "vfio_pci"
@@ -46,6 +55,7 @@
   boot.kernelParams = [
     "amdgpu.ppfeaturemask=0xfff7ffff"
     "split_lock_detect=off"
+    "mitigations=off"
   ];
   boot.extraModprobeConfig = "options vfio-pci ids=1002:7550,1002:ab40";
 
@@ -320,7 +330,7 @@
       openssl
       protonup-qt
       ripgrep
-      ryzen-monitor-ng
+      # ryzen-monitor-ng
       skim
       starship
       swaybg
