@@ -104,6 +104,23 @@
     nssmdns4 = true;
     openFirewall = true;
   };
+  services.llama-swap = {
+    enable = true;
+    package = pkgs.internal.llama-swap;
+    config = {
+      healthCheckTimeout = 600;
+      models = {
+        DeepSeek-R1-0528-Qwen3-8B = {
+          cmd = "llama-server -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL --ctx-size 16384 --temp 0.6 --jinja -ngl 999 --port \${PORT}";
+          ttl = 60;
+        };
+        gemma-3-12b-it-qat = {
+          cmd = "llama-server -hf unsloth/gemma-3-12b-it-qat-GGUF:Q4_K_XL --ctx-size 16384 --temp 1.0 --top-k 64 --min-p 0.00 --top-p 0.95 --repeat-penalty 1.0 --jinja -ngl 999 --port \${PORT}";
+          ttl = 60;
+        };
+      };
+    };
+  };
   systemd.user.services.mopidy = {
     enable = true;
     description = "Mopidy";
