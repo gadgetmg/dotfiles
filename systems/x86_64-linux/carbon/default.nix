@@ -37,27 +37,20 @@
   services.scx.loader = {
     enable = true;
     config = {
-      default_sched = "scx_bpfland";
+      default_mode = "Auto";
     };
   };
 
   # TODO: incompatible with lto kernel
-  #
   # boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
   #
 
   boot.kernelModules = [
     "nct6775"
-    "vfio_pci"
-    "vfio_iommu_type1"
-    "vfio"
   ];
   boot.kernelParams = [
-    "amdgpu.ppfeaturemask=0xfff7ffff"
-    "split_lock_detect=off"
     "mitigations=off"
   ];
-  boot.extraModprobeConfig = "options vfio-pci ids=1002:7550,1002:ab40";
 
   hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
@@ -97,7 +90,6 @@
     enable = true;
     mountOnMedia = true;
   };
-  services.blueman.enable = true;
   services.printing.enable = true;
   services.avahi = {
     enable = true;
@@ -106,21 +98,28 @@
   };
   services.llama-swap = {
     enable = true;
+    port = 8081;
     package = pkgs.internal.llama-swap;
     config = {
       healthCheckTimeout = 600;
       models = {
         DeepSeek-R1-0528-Qwen3-8B = {
-          cmd = "llama-server -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL --ctx-size 16384 --temp 0.6 --jinja -ngl 999 --port \${PORT}";
+          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL --ctx-size 51200 --jinja --temp 0.6 --top-k 20 --top-p 0.95 --min-p 0 --predict 32768";
           ttl = 60;
         };
         gemma-3-12b-it-qat = {
-          cmd = "llama-server -hf unsloth/gemma-3-12b-it-qat-GGUF:Q4_K_XL --ctx-size 16384 --temp 1.0 --top-k 64 --min-p 0.00 --top-p 0.95 --repeat-penalty 1.0 --jinja -ngl 999 --port \${PORT}";
+          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/gemma-3-12b-it-qat-GGUF:Q4_K_XL --ctx-size 17408 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
+          ttl = 60;
+        };
+        gemma-3-27b-it-qat = {
+          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/gemma-3-27b-it-qat-GGUF:IQ3_XXS --ctx-size 16384 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
           ttl = 60;
         };
       };
     };
   };
+  services.open-webui.enable = true;
+  nix.settings.download-buffer-size = 524288000;
   systemd.user.services.mopidy = {
     enable = true;
     description = "Mopidy";
@@ -264,6 +263,8 @@
       mako
       udiskie
       wayland-pipewire-idle-inhibit
+      blueberry
+      pavucontrol
     ];
   programs.git.enable = true;
   programs.gamemode.enable = true;
@@ -291,7 +292,6 @@
     jq
     lact
     libreoffice
-    llama-cpp
     lm_sensors
     nvtopPackages.amd
     resources
