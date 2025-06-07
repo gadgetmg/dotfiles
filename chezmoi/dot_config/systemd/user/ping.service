@@ -1,0 +1,10 @@
+[Unit]
+Description=Ping monitor
+
+[Service]
+Type=simple
+Environment=PATH=/run/wrappers/bin:%h/.nix-profile/bin:/nix/profile/bin:%h/.local/state/nix/profile/bin:/etc/profiles/per-user/matt/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin
+ExecStart=%h/.local/bin/ping.sh
+
+[Install]
+WantedBy=sway-session.target

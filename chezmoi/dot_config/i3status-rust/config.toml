@@ -17,8 +17,8 @@ cmd = "ymuse"
 [[block]]
 block = "weather"
 autolocate = true
-format = " $icon $weather $temp {$humidity}rh {$wind}mph $direction "
-format_alt = " $icon_ffin {$weather_ffin $temp_favg ({$temp_fmin}-{$temp_fmax}) {$humidity_ffin}rh {$wind_ffin}mph $direction_ffin|Unavailable} "
+format = " $icon  $weather $temp {$humidity}rh {$wind}mph $direction "
+format_alt = " $icon_ffin  {$weather_ffin $temp_favg ({$temp_fmin}-{$temp_fmax}) {$humidity_ffin}rh {$wind_ffin}mph $direction_ffin|Unavailable} "
 [block.service]
 name = "openweathermap"
 units = "imperial"
@@ -32,7 +32,7 @@ critical_cpu = 90
 
 [[block]]
 block = "memory"
-format = " $icon $mem_avail "
+format = " $icon $mem_avail.eng(hide_unit:true) "
 
 [[block]]
 block = "amd_gpu"
@@ -46,7 +46,16 @@ alert_unit = "GB"
 interval = 20
 warning = 20.0
 alert = 10.0
-format = " $icon $available.eng(w:2) "
+format = " $icon $available.eng(w:2,hide_unit:true) "
+
+[[block]]
+block = "net"
+format = " $icon  {$ssid|}^icon_net_down $speed_down.eng(p:M,u:b,w:4,hide_unit:true) ^icon_net_up $speed_up.eng(p:M,u:b,w:4,hide_unit:true)"
+
+[[block]]
+block = "custom_dbus"
+path = "/ping"
+format = "{ $icon|}{ $text.pango-str()|} "
 
 [[block]]
 block = "sound"
@@ -55,6 +64,9 @@ show_volume_when_muted = true
 [[block.click]]
 button = "left"
 cmd = "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"
+[[block.click]]
+button = "right"
+cmd = "pavucontrol -t 4"
 
 [[block]]
 block = "sound"
@@ -63,6 +75,9 @@ show_volume_when_muted = true
 [[block.click]]
 button = "left"
 cmd = "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"
+[[block.click]]
+button = "right"
+cmd = "pavucontrol -t 3"
 
 [[block]]
 block = "time"
