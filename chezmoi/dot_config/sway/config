@@ -282,8 +282,12 @@ for_window [class="discord" title="^Discord$"] kill
 for_window [instance="steam_app_.*"] fullscreen enable
 for_window [app_id="steam_app_.*"] fullscreen enable
 
+# floating windows
+for_window [app_id="pavucontrol"] floating enable, resize set 800 1000
+
 exec dex -a -s ~/.config/autostart/
 exec mako
 exec udiskie
+exec blueberry-tray
 
 include /etc/sway/config.d/*
