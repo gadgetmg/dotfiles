@@ -32,3 +32,10 @@ profile {
     scale 2
   }
 }
+profile {
+  output "Samsung Electric Company SAMSUNG 0x01000E00" {
+    mode 1920x1080@120Hz
+    adaptive_sync on
+    scale 1.35
+  }
+}
