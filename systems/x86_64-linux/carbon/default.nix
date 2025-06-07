@@ -50,6 +50,7 @@
   ];
   boot.kernelParams = [
     "mitigations=off"
+    "amdgpu.ppfeaturemask=0xfff7ffff"
   ];
 
   hardware.amdgpu.opencl.enable = true;
@@ -104,11 +105,11 @@
       healthCheckTimeout = 600;
       models = {
         DeepSeek-R1-0528-Qwen3-8B = {
-          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL --ctx-size 51200 --jinja --temp 0.6 --top-k 20 --top-p 0.95 --min-p 0 --predict 32768";
+          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL --ctx-size 131072 --jinja --temp 0.6 --top-k 20 --top-p 0.95 --min-p 0 --predict 32768";
           ttl = 60;
         };
         gemma-3-12b-it-qat = {
-          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/gemma-3-12b-it-qat-GGUF:Q4_K_XL --ctx-size 17408 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
+          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/gemma-3-12b-it-qat-GGUF:Q4_K_XL --ctx-size 32768 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
           ttl = 60;
         };
         gemma-3-27b-it-qat = {
@@ -323,6 +324,7 @@
     shell = pkgs.zsh;
     packages = with pkgs; [
       bat
+      bc
       bind
       (catppuccin-gtk.override { variant = "mocha"; })
       cargo
@@ -333,6 +335,7 @@
       fzf
       gcc
       gh
+      jc
       kdiskmark
       lazygit
       lua5_1
@@ -363,14 +366,14 @@
     ];
   };
 
-  specialisation = {
-    mesa-git.configuration = {
-      hardware.graphics = with pkgs; {
-        package = upstream.mesa;
-        package32 = pkgsi686Linux.upstream.mesa;
-      };
-    };
-  };
+  # specialisation = {
+  #   mesa-git.configuration = {
+  #     hardware.graphics = with pkgs; {
+  #       package = upstream.mesa;
+  #       package32 = pkgsi686Linux.upstream.mesa;
+  #     };
+  #   };
+  # };
 
   system.stateVersion = "24.11";
 }
