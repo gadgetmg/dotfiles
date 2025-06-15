@@ -1,5 +1,4 @@
-{ pkgs, ... }:
-{
+{pkgs, ...}: {
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
   programs.git.enable = true;

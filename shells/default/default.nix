@@ -1,5 +1,7 @@
-{ pkgs, mkShell }:
-
+{
+  pkgs,
+  mkShell,
+}:
 mkShell {
   packages = with pkgs; [
     nixos-anywhere

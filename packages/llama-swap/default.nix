@@ -3,7 +3,6 @@
   buildGoModule,
   fetchFromGitHub,
 }:
-
 buildGoModule rec {
   pname = "llama-swap";
   version = "123";
@@ -22,6 +21,6 @@ buildGoModule rec {
     description = "llama-swap is a light weight, transparent proxy server that provides automatic model swapping to llama.cpp's server";
     homepage = "https://github.com/mostlygeek/llama-swap";
     license = licenses.mit;
-    maintainers = [ maintainers.jwiegley ];
+    maintainers = [maintainers.jwiegley];
   };
 }

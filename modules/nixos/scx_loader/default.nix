@@ -4,14 +4,12 @@
   lib,
   pkgs,
   ...
-}:
-let
-  toml = pkgs.formats.toml { };
+}: let
+  toml = pkgs.formats.toml {};
   cfg = config.services.scx;
   description = "DBUS on-demand loader of sched-ext schedulers";
   file_name = "scx_loader.toml";
-in
-{
+in {
   options.services.scx.loader = {
     enable = lib.mkEnableOption "scx_loader, ${description}.";
 
@@ -32,14 +30,14 @@ in
       }
     ];
 
-    environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [cfg.package];
 
     environment.etc.${file_name}.source = toml.generate file_name cfg.loader.config;
 
     systemd.services.scx_loader = {
       inherit description;
 
-      path = [ cfg.package ];
+      path = [cfg.package];
 
       unitConfig.ConditionPathIsDirectory = "/sys/kernel/sched_ext";
 
@@ -50,8 +48,8 @@ in
         KillSignal = "SIGINT";
       };
 
-      restartTriggers = [ config.environment.etc.${file_name}.source ];
-      wantedBy = [ "graphical.target" ];
+      restartTriggers = [config.environment.etc.${file_name}.source];
+      wantedBy = ["graphical.target"];
     };
 
     services.dbus.packages = [

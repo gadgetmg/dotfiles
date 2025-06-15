@@ -3,20 +3,18 @@
   lib,
   pkgs,
   ...
-}:
-let
-  yaml = pkgs.formats.yaml { };
+}: let
+  yaml = pkgs.formats.yaml {};
   cfg = config.services.llama-swap;
   description = "Model swapping for llama.cpp (or any local OpenAPI compatible server)";
   file_name = "llama-swap/config.yaml";
-in
-{
+in {
   options.services.llama-swap = {
     enable = lib.mkEnableOption "llama-swap, ${description}.";
 
-    package = lib.mkPackageOption pkgs "llama-swap" { };
+    package = lib.mkPackageOption pkgs "llama-swap" {};
 
-    llama-cpp.package = lib.mkPackageOption pkgs "llama-cpp" { };
+    llama-cpp.package = lib.mkPackageOption pkgs "llama-cpp" {};
 
     config = lib.mkOption {
       type = yaml.type;
@@ -47,16 +45,16 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    environment.systemPackages = [ cfg.package ];
+    environment.systemPackages = [cfg.package];
 
     environment.etc."${file_name}".source = yaml.generate file_name cfg.config;
 
     systemd.services.llama-swap = {
       inherit description;
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
 
-      path = [ cfg.llama-cpp.package ];
+      path = [cfg.llama-cpp.package];
       environment.LLAMA_CACHE = "/var/cache/llama-swap";
 
       serviceConfig = {
@@ -106,12 +104,11 @@ in
         ProcSubset = "pid";
       };
 
-      restartTriggers = [ config.environment.etc.${file_name}.source ];
+      restartTriggers = [config.environment.etc.${file_name}.source];
     };
 
     networking.firewall = lib.mkIf cfg.openFirewall {
-      allowedTCPPorts = [ cfg.port ];
+      allowedTCPPorts = [cfg.port];
     };
-
   };
 }

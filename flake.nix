@@ -44,8 +44,7 @@
     nixos-wsl.url = "github:nix-community/NixOS-WSL";
   };
 
-  outputs =
-    inputs:
+  outputs = inputs:
     inputs.snowfall-lib.mkFlake {
       inherit inputs;
       src = ./.;
@@ -102,7 +101,7 @@
 
       systems.hosts.wsl.modules = with inputs; [
         nixos-wsl.nixosModules.default
-        { wsl.enable = true; }
+        {wsl.enable = true;}
       ];
     };
 }

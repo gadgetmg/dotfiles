@@ -1,6 +1,8 @@
-{ channels, inputs, ... }:
-
-final: prev: {
+{
+  channels,
+  inputs,
+  ...
+}: final: prev: {
   llama-cpp =
     (prev.llama-cpp.overrideAttrs (
       finalAttrs: prevAttrs: {
@@ -16,8 +18,8 @@ final: prev: {
             find "$out" -name .git -print0 | xargs -0 rm -rf
           '';
         };
-        patches = [ ./revert-09d13d9.diff ];
+        patches = [./revert-09d13d9.diff];
       }
     )).override
-      { vulkanSupport = true; };
+    {vulkanSupport = true;};
 }

@@ -4,7 +4,6 @@
   fetchPypi,
   mopidy,
 }:
-
 python3Packages.buildPythonApplication rec {
   pname = "mopidy-autoplay";
   version = "0.2.3";
@@ -24,6 +23,6 @@ python3Packages.buildPythonApplication rec {
     description = "Mopidy extension to automatically pick up where you left off and start playing the last track from the position before Mopidy was shut down.";
     homepage = "https://codeberg.org/sph/mopidy-autoplay";
     license = licenses.asl20;
-    maintainers = [ ];
+    maintainers = [];
   };
 }

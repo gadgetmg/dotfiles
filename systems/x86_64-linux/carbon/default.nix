@@ -4,9 +4,8 @@
   pkgs,
   inputs,
   ...
-}:
-{
-  imports = [ ./disks.nix ];
+}: {
+  imports = [./disks.nix];
 
   facter.reportPath = ./facter.json;
 
@@ -36,34 +35,23 @@
   boot.kernelPackages = pkgs.linuxPackages_cachyos;
   services.scx.loader = {
     enable = true;
-    config = {
-      default_mode = "Auto";
-    };
+    config = {default_mode = "Auto";};
   };
 
-  boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
+  boot.extraModulePackages = with config.boot.kernelPackages; [ryzen-smu];
 
-  boot.kernelModules = [
-    "nct6775"
-  ];
-  boot.kernelParams = [
-    "mitigations=off"
-    "amdgpu.ppfeaturemask=0xfff7ffff"
-  ];
+  boot.kernelModules = ["nct6775"];
+  boot.kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfff7ffff"];
 
   hardware.enableAllFirmware = true;
 
   fonts.enableDefaultPackages = true;
-  fonts.packages = with pkgs; [
-    adwaita-fonts
-    noto-fonts
-    nerd-fonts.iosevka
-  ];
+  fonts.packages = with pkgs; [adwaita-fonts noto-fonts nerd-fonts.iosevka];
   fonts.fontconfig.defaultFonts = {
-    sansSerif = [ "Noto Sans" ];
-    serif = [ "Noto Serif" ];
-    monospace = [ "Iosevka Nerd Font" ];
-    emoji = [ "Noto Color Emoji" ];
+    sansSerif = ["Noto Sans"];
+    serif = ["Noto Serif"];
+    monospace = ["Iosevka Nerd Font"];
+    emoji = ["Noto Color Emoji"];
   };
   services.btrfs.autoScrub.enable = true;
   services.displayManager.ly.enable = true;
@@ -75,9 +63,7 @@
       - name: sensors
         binary_path: ${pkgs.lm_sensors}/bin/sensors
   '';
-  services.netdata.package = pkgs.netdata.override {
-    withCloudUi = true;
-  };
+  services.netdata.package = pkgs.netdata.override {withCloudUi = true;};
   services.onedrive.enable = true;
   services.openssh.enable = true;
   services.pipewire.enable = true;
@@ -142,38 +128,33 @@
   };
   services.open-webui = {
     enable = true;
-    environment = {
-      OPENAI_API_BASE_URL = "http://localhost:8081/v1";
-    };
+    environment = {OPENAI_API_BASE_URL = "http://localhost:8081/v1";};
   };
   nix.settings.download-buffer-size = 524288000;
   systemd.user.services.mopidy = {
     enable = true;
     description = "Mopidy";
-    wantedBy = [ "default.target" ];
-    script =
-      let
-        mopidy-with-extensions =
-          with pkgs;
-          buildEnv {
-            name = "mopidy-with-extensions-${mopidy.version}";
-            meta.mainProgram = "mopidy";
-            ignoreCollisions = true;
-            paths = lib.closePropagation [
-              mopidy-mpris
-              mopidy-somafm
-              mopidy-mpd
-              internal.mopidy-autoplay
-            ];
-            pathsToLink = [ "/${mopidyPackages.python.sitePackages}" ];
-            nativeBuildInputs = [ makeWrapper ];
-            postBuild = ''
-              makeWrapper ${lib.getExe mopidy} $out/bin/mopidy \
-                --prefix PYTHONPATH : $out/${mopidyPackages.python.sitePackages}
-            '';
-          };
-      in
-      "${lib.getExe mopidy-with-extensions}";
+    wantedBy = ["default.target"];
+    script = let
+      mopidy-with-extensions = with pkgs;
+        buildEnv {
+          name = "mopidy-with-extensions-${mopidy.version}";
+          meta.mainProgram = "mopidy";
+          ignoreCollisions = true;
+          paths = lib.closePropagation [
+            mopidy-mpris
+            mopidy-somafm
+            mopidy-mpd
+            internal.mopidy-autoplay
+          ];
+          pathsToLink = ["/${mopidyPackages.python.sitePackages}"];
+          nativeBuildInputs = [makeWrapper];
+          postBuild = ''
+            makeWrapper ${lib.getExe mopidy} $out/bin/mopidy \
+              --prefix PYTHONPATH : $out/${mopidyPackages.python.sitePackages}
+          '';
+        };
+    in "${lib.getExe mopidy-with-extensions}";
   };
 
   virtualisation.docker.enable = true;
@@ -205,9 +186,7 @@
   };
   virtualisation.libvirt.enable = true;
   virtualisation.libvirt.swtpm.enable = true;
-  virtualisation.libvirtd.qemu.ovmf.packages = [
-    (pkgs.OVMFFull.override { msVarsTemplate = true; }).fd
-  ];
+  virtualisation.libvirtd.qemu.ovmf.packages = [(pkgs.OVMFFull.override {msVarsTemplate = true;}).fd];
 
   virtualisation.libvirt.connections."qemu:///system" = {
     pools = [
@@ -216,9 +195,7 @@
           name = "default";
           uuid = "f0e6f7ac-1743-4a6d-a039-0ef1d72c78f7";
           type = "dir";
-          target = {
-            path = "/var/lib/libvirt/images";
-          };
+          target = {path = "/var/lib/libvirt/images";};
         };
         active = true;
       }
@@ -237,12 +214,8 @@
               };
             };
           };
-          bridge = {
-            name = "virbr0";
-          };
-          mac = {
-            address = "52:54:00:e3:f5:2d";
-          };
+          bridge = {name = "virbr0";};
+          mac = {address = "52:54:00:e3:f5:2d";};
           ip = {
             address = "192.168.74.1";
             netmask = "255.255.255.0";
@@ -258,16 +231,16 @@
       }
     ];
     domains = [
-      { definition = ./windows-11.xml; }
-      { definition = ./windows-11-qxl.xml; }
+      {definition = ./windows-11.xml;}
+      {definition = ./windows-11-qxl.xml;}
     ];
   };
 
   systemd.network.wait-online.enable = false;
-  systemd.packages = with pkgs; [ lact ];
-  systemd.services.lactd.wantedBy = [ "multi-user.target" ];
-  systemd.extraConfig = ''DefaultTimeoutStopSec=10s'';
-  systemd.user.extraConfig = ''DefaultTimeoutStopSec=10s'';
+  systemd.packages = with pkgs; [lact];
+  systemd.services.lactd.wantedBy = ["multi-user.target"];
+  systemd.extraConfig = "DefaultTimeoutStopSec=10s";
+  systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
 
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
@@ -275,14 +248,13 @@
   programs.firefox.enable = true;
   programs.steam.enable = true;
   programs.steam.remotePlay.openFirewall = true;
-  programs.steam.extraPackages = with pkgs; [ gamescope ];
+  programs.steam.extraPackages = with pkgs; [gamescope];
   programs.steam.gamescopeSession.enable = true;
-  programs.steam.gamescopeSession.args = [ "--adaptive-sync" ];
+  programs.steam.gamescopeSession.args = ["--adaptive-sync"];
   programs.gamescope.enable = true;
   programs.sway.enable = true;
   programs.sway.wrapperFeatures.gtk = true;
-  programs.sway.extraPackages =
-    with pkgs;
+  programs.sway.extraPackages = with pkgs;
     lib.mkOptionDefault [
       i3status-rust
       kanshi
@@ -299,17 +271,8 @@
   programs.gamemode.enableRenice = true;
 
   networking.networkmanager.enable = true;
-  networking.firewall.allowedTCPPorts = [
-    47984
-    47989
-    48010
-  ];
-  networking.firewall.allowedUDPPorts = [
-    47999
-    48010
-    48100
-    48200
-  ];
+  networking.firewall.allowedTCPPorts = [47984 47989 48010];
+  networking.firewall.allowedUDPPorts = [47999 48010 48100 48200];
 
   console.keyMap = "colemak";
 
@@ -343,9 +306,7 @@
     vulkan-tools
   ];
 
-  environment.variables = {
-    PROTON_ENABLE_WAYLAND = "1";
-  };
+  environment.variables = {PROTON_ENABLE_WAYLAND = "1";};
 
   users.users."matt" = {
     isNormalUser = true;
@@ -353,19 +314,13 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
     ];
-    extraGroups = [
-      "docker"
-      "networkmanager"
-      "wheel"
-      "wireshark"
-      "libvirtd"
-    ];
+    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd"];
     shell = pkgs.zsh;
     packages = with pkgs; [
       bat
       bc
       bind
-      (catppuccin-gtk.override { variant = "mocha"; })
+      (catppuccin-gtk.override {variant = "mocha";})
       cargo
       chezmoi
       direnv
@@ -383,8 +338,6 @@
       nemo
       ncmpcpp
       neovim
-      nil
-      nixfmt-rfc-style
       nodejs
       nwg-look
       openssl
