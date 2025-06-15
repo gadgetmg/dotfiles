@@ -184,12 +184,13 @@
     autoStart = true;
     image = "ghcr.io/games-on-whales/wolf:stable";
     environment = {
-      "HOST_APPS_STATE_FOLDER" = "/etc/wolf";
+      "HOST_APPS_STATE_FOLDER" = "/var/lib/wolf";
       "XDG_RUNTIME_DIR" = "/tmp/sockets";
     };
     volumes = [
       "/dev/:/dev:rw"
       "/etc/wolf/:/etc/wolf:rw"
+      "/var/lib/wolf/:/var/lib/wolf:rw"
       "/run/udev:/run/udev:rw"
       "/tmp/sockets:/tmp/sockets:rw"
       "/var/run/docker.sock:/var/run/docker.sock:rw"
@@ -298,6 +299,17 @@
   programs.gamemode.enableRenice = true;
 
   networking.networkmanager.enable = true;
+  networking.firewall.allowedTCPPorts = [
+    47984
+    47989
+    48010
+  ];
+  networking.firewall.allowedUDPPorts = [
+    47999
+    48010
+    48100
+    48200
+  ];
 
   console.keyMap = "colemak";
 
