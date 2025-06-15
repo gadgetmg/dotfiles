@@ -51,6 +51,7 @@
       src = ./.;
       channels-config = {
         allowUnfree = true;
+        # allowBroken = true;
       };
 
       systems.modules.nixos = with inputs; [

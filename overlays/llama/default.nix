@@ -4,12 +4,12 @@ final: prev: {
   llama-cpp =
     (prev.llama-cpp.overrideAttrs (
       finalAttrs: prevAttrs: {
-        version = "5574";
+        version = "5606";
         src = final.fetchFromGitHub {
           owner = "ggml-org";
           repo = "llama.cpp";
           tag = "b${finalAttrs.version}";
-          hash = "sha256-0poXRmqnyVE3/qoo3LlTcN0peaGtRXO8cp1cq0XqB+c=";
+          hash = "sha256-sTfeGJ5Xm5oYi3E7FNdH4sxbs4Uen7shtNIIQtApgUg=";
           leaveDotGit = true;
           postFetch = ''
             git -C "$out" rev-parse --short HEAD > $out/COMMIT

@@ -33,7 +33,7 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos;
   services.scx.loader = {
     enable = true;
     config = {
@@ -41,9 +41,7 @@
     };
   };
 
-  # TODO: incompatible with lto kernel
-  # boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
-  #
+  boot.extraModulePackages = with config.boot.kernelPackages; [ ryzen-smu ];
 
   boot.kernelModules = [
     "nct6775"
@@ -53,7 +51,6 @@
     "amdgpu.ppfeaturemask=0xfff7ffff"
   ];
 
-  hardware.amdgpu.opencl.enable = true;
   hardware.enableAllFirmware = true;
 
   fonts.enableDefaultPackages = true;
@@ -105,21 +102,50 @@
       healthCheckTimeout = 600;
       models = {
         DeepSeek-R1-0528-Qwen3-8B = {
-          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL --ctx-size 131072 --jinja --temp 0.6 --top-k 20 --top-p 0.95 --min-p 0 --predict 32768";
-          ttl = 60;
-        };
-        gemma-3-12b-it-qat = {
-          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/gemma-3-12b-it-qat-GGUF:Q4_K_XL --ctx-size 32768 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
+          cmd = "llama-server --port \${PORT} -fa -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL -ngl 37 --ctx-size 65536 --jinja --temp 0.6 --top-k 20 --top-p 0.95 --min-p 0 --predict 16384";
           ttl = 60;
         };
         gemma-3-27b-it-qat = {
-          cmd = "llama-server --port \${PORT} -ngl 999 -fa -hf unsloth/gemma-3-27b-it-qat-GGUF:IQ3_XXS --ctx-size 16384 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
+          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/gemma-3-27b-it-qat-GGUF:Q3_K_XL -ngl 63 --ctx-size 24576 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
+          ttl = 60;
+        };
+        QwQ-32B = {
+          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/QwQ-32B-GGUF:IQ3_XXS -ngl 65 --ctx-size 32768 --temp 0.6 --repeat-penalty 1.1 --dry-multiplier 0.5 --min-p 0.01 --top-k 40 --top-p 0.95 --samplers 'top_k;top_p;min_p;temperature;dry;typ_p;xtc'";
+          ttl = 60;
+        };
+        "Mistral-Small-3.1-24B-Instruct-2503" = {
+          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/Mistral-Small-3.1-24B-Instruct-2503-GGUF:Q4_K_XL -ngl 41 --ctx-size 16384 --temp 0.15";
+          ttl = 60;
+        };
+        "Qwen3-30B-A3B-128K" = {
+          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/Qwen3-30B-A3B-128K-GGUF:Q3_K_XL -ngl 49 --ctx-size 16384 --temp 0.6 --min-p 0.00 --repeat-penalty 1.0 --top-k 20 --top-p 0.95 --predict 16384";
+          ttl = 60;
+        };
+        "Phi-4-reasoning-plus" = {
+          cmd = "llama-server --port \${PORT} -fa -hf unsloth/Phi-4-reasoning-plus-GGUF:Q4_K_XL -ngl 41 --ctx-size 32768 --jinja --temp 0.8 --min-p 0.00 --repeat-penalty 1.0 --top-p 0.95 --predict 32768";
+          ttl = 60;
+        };
+        "Phi-4-mini-reasoning" = {
+          cmd = "llama-server --port \${PORT} -fa -hf unsloth/Phi-4-mini-reasoning-GGUF:Q4_K_XL -ngl 33 --ctx-size 32768 --jinja --temp 0.8 --min-p 0.00 --repeat-penalty 1.0 --top-p 0.95 --predict 32768";
+          ttl = 60;
+        };
+        gemma-3-1b-it = {
+          cmd = "llama-server --port \${PORT} -fa -hf unsloth/gemma-3-1b-it-GGUF:Q4_K_XL -ngl 27 --ctx-size 24576 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
+          ttl = 60;
+        };
+        gemma-3-4b-it-qat = {
+          cmd = "llama-server --port \${PORT} -fa -hf unsloth/gemma-3-4b-it-qat-GGUF:Q4_K_XL -ngl 35 --ctx-size 24576 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
           ttl = 60;
         };
       };
     };
   };
-  services.open-webui.enable = true;
+  services.open-webui = {
+    enable = true;
+    environment = {
+      OPENAI_API_BASE_URL = "http://localhost:8081/v1";
+    };
+  };
   nix.settings.download-buffer-size = 524288000;
   systemd.user.services.mopidy = {
     enable = true;
@@ -293,6 +319,7 @@
     jq
     lact
     libreoffice
+    llama-cpp
     lm_sensors
     nvtopPackages.amd
     resources
@@ -344,13 +371,15 @@
       nemo
       ncmpcpp
       neovim
+      nil
       nixfmt-rfc-style
       nodejs
       nwg-look
       openssl
       protonup-qt
+      python3
       ripgrep
-      # ryzen-monitor-ng
+      ryzen-monitor-ng
       skim
       starship
       swaybg
