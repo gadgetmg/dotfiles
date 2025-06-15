@@ -27,3 +27,6 @@ vim.keymap.set("n", "<C-S-Right>", "<cmd>vertical resize +2<cr>", { desc = "Incr
 -- Change buffers using <shift> arrow keys
 vim.keymap.set("n", "<S-Left>", "<cmd>bprevious<cr>", { desc = "Prev Buffer" })
 vim.keymap.set("n", "<S-Right>", "<cmd>bnext<cr>", { desc = "Next Buffer" })
+
+-- Oil
+vim.keymap.set("n", "<leader>e", "<cmd>Oil<cr>", { desc = "Oil" })

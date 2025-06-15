@@ -55,6 +55,9 @@ return {
   },
   {
     "Saghen/blink.cmp",
+    dependencies = {
+      "Kaiser-Yang/blink-cmp-avante",
+    },
     opts = {
       keymap = { preset = "default" },
       sources = {
@@ -71,4 +74,12 @@ return {
     },
   },
   { "imsnif/kdl.vim" },
+  {
+    "stevearc/oil.nvim",
+    ---@module 'oil'
+    ---@type oil.SetupOpts
+    opts = {},
+    dependencies = { { "echasnovski/mini.icons", opts = {} } },
+    lazy = false,
+  },
 }
