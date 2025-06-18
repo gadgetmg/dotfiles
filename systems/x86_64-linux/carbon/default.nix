@@ -1,5 +1,4 @@
 {
-  config,
   lib,
   pkgs,
   inputs,
@@ -32,13 +31,14 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.kernelPackages = pkgs.linuxPackages_cachyos;
+  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
   services.scx.loader = {
     enable = true;
-    config = {default_mode = "Auto";};
+    config = {
+      default_sched = "scx_bpfland";
+      default_mode = "Gaming";
+    };
   };
-
-  boot.extraModulePackages = with config.boot.kernelPackages; [ryzen-smu];
 
   boot.kernelModules = ["nct6775"];
   boot.kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfff7ffff"];
@@ -252,6 +252,7 @@
   programs.steam.gamescopeSession.enable = true;
   programs.steam.gamescopeSession.args = ["--adaptive-sync"];
   programs.gamescope.enable = true;
+  # programs.ryzen-monitor-ng = true;
   programs.sway.enable = true;
   programs.sway.wrapperFeatures.gtk = true;
   programs.sway.extraPackages = with pkgs;
@@ -269,6 +270,7 @@
   programs.git.enable = true;
   programs.gamemode.enable = true;
   programs.gamemode.enableRenice = true;
+  programs.wireshark.enable = true;
 
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [47984 47989 48010];
@@ -304,9 +306,12 @@
     unigine-valley
     virt-manager
     vulkan-tools
+    wireshark
   ];
 
-  environment.variables = {PROTON_ENABLE_WAYLAND = "1";};
+  environment.variables = {
+    PROTON_ENABLE_WAYLAND = "1";
+  };
 
   users.users."matt" = {
     isNormalUser = true;
@@ -344,7 +349,6 @@
       protonup-qt
       python3
       ripgrep
-      ryzen-monitor-ng
       skim
       starship
       swaybg
@@ -353,7 +357,6 @@
       unzip
       wget
       wineWowPackages.stableFull
-      wireshark
       wl-clipboard
       ymuse
       zellij
