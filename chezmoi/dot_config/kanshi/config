@@ -3,7 +3,6 @@ profile {
     enable
     mode 2560x1440@165Hz
     position 0,240
-    adaptive_sync on
   }
   output "HP Inc. HP E243d CNC103241L" {
     enable
@@ -12,18 +11,6 @@ profile {
     position 2560,0
   }
   exec xrandr --output DP-1 --primary
-  exec swaymsg workspace 0 output '"PanaScope Pixio PX277P Unknown"'
-  exec swaymsg workspace 2 output '"PanaScope Pixio PX277P Unknown"'
-  exec swaymsg workspace 4 output '"PanaScope Pixio PX277P Unknown"'
-  exec swaymsg workspace 6 output '"PanaScope Pixio PX277P Unknown"'
-  exec swaymsg workspace 8 output '"PanaScope Pixio PX277P Unknown"'
-  exec swaymsg workspace 1 output '"HP Inc. HP E243d CNC103241L"'
-  exec swaymsg workspace 3 output '"HP Inc. HP E243d CNC103241L"'
-  exec swaymsg workspace 5 output '"HP Inc. HP E243d CNC103241L"'
-  exec swaymsg workspace 7 output '"HP Inc. HP E243d CNC103241L"'
-  exec swaymsg workspace 9 output '"HP Inc. HP E243d CNC103241L"'
-  exec swaymsg workspace 1, move workspace to '"HP Inc. HP E243d CNC103241L"'
-  exec swaymsg workspace 0, move workspace to '"PanaScope Pixio PX277P Unknown"'
 }
 profile {
   output "Samsung Electric Company QBQ95 0x01000E00" {

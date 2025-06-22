@@ -255,18 +255,10 @@
   # programs.ryzen-monitor-ng = true;
   programs.sway.enable = true;
   programs.sway.wrapperFeatures.gtk = true;
-  programs.sway.extraPackages = with pkgs;
-    lib.mkOptionDefault [
-      i3status-rust
-      kanshi
-      dex
-      xorg.xrandr
-      mako
-      udiskie
-      wayland-pipewire-idle-inhibit
-      blueberry
-      pavucontrol
-    ];
+  programs.sway.extraSessionCommands = ''
+    export WLR_BACKENDS=libinput,drm
+    export PROTON_ENABLE_WAYLAND=1
+  '';
   programs.git.enable = true;
   programs.gamemode.enable = true;
   programs.gamemode.enableRenice = true;
@@ -281,10 +273,10 @@
   time.timeZone = "America/New_York";
 
   environment.systemPackages = with pkgs; [
-    adwaita-qt
-    adwaita-qt6
     adwaita-icon-theme
     adwaita-icon-theme-legacy
+    adwaita-qt
+    adwaita-qt6
     btop-rocm
     furmark
     git
@@ -309,10 +301,6 @@
     wireshark
   ];
 
-  environment.variables = {
-    PROTON_ENABLE_WAYLAND = "1";
-  };
-
   users.users."matt" = {
     isNormalUser = true;
     initialPassword = "matt";
@@ -322,30 +310,36 @@
     extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd"];
     shell = pkgs.zsh;
     packages = with pkgs; [
+      (catppuccin-gtk.override {variant = "mocha";})
       bat
       bc
       bind
-      (catppuccin-gtk.override {variant = "mocha";})
+      blueberry
       cargo
       chezmoi
+      dex
       direnv
       discord
       foot
       fzf
       gcc
       gh
+      i3status-rust
       jc
+      kanshi
       kdiskmark
       lazygit
       lua5_1
       luarocks
+      mako
       mangohud
-      nemo
       ncmpcpp
+      nemo
       neovim
       nodejs
       nwg-look
       openssl
+      pavucontrol
       protonup-qt
       python3
       ripgrep
@@ -354,10 +348,13 @@
       swaybg
       tcpdump
       tigervnc
+      udiskie
       unzip
+      wayland-pipewire-idle-inhibit
       wget
       wineWowPackages.stableFull
       wl-clipboard
+      xorg.xrandr
       ymuse
       zellij
     ];

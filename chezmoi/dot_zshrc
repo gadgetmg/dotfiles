@@ -1,3 +1,5 @@
+export EDITOR=nvim
+
 if [ -f $HOME/.config/plasma-workspace/env/editor.sh ]; then
   source $HOME/.config/plasma-workspace/env/editor.sh
 fi
@@ -7,6 +9,9 @@ else
   exec zellij
 fi
 
+alias cat="bat"
+alias c="bat"
+alias g="git"
 alias v="nvim"
 alias k="kubectl"
 alias kg="kubectl get -o wide"

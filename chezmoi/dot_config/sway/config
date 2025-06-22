@@ -111,6 +111,9 @@ bindsym $mod+Left focus left
 bindsym $mod+Down focus down
 bindsym $mod+Up focus up
 bindsym $mod+Right focus right
+# Move focus around outputs
+bindsym $mod+Comma focus output left
+bindsym $mod+Period focus output right
 
 # Move the focused window with the same, but add Shift
 bindsym $mod+Shift+$left move left
@@ -122,6 +125,10 @@ bindsym $mod+Shift+Left move left
 bindsym $mod+Shift+Down move down
 bindsym $mod+Shift+Up move up
 bindsym $mod+Shift+Right move right
+# Move workspace around outputs
+bindsym $mod+Shift+Comma move workspace to output left
+bindsym $mod+Shift+Period move workspace to output right
+
 #
 # Workspaces:
 #
