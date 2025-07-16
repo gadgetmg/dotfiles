@@ -56,6 +56,7 @@
   services.btrfs.autoScrub.enable = true;
   services.displayManager.ly.enable = true;
   services.displayManager.defaultSession = "sway";
+  services.gvfs.enable = true;
   services.logind.killUserProcesses = true;
   services.netdata.enable = true;
   services.netdata.configDir."go.d/sensors.conf" = pkgs.writeText "sensors.conf" ''
@@ -356,6 +357,7 @@
       wl-clipboard
       xorg.xrandr
       ymuse
+      zathura
       zellij
     ];
   };
