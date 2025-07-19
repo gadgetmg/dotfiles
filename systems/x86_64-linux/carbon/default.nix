@@ -339,6 +339,7 @@
       neovim
       nodejs
       nwg-look
+      obsidian
       openssl
       pavucontrol
       protonup-qt
