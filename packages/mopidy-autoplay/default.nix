@@ -7,6 +7,7 @@
 python3Packages.buildPythonApplication rec {
   pname = "mopidy-autoplay";
   version = "0.2.3";
+  format = "setuptools";
 
   src = fetchPypi {
     inherit version;

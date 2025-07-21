@@ -127,10 +127,6 @@
       };
     };
   };
-  services.open-webui = {
-    enable = true;
-    environment = {OPENAI_API_BASE_URL = "http://localhost:8081/v1";};
-  };
   nix.settings.download-buffer-size = 524288000;
   systemd.user.services.mopidy = {
     enable = true;
