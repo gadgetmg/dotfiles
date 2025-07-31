@@ -14,6 +14,14 @@ if windows then
         },
       },
     },
+    {
+      "stevearc/conform.nvim",
+      opts = {
+        formatters_by_ft = {
+          nix = {},
+        },
+      },
+    },
   }
 else
   return {}
