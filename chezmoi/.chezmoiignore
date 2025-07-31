@@ -2,3 +2,19 @@
 AppData
 *_*__windows.*
 {{- end }}
+{{ if eq .chezmoi.os "windows" }}
+.config/autostart
+.config/btop
+.config/foot
+.config/i3status-rust
+.config/kanshi
+.config/mako
+.config/mopidy
+.config/sway
+.config/systemd
+.config/xsettingsd
+.config/zellij
+.local/bin/ping.sh
+.local/bin/wallpaper.sh
+.zshrc
+{{- end }}
