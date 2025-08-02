@@ -227,10 +227,6 @@
         active = true;
       }
     ];
-    domains = [
-      {definition = ./windows-11.xml;}
-      {definition = ./windows-11-qxl.xml;}
-    ];
   };
 
   systemd.network.wait-online.enable = false;
@@ -259,11 +255,13 @@
   programs.git.enable = true;
   programs.gamemode.enable = true;
   programs.gamemode.enableRenice = true;
+  programs.virt-manager.enable = true;
   programs.wireshark.enable = true;
 
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [47984 47989 48010];
   networking.firewall.allowedUDPPorts = [47999 48010 48100 48200];
+  networking.firewall.trustedInterfaces = ["virbr0"];
 
   console.keyMap = "colemak";
 
@@ -293,7 +291,6 @@
     unigine-heaven
     unigine-superposition
     unigine-valley
-    virt-manager
     vulkan-tools
     wireshark
   ];
