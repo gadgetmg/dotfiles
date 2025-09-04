@@ -50,6 +50,7 @@ return {
     opts = {
       servers = {
         marksman = { mason = false },
+        nil_ls = { nix = { flake = { autoArchive = true } } },
       },
     },
   },
