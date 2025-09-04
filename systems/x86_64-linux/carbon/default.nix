@@ -31,7 +31,6 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  boot.kernelPackages = pkgs.linuxPackages_cachyos-lto;
   services.scx.loader = {
     enable = true;
     config = {
@@ -232,7 +231,6 @@
   systemd.network.wait-online.enable = false;
   systemd.packages = with pkgs; [lact];
   systemd.services.lactd.wantedBy = ["multi-user.target"];
-  systemd.extraConfig = "DefaultTimeoutStopSec=10s";
   systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
 
   programs.nix-ld.enable = true;

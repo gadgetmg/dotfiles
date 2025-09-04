@@ -1,7 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    chaotic.url = "github:chaotic-cx/nyx/nyxpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
 
     mesa = {
       url = "gitlab:mesa/mesa?host=gitlab.freedesktop.org";
@@ -40,7 +39,7 @@
 
     llama-cpp.url = "github:ggml-org/llama.cpp";
     nix-gaming.url = "github:fufexan/nix-gaming";
-    nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
+    nixos-facter-modules.url = "github:nix-community/nixos-facter-modules/25122ee";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nixos-wsl.url = "github:nix-community/NixOS-WSL";
   };
@@ -51,14 +50,10 @@
       src = ./.;
       channels-config = {
         allowUnfree = true;
-        # allowBroken = true;
       };
 
       systems.modules.nixos = with inputs; [
         nix-index-database.nixosModules.nix-index
-        chaotic.nixosModules.nyx-cache
-        chaotic.nixosModules.nyx-overlay
-        chaotic.nixosModules.nyx-registry
         {
           programs.nix-index-database.comma.enable = true;
           nix.channel.enable = false;
