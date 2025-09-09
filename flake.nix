@@ -1,14 +1,11 @@
 {
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
-
-    mesa = {
-      url = "gitlab:mesa/mesa?host=gitlab.freedesktop.org";
-      flake = false;
-    };
+    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    trunk.url = "github:nixos/nixpkgs/master";
 
     snowfall-lib = {
-      url = "github:snowfallorg/lib/v3.0.3";
+      url = "github:snowfallorg/lib";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -39,7 +36,7 @@
 
     llama-cpp.url = "github:ggml-org/llama.cpp";
     nix-gaming.url = "github:fufexan/nix-gaming";
-    nixos-facter-modules.url = "github:nix-community/nixos-facter-modules/25122ee";
+    nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
     nixos-wsl.url = "github:nix-community/NixOS-WSL";
   };
@@ -53,6 +50,7 @@
       };
 
       systems.modules.nixos = with inputs; [
+        (import (trunk + "/nixos/modules/services/networking/llama-swap.nix"))
         nix-index-database.nixosModules.nix-index
         {
           programs.nix-index-database.comma.enable = true;

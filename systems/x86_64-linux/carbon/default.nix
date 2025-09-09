@@ -24,6 +24,10 @@
       group = "users";
       mode = "440";
     };
+    "caddy.env" = {
+      group = "caddy";
+      mode = "440";
+    };
   };
 
   boot.initrd.systemd.enable = true;
@@ -53,8 +57,23 @@
     emoji = ["Noto Color Emoji"];
   };
   services.btrfs.autoScrub.enable = true;
+  services.caddy = {
+    enable = true;
+    package = pkgs.caddy.withPlugins {
+      plugins = ["github.com/caddy-dns/cloudflare@v0.2.1"];
+      hash = "sha256-p9AIi6MSWm0umUB83HPQoU8SyPkX5pMx989zAi8d/74=";
+    };
+    environmentFile = "/run/secrets/caddy.env";
+    globalConfig = ''
+      acme_dns cloudflare {env.CF_API_TOKEN}
+    '';
+    virtualHosts."llama.seigra.net".extraConfig = ''
+      reverse_proxy http://localhost:8080
+    '';
+  };
   services.displayManager.ly.enable = true;
   services.displayManager.defaultSession = "sway";
+  services.earlyoom.enable = true;
   services.gvfs.enable = true;
   services.logind.killUserProcesses = true;
   services.netdata.enable = true;
@@ -82,50 +101,21 @@
   };
   services.llama-swap = {
     enable = true;
-    port = 8081;
-    package = pkgs.internal.llama-swap;
-    config = {
-      healthCheckTimeout = 600;
+    settings = let
+      llama-server = lib.getExe' pkgs.llama-cpp "llama-server";
+    in {
+      healthCheckTimeout = 1200;
+      macros.llama-server = "${llama-server} --port \${PORT} --no-webui --jinja";
       models = {
-        DeepSeek-R1-0528-Qwen3-8B = {
-          cmd = "llama-server --port \${PORT} -fa -hf unsloth/DeepSeek-R1-0528-Qwen3-8B-GGUF:Q4_K_XL -ngl 37 --ctx-size 65536 --jinja --temp 0.6 --top-k 20 --top-p 0.95 --min-p 0 --predict 16384";
-          ttl = 60;
-        };
-        gemma-3-27b-it-qat = {
-          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/gemma-3-27b-it-qat-GGUF:Q3_K_XL -ngl 63 --ctx-size 24576 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
-          ttl = 60;
-        };
-        QwQ-32B = {
-          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/QwQ-32B-GGUF:IQ3_XXS -ngl 65 --ctx-size 32768 --temp 0.6 --repeat-penalty 1.1 --dry-multiplier 0.5 --min-p 0.01 --top-k 40 --top-p 0.95 --samplers 'top_k;top_p;min_p;temperature;dry;typ_p;xtc'";
-          ttl = 60;
-        };
-        "Mistral-Small-3.1-24B-Instruct-2503" = {
-          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/Mistral-Small-3.1-24B-Instruct-2503-GGUF:Q4_K_XL -ngl 41 --ctx-size 16384 --temp 0.15";
-          ttl = 60;
-        };
-        "Qwen3-30B-A3B-128K" = {
-          cmd = "llama-server --port \${PORT} -fa -ctk q4_0 -ctv q4_0 -hf unsloth/Qwen3-30B-A3B-128K-GGUF:Q3_K_XL -ngl 49 --ctx-size 16384 --temp 0.6 --min-p 0.00 --repeat-penalty 1.0 --top-k 20 --top-p 0.95 --predict 16384";
-          ttl = 60;
-        };
-        "Phi-4-reasoning-plus" = {
-          cmd = "llama-server --port \${PORT} -fa -hf unsloth/Phi-4-reasoning-plus-GGUF:Q4_K_XL -ngl 41 --ctx-size 32768 --jinja --temp 0.8 --min-p 0.00 --repeat-penalty 1.0 --top-p 0.95 --predict 32768";
-          ttl = 60;
-        };
-        "Phi-4-mini-reasoning" = {
-          cmd = "llama-server --port \${PORT} -fa -hf unsloth/Phi-4-mini-reasoning-GGUF:Q4_K_XL -ngl 33 --ctx-size 32768 --jinja --temp 0.8 --min-p 0.00 --repeat-penalty 1.0 --top-p 0.95 --predict 32768";
-          ttl = 60;
-        };
-        gemma-3-1b-it = {
-          cmd = "llama-server --port \${PORT} -fa -hf unsloth/gemma-3-1b-it-GGUF:Q4_K_XL -ngl 27 --ctx-size 24576 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
-          ttl = 60;
-        };
-        gemma-3-4b-it-qat = {
-          cmd = "llama-server --port \${PORT} -fa -hf unsloth/gemma-3-4b-it-qat-GGUF:Q4_K_XL -ngl 35 --ctx-size 24576 --temp 1.0 --repeat-penalty 1.0 --min-p 0.01 --top-k 64 --top-p 0.95";
-          ttl = 60;
+        gpt-oss-20b = {
+          cmd = "\${llama-server} -hf ggml-org/gpt-oss-20b-GGUF -ngl 25 -c 131072 --temp 1.0 --top-k 0 --top-p 1.0";
+          ttl = 1800;
         };
       };
     };
   };
+  systemd.services.llama-swap.environment.LLAMA_CACHE = "/var/cache/llama-swap";
+  systemd.services.llama-swap.serviceConfig.CacheDirectory = "llama-swap";
   nix.settings.download-buffer-size = 524288000;
   systemd.user.services.mopidy = {
     enable = true;
@@ -243,7 +233,7 @@
   programs.steam.gamescopeSession.enable = true;
   programs.steam.gamescopeSession.args = ["--adaptive-sync"];
   programs.gamescope.enable = true;
-  # programs.ryzen-monitor-ng = true;
+  programs.ryzen-monitor-ng.enable = true;
   programs.sway.enable = true;
   programs.sway.wrapperFeatures.gtk = true;
   programs.sway.extraSessionCommands = ''
@@ -257,7 +247,7 @@
   programs.wireshark.enable = true;
 
   networking.networkmanager.enable = true;
-  networking.firewall.allowedTCPPorts = [47984 47989 48010];
+  networking.firewall.allowedTCPPorts = [80 443 47984 47989 48010];
   networking.firewall.allowedUDPPorts = [47999 48010 48100 48200];
   networking.firewall.trustedInterfaces = ["virbr0"];
 
@@ -281,7 +271,6 @@
     jq
     lact
     libreoffice
-    llama-cpp
     lm_sensors
     nvtopPackages.amd
     resources
@@ -321,6 +310,7 @@
       kanshi
       kdiskmark
       lazygit
+      llm
       lua5_1
       luarocks
       mako
@@ -353,15 +343,6 @@
       zellij
     ];
   };
-
-  # specialisation = {
-  #   mesa-git.configuration = {
-  #     hardware.graphics = with pkgs; {
-  #       package = upstream.mesa;
-  #       package32 = pkgsi686Linux.upstream.mesa;
-  #     };
-  #   };
-  # };
 
   system.stateVersion = "24.11";
 }
