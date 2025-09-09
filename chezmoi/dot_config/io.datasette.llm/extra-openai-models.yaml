@@ -1,0 +1,3 @@
+- model_id: gpt-oss-20b
+  model_name: gpt-oss-20b
+  api_base: https://llama.seigra.net/v1
