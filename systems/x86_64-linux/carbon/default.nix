@@ -300,7 +300,6 @@
       chezmoi
       dex
       direnv
-      discord
       foot
       fzf
       gcc
@@ -333,6 +332,7 @@
       tigervnc
       udiskie
       unzip
+      vesktop
       wayland-pipewire-idle-inhibit
       wget
       wineWowPackages.stableFull
