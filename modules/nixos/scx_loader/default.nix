@@ -59,7 +59,7 @@ in {
         dontUnpack = true;
         installPhase = ''
           install -D -m 0644 \
-                  ${cfg.package.src}/rust/scx_loader/org.scx.Loader.conf \
+                  ${cfg.package.src}/tools/scx_loader/org.scx.Loader.conf \
                   $out/share/dbus-1/system.d/org.scx.Loader.conf
         '';
       })

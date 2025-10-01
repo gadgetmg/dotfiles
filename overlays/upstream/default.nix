@@ -3,6 +3,6 @@
   inputs,
   ...
 }: final: prev: {
-  inherit (channels.trunk) llama-swap;
+  inherit (channels.trunk) caido llama-swap onedrive;
   inherit (channels.unstable) lact;
 }

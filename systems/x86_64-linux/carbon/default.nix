@@ -44,7 +44,7 @@
   };
 
   boot.kernelModules = ["nct6775"];
-  boot.kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfff7ffff"];
+  boot.kernelParams = ["mitigations=off"];
 
   hardware.enableAllFirmware = true;
 
@@ -57,6 +57,7 @@
     emoji = ["Noto Color Emoji"];
   };
   services.btrfs.autoScrub.enable = true;
+  services.blueman.enable = true;
   services.caddy = {
     enable = true;
     package = pkgs.caddy.withPlugins {
@@ -76,14 +77,6 @@
   services.earlyoom.enable = true;
   services.gvfs.enable = true;
   services.logind.killUserProcesses = true;
-  services.netdata.enable = true;
-  services.netdata.configDir."go.d/sensors.conf" = pkgs.writeText "sensors.conf" ''
-    jobs:
-      - name: sensors
-        binary_path: ${pkgs.lm_sensors}/bin/sensors
-  '';
-  services.netdata.package = pkgs.netdata.override {withCloudUi = true;};
-  services.onedrive.enable = true;
   services.openssh.enable = true;
   services.pipewire.enable = true;
   services.pipewire.lowLatency.enable = true;
@@ -105,7 +98,7 @@
       llama-server = lib.getExe' pkgs.llama-cpp "llama-server";
     in {
       healthCheckTimeout = 1200;
-      macros.llama-server = "${llama-server} --port \${PORT} --no-webui --jinja";
+      macros.llama-server = "${llama-server} --port \${PORT} --jinja";
       models = {
         gpt-oss-20b = {
           cmd = "\${llama-server} -hf ggml-org/gpt-oss-20b-GGUF -ngl 25 -c 131072 --temp 1.0 --top-k 0 --top-p 1.0";
@@ -114,35 +107,11 @@
       };
     };
   };
+  services.passSecretService.enable = true;
+  services.resolved.enable = true;
   systemd.services.llama-swap.environment.LLAMA_CACHE = "/var/cache/llama-swap";
   systemd.services.llama-swap.serviceConfig.CacheDirectory = "llama-swap";
   nix.settings.download-buffer-size = 524288000;
-  systemd.user.services.mopidy = {
-    enable = true;
-    description = "Mopidy";
-    wantedBy = ["default.target"];
-    script = let
-      mopidy-with-extensions = with pkgs;
-        buildEnv {
-          name = "mopidy-with-extensions-${mopidy.version}";
-          meta.mainProgram = "mopidy";
-          ignoreCollisions = true;
-          paths = lib.closePropagation [
-            mopidy-mpris
-            mopidy-somafm
-            mopidy-mpd
-            internal.mopidy-autoplay
-          ];
-          pathsToLink = ["/${mopidyPackages.python.sitePackages}"];
-          nativeBuildInputs = [makeWrapper];
-          postBuild = ''
-            makeWrapper ${lib.getExe mopidy} $out/bin/mopidy \
-              --prefix PYTHONPATH : $out/${mopidyPackages.python.sitePackages}
-          '';
-        };
-    in "${lib.getExe mopidy-with-extensions}";
-  };
-
   virtualisation.docker.enable = true;
   virtualisation.docker.storageDriver = "btrfs";
   virtualisation.docker.autoPrune.enable = true;
@@ -222,11 +191,14 @@
   systemd.packages = with pkgs; [lact];
   systemd.services.lactd.wantedBy = ["multi-user.target"];
   systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
+  # Prevents fake graphical session hack since we're correctly integrating sway with systemd
+  systemd.user.targets.nixos-fake-graphical-session = lib.mkForce {};
 
   programs.nix-ld.enable = true;
   programs.zsh.enable = true;
-  programs.chromium.enable = true;
   programs.firefox.enable = true;
+  programs.gnupg.agent.enable = true;
+  programs.nm-applet.enable = true;
   programs.steam.enable = true;
   programs.steam.remotePlay.openFirewall = true;
   programs.steam.extraPackages = with pkgs; [gamescope];
@@ -250,6 +222,7 @@
   networking.firewall.allowedTCPPorts = [80 443 47984 47989 48010];
   networking.firewall.allowedUDPPorts = [47999 48010 48100 48200];
   networking.firewall.trustedInterfaces = ["virbr0"];
+  networking.resolvconf.enable = false;
 
   console.keyMap = "colemak";
 
@@ -272,7 +245,9 @@
     lact
     libreoffice
     lm_sensors
+    networkmanagerapplet
     nvtopPackages.amd
+    pass
     resources
     sbctl
     unigine-heaven
@@ -295,16 +270,16 @@
       bat
       bc
       bind
-      blueberry
+      caido
       cargo
       chezmoi
+      chromium
       dex
       direnv
       foot
       fzf
       gcc
       gh
-      i3status-rust
       jc
       kanshi
       kdiskmark
@@ -320,10 +295,15 @@
       nodejs
       nwg-look
       obsidian
+      onedrive
+      onedrivegui
       openssl
       pavucontrol
       protonup-qt
+      protonvpn-cli
+      protonvpn-gui
       python3
+      rclone
       ripgrep
       skim
       starship
@@ -333,12 +313,12 @@
       udiskie
       unzip
       vesktop
+      waybar
       wayland-pipewire-idle-inhibit
       wget
       wineWowPackages.stableFull
       wl-clipboard
       xorg.xrandr
-      ymuse
       zathura
       zellij
     ];

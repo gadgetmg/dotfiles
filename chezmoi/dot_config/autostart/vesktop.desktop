@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=Vesktop
-Comment=Vesktop autostart script
-Exec="/nix/store/0fw92lc5vbwb6pmjxww3jnp24i85h8b6-electron-unwrapped-35.7.5/libexec/electron/electron" "/nix/store/9bwc08n3s4rv08p5d1map8gmq95qyyxy-vesktop-1.5.8/opt/Vesktop/resources/app.asar" "--enable-speech-dispatcher"
-StartupNotify=false
-Terminal=false

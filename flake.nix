@@ -34,7 +34,7 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    llama-cpp.url = "github:ggml-org/llama.cpp";
+    llama-cpp.url = "github:ggml-org/llama.cpp/pull/16118/head";
     nix-gaming.url = "github:fufexan/nix-gaming";
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
