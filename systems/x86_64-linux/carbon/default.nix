@@ -44,9 +44,12 @@
   };
 
   boot.kernelModules = ["nct6775"];
-  boot.kernelParams = ["mitigations=off"];
+  boot.kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfffd7fff"];
+  boot.kernelPackages = pkgs.linuxPackages_zen;
 
+  hardware.bluetooth.enable = true;
   hardware.enableAllFirmware = true;
+  hardware.graphics.extraPackages = with pkgs; [libvdpau-va-gl];
 
   fonts.enableDefaultPackages = true;
   fonts.packages = with pkgs; [adwaita-fonts noto-fonts nerd-fonts.iosevka];
@@ -61,8 +64,8 @@
   services.caddy = {
     enable = true;
     package = pkgs.caddy.withPlugins {
-      plugins = ["github.com/caddy-dns/cloudflare@v0.2.1"];
-      hash = "sha256-p9AIi6MSWm0umUB83HPQoU8SyPkX5pMx989zAi8d/74=";
+      plugins = ["github.com/caddy-dns/cloudflare@v0.2.2"];
+      hash = "sha256-Z8nPh4OI3/R1nn667ZC5VgE+Q9vDenaQ3QPKxmqPNkc=";
     };
     environmentFile = "/run/secrets/caddy.env";
     globalConfig = ''
@@ -228,12 +231,14 @@
 
   time.timeZone = "America/New_York";
 
+  environment.variables.VDPAU_DRIVER = "radeonsi";
   environment.systemPackages = with pkgs; [
     adwaita-icon-theme
     adwaita-icon-theme-legacy
     adwaita-qt
     adwaita-qt6
     btop-rocm
+    papirus-icon-theme
     furmark
     git
     git-lfs
@@ -250,9 +255,6 @@
     pass
     resources
     sbctl
-    unigine-heaven
-    unigine-superposition
-    unigine-valley
     vulkan-tools
     wireshark
   ];
