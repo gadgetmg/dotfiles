@@ -11,27 +11,26 @@
  * -------------------------------------------------------------------------- */
 
 @keyframes blink-warning {
-    70% {
-        color: #cdd6f4;
-    }
+  70% {
+    color: #cdd6f4;
+  }
 
-    to {
-        color: #11111b;
-        background-color: #fab387;
-    }
+  to {
+    color: #11111b;
+    background-color: #fab387;
+  }
 }
 
 @keyframes blink-critical {
-    70% {
-      color: #cdd6f4;
-    }
+  70% {
+    color: #cdd6f4;
+  }
 
-    to {
-        color: #11111b;
-        background-color: #f38ba8;
-    }
+  to {
+    color: #11111b;
+    background-color: #f38ba8;
+  }
 }
-
 
 /* -----------------------------------------------------------------------------
  * Base styles
@@ -39,19 +38,19 @@
 
 /* Reset all styles */
 * {
-    border: none;
-    border-radius: 0;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
 }
 
 /* The whole bar */
 #waybar {
-    background: #1e1e2e;
-    color: #cdd6f4;
-    font-family: Iosevka Nerd Font;
-    font-size: 13px;
+  background: #1e1e2e;
+  color: #cdd6f4;
+  font-family: Iosevka Nerd Font;
+  font-size: 13px;
 }
 
 /* Each module */
@@ -59,108 +58,77 @@
 #cpu,
 #custom-keyboard-layout,
 #memory,
+#disk,
 #mode,
 #network,
 #wireplumber,
 #temperature,
 #tray {
-    padding-left: 6px;
-    padding-right: 6px;
-    padding-top: 3px;
-    padding-bottom: 3px;
+  padding-left: 6px;
+  padding-right: 6px;
+  padding-top: 3px;
+  padding-bottom: 3px;
 }
-
 
 /* -----------------------------------------------------------------------------
  * Module styles
  * -------------------------------------------------------------------------- */
 
 #clock {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 #cpu {
   /* No styles */
 }
 
-#cpu.warning {
-    color: #fab387;
-    color: #11111b;
+#cpu.warning,
+#memory.warning,
+#disk.warning {
+  background-color: #fab387;
+  color: #11111b;
 }
 
-#cpu.critical {
-    color: #f38ba8;
-    color: #11111b;
+#mode,
+#cpu.critical,
+#memory.critical,
+#temperature.critical,
+#disk.critical {
+  background-color: #f38ba8;
+  color: #11111b;
 }
 
 #memory {
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-}
-
-#memory.warning {
-    color: #fab387;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
 }
 
 #memory.critical {
-    color: #f38ba8;
-    color: #11111b;
-    animation-name: blink-critical;
-    animation-duration: 2s;
+  animation-name: blink-critical;
+  animation-duration: 2s;
 }
 
-#mode {
-    background: #f38ba8;
-    color: #11111b;
-}
-
-#network {
-    /* No styles */
-}
-
-#network.disconnected {
-    background-color: #f9e2af;
-    color: #11111b;
-}
-
-#wireplumber {
-    /* No styles */
-}
-
+#network.disconnected,
 #wireplumber.muted {
-    background-color: #f9e2af;
-    color: #11111b;
-}
-
-#temperature {
-    /* No styles */
-}
-
-#temperature.critical {
-    color: #f38ba8;
-    color: #11111b;
-}
-
-#tray {
-    /* No styles */
+  background-color: #f9e2af;
+  color: #11111b;
 }
 
 #window {
-    font-weight: bold;
+  font-weight: bold;
 }
 
 #workspaces button {
-    color: #a6adc8;
+  color: #a6adc8;
 }
 
 #workspaces button.focused {
-    background-color: #585b70;
-    border-color: #585b70;
-    color: #cdd6f4;
+  background-color: #585b70;
+  color: #cdd6f4;
 }
 
 #workspaces button.urgent {
-    border-color: #f38ba8;
-    color: #f38ba8;
+  border-color: #f38ba8;
+  color: #f38ba8;
 }

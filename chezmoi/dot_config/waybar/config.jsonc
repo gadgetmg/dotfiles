@@ -7,110 +7,124 @@
 // =============================================================================
 
 {
-    // -------------------------------------------------------------------------
-    // Global configuration
-    // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // Global configuration
+  // -------------------------------------------------------------------------
 
-    "layer": "top",
+  "layer": "top",
 
-    "position": "top",
+  "position": "top",
 
-    "modules-left": [
-        "sway/workspaces",
-        "sway/mode"
-    ],
-    "modules-center": [
-        "sway/window"
-    ],
-    "modules-right": [
-        "network",
-        "memory",
-        "cpu",
-        "tray",
-        "wireplumber#source",
-        "wireplumber",
-        "clock#date",
-        "clock#time"
-    ],
+  "modules-left": ["sway/workspaces", "sway/mode"],
+  "modules-center": ["sway/window"],
+  "modules-right": [
+    "group/hardware",
+    "tray",
+    "wireplumber#source",
+    "wireplumber",
+    "clock#date",
+    "clock#time",
+  ],
 
-
-    // -------------------------------------------------------------------------
-    // Modules
-    // -------------------------------------------------------------------------
-
-    "clock#time": {
-        "interval": 1,
-        "format": "{:%I:%M%p}",
-        "tooltip": false
+  "group/hardware": {
+    "orientation": "inherit",
+    "drawer": {
+      "transition-duration": 250,
     },
+    "modules": ["cpu", "memory", "disk", "network"],
+  },
 
-    "clock#date": {
-      "interval": 10,
-      "format": "󰃭 {:%b %e}",
-      "tooltip-format": "{:%B %e, %Y}"
+  // -------------------------------------------------------------------------
+  // Modules
+  // -------------------------------------------------------------------------
+
+  "clock#time": {
+    "interval": 1,
+    "format": "{:%I:%M%p}",
+    "tooltip": false,
+  },
+
+  "clock#date": {
+    "interval": 10,
+    "format": "󰃭 {:%b %e}",
+    "tooltip-format": "{:%B %e, %Y}",
+  },
+
+  "cpu": {
+    "interval": 5,
+    "format": "󰓅 {usage}%",
+    "states": {
+      "warning": 70,
+      "critical": 90,
     },
+  },
 
-    "cpu": {
-        "interval": 5,
-        "format": "󰓅 {usage}%",
-        "states": {
-          "warning": 70,
-          "critical": 90
-        }
+  "memory": {
+    "interval": 5,
+    "format": "󰍛 {avail:0.0f}GB",
+    "unit": "GB",
+    "states": {
+      "warning": 70,
+      "critical": 90,
     },
+  },
 
-    "memory": {
-        "interval": 5,
-        "format": "󰍛 {avail:0.0f}GiB",
-        "states": {
-            "warning": 70,
-            "critical": 90
-        }
+  "disk": {
+    "interval": 5,
+    "format": " {specific_free:0.0f}GiB",
+    "unit": "GiB",
+    "states": {
+      "warning": 70,
+      "critical": 90,
     },
+  },
 
-    "network": {
-        "interval": 5,
-        "format-wifi": "󰖩 {essid} ({signalStrength}%) 󰛴 {bandwidthDownBits} 󰛶 {bandwidthUpBits}",
-        "format-ethernet": "󰈀 {ifname} 󰛴 {bandwidthDownBits} 󰛶 {bandwidthUpBits}",
-        "format-disconnected": "󰌙 Disconnected",
-        "tooltip-format": "{ifname}: {ipaddr}"
+  "network": {
+    "interval": 5,
+    "format-wifi": "󰖩 {essid} ({signalStrength}%) 󰛴 {bandwidthDownBits} 󰛶 {bandwidthUpBits}",
+    "format-ethernet": "󰈀 {ifname} 󰛴 {bandwidthDownBits} 󰛶 {bandwidthUpBits}",
+    "format-disconnected": "󰌙 Disconnected",
+    "tooltip-format": "{ifname}: {ipaddr}",
+  },
+
+  "sway/mode": {
+    "format": "<span style=\"italic\">{}</span>",
+    "tooltip": false,
+  },
+
+  "sway/window": {
+    "format": "{}",
+    "max-length": 120,
+  },
+
+  "sway/workspaces": {
+    "all-outputs": false,
+    "disable-scroll": true,
+    "format": "{name}",
+  },
+
+  "wireplumber": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟 {volume}%",
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "scroll-step": 5,
+  },
+
+  "wireplumber#source": {
+    "node-type": "Audio/Source",
+    "format": "󰍬 {volume}%",
+    "format-muted": "󰍭 {volume}%",
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
+    "scroll-step": 5,
+  },
+
+  "tray": {
+    "icon-size": 14,
+    "spacing": 6,
+    "icons": {
+      "steam": "/run/current-system/sw/share/icons/Papirus-Dark/16x16/panel/steam_tray_mono.svg",
+      "OneDriveGUI": "/run/current-system/sw/share/icons/Papirus-Dark/16x16/apps/ms-onedrive.svg",
     },
-
-    "sway/mode": {
-        "format": "<span style=\"italic\">{}</span>",
-        "tooltip": false
-    },
-
-    "sway/window": {
-        "format": "{}",
-        "max-length": 120
-    },
-
-    "sway/workspaces": {
-        "all-outputs": false,
-        "disable-scroll": true,
-        "format": "{name}"
-    },
-
-    "wireplumber": {
-      "format": "{icon} {volume}%",
-      "format-muted": "󰝟 {volume}%",
-      "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
-      "format-icons": ["󰕿", "󰖀", "󰕾"],
-      "scroll-step": 5
-    },
-
-    "wireplumber#source": {
-      "node-type": "Audio/Source",
-      "format": "󰍬 {volume}%",
-      "format-muted": "󰍭 {volume}%",
-      "on-click": "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle",
-      "scroll-step": 5
-    },
-
-    "tray": {
-        "icon-size": 16,
-        "spacing": 5
-    }
-
+  },
 }
