@@ -1,6 +1,7 @@
 profile {
   output "PanaScope Pixio PX277P Unknown" {
     enable
+    adaptive_sync on
     mode 2560x1440@165Hz
     position 0,240
   }
