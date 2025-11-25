@@ -44,7 +44,7 @@ output * {
 # your displays after another 300 seconds, and turn your screens back on when
 # resumed. It will also lock your screen before your computer goes to sleep.
 
-exec swayidle -w \
+exec_always pkill -HUP swayidle || swayidle -w \
          timeout 300 'swaylock -f -c 000000' \
          timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
          before-sleep 'swaylock -f -c 000000'
@@ -274,6 +274,7 @@ for_window [app_id="firefox" title="^Extension:"] floating enable
 
 exec dex -a -s ~/.config/autostart/
 exec mako
-exec onedrivegui
+exec sleep 2 && onedrivegui
+exec blueman-applet
 
 include /etc/sway/config.d/*
