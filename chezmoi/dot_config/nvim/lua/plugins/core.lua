@@ -42,6 +42,7 @@ return {
       formatters_by_ft = {
         yaml = { "yamlfmt" },
         nix = { "alejandra" },
+        hcl = { "hcl" },
       },
     },
   },
@@ -56,22 +57,8 @@ return {
   },
   {
     "Saghen/blink.cmp",
-    dependencies = {
-      "Kaiser-Yang/blink-cmp-avante",
-    },
     opts = {
       keymap = { preset = "default" },
-      sources = {
-        per_filetype = {
-          org = { "orgmode" },
-        },
-        providers = {
-          orgmode = {
-            name = "Orgmode",
-            module = "orgmode.org.autocompletion.blink",
-          },
-        },
-      },
     },
   },
   { "imsnif/kdl.vim" },
