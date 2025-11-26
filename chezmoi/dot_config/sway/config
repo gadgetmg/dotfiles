@@ -45,8 +45,9 @@ output * {
 # resumed. It will also lock your screen before your computer goes to sleep.
 
 exec_always pkill -HUP swayidle || swayidle -w \
-         timeout 300 'swaylock -f -c 000000' \
          timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+         timeout 605 'swaylock -f -c 000000' \
+         timeout 900 'systemctl suspend' \
          before-sleep 'swaylock -f -c 000000'
 exec wayland-pipewire-idle-inhibit
 
