@@ -34,11 +34,28 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    llama-cpp.url = "github:ggml-org/llama.cpp/pull/16118/head";
-    nix-gaming.url = "github:fufexan/nix-gaming";
+    nix-gaming = {
+      url = "github:fufexan/nix-gaming";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    llama-cpp = {
+      url = "github:ggml-org/llama.cpp";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    opencode = {
+      url = "github:sst/opencode";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     nixos-facter-modules.url = "github:nix-community/nixos-facter-modules";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
-    nixos-wsl.url = "github:nix-community/NixOS-WSL";
   };
 
   outputs = inputs:

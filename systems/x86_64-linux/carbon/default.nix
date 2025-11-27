@@ -282,6 +282,7 @@
       fzf
       gcc
       gh
+      go
       jc
       kanshi
       kdiskmark
@@ -299,6 +300,7 @@
       obsidian
       onedrive
       onedrivegui
+      opencode
       openssl
       pavucontrol
       protonup-qt
@@ -309,6 +311,7 @@
       ripgrep
       skim
       starship
+      statix
       swaybg
       tcpdump
       tigervnc
