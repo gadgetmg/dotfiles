@@ -80,7 +80,7 @@
   services.logind.settings.Login.killUserProcesses = true;
   services.openssh.enable = true;
   services.pipewire.enable = true;
-  services.pipewire.lowLatency.enable = true;
+  # services.pipewire.lowLatency.enable = true;
   security.rtkit.enable = true;
   services.xserver.xkb.variant = "colemak";
   services.udisks2 = {
