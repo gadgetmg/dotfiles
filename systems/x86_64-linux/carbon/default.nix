@@ -35,12 +35,10 @@
     enable = true;
     pkiBundle = "/var/lib/sbctl";
   };
-  services.scx.loader = {
+  services.scx = {
     enable = true;
-    config = {
-      default_sched = "scx_bpfland";
-      default_mode = "Gaming";
-    };
+    package = pkgs.scx.rustscheds;
+    scheduler = "scx_bpfland";
   };
 
   boot.kernelModules = ["nct6775"];
@@ -65,7 +63,7 @@
     enable = true;
     package = pkgs.caddy.withPlugins {
       plugins = ["github.com/caddy-dns/cloudflare@v0.2.2"];
-      hash = "sha256-Z8nPh4OI3/R1nn667ZC5VgE+Q9vDenaQ3QPKxmqPNkc=";
+      hash = "sha256-ea8PC/+SlPRdEVVF/I3c1CBprlVp1nrumKM5cMwJJ3U=";
     };
     environmentFile = "/run/secrets/caddy.env";
     globalConfig = ''
@@ -79,7 +77,7 @@
   services.displayManager.defaultSession = "sway";
   services.earlyoom.enable = true;
   services.gvfs.enable = true;
-  services.logind.killUserProcesses = true;
+  services.logind.settings.Login.killUserProcesses = true;
   services.openssh.enable = true;
   services.pipewire.enable = true;
   services.pipewire.lowLatency.enable = true;
@@ -144,7 +142,6 @@
   };
   virtualisation.libvirt.enable = true;
   virtualisation.libvirt.swtpm.enable = true;
-  virtualisation.libvirtd.qemu.ovmf.packages = [(pkgs.OVMFFull.override {msVarsTemplate = true;}).fd];
 
   virtualisation.libvirt.connections."qemu:///system" = {
     pools = [
@@ -304,7 +301,6 @@
       openssl
       pavucontrol
       protonup-qt
-      protonvpn-cli
       protonvpn-gui
       python3
       rclone

@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     trunk.url = "github:nixos/nixpkgs/master";
 
@@ -15,8 +15,8 @@
     };
 
     lanzaboote = {
-      url = "github:nix-community/lanzaboote/v0.4.2";
-      inputs.nixpkgs.follows = "nixpkgs";
+      url = "github:nix-community/lanzaboote/v0.4.3";
+      inputs.nixpkgs.follows = "unstable";
     };
 
     sops-nix = {
@@ -67,7 +67,6 @@
       };
 
       systems.modules.nixos = with inputs; [
-        (import (trunk + "/nixos/modules/services/networking/llama-swap.nix"))
         nix-index-database.nixosModules.nix-index
         {
           programs.nix-index-database.comma.enable = true;
