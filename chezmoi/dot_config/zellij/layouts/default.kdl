@@ -1,0 +1,66 @@
+layout {
+    default_tab_template {
+        children
+        pane size=1 borderless=true {
+            plugin location="zjstatus" {
+                // colorscheme (base16 catppuccin mocha)
+                color_base00 "#1e1e2e" // base
+                color_base01 "#181825" // mantle
+                color_base02 "#313244" // surface0
+                color_base03 "#45475a" // surface1
+                color_base04 "#585b70" // surface2
+                color_base05 "#cdd6f4" // text
+                color_base06 "#f5e0dc" // rosewater
+                color_base07 "#b4befe" // lavender
+                color_base08 "#f38ba8" // red
+                color_base09 "#fab387" // peach
+                color_base0A "#f9e2af" // yellow
+                color_base0B "#a6e3a1" // green
+                color_base0C "#94e2d5" // teal
+                color_base0D "#89b4fa" // blue
+                color_base0E "#cba6f7" // mauve
+                color_base0F "#f2cdcd" // flamingo
+
+                format_left   "{mode}#[bg=$base01,bold,italic] {session} #[bg=none]{pipe_zjstatus_hints}"
+                format_center "{tabs}"
+                format_right  ""
+                format_space  ""
+
+                format_hide_on_overlength "true"
+                format_precedence         "lcr"
+
+                mode_locked        "#[bg=$base05] "
+                mode_normal        "#[bg=$base0D] "
+                mode_resize        "#[bg=$base09] "
+                mode_pane          "#[bg=$base09] "
+                mode_tab           "#[bg=$base09] "
+                mode_scroll        "#[bg=$base09] "
+                mode_enter_search  "#[bg=$base09] "
+                mode_search        "#[bg=$base09] "
+                mode_rename_tab    "#[bg=$base09] "
+                mode_rename_pane   "#[bg=$base09] "
+                mode_session       "#[bg=$base09] "
+                mode_move          "#[bg=$base09] "
+                mode_prompt        "#[bg=$base09] "
+                mode_tmux          "#[bg=$base09] "
+
+                tab_active              "#[bold]{index} : {name}"
+                tab_active_fullscreen   "#[bold]{index} : {name} {fullscreen_indicator}"
+                tab_active_sync         "#[bold]{index} : {name} {sync_indicator}"
+
+                tab_normal              "#[fg=$base04]{index} : {name}"
+                tab_normal_fullscreen   "#[fg=$base04]{index} : {name} {fullscreen_indicator}"
+                tab_normal_sync         "#[fg=$base04]{index} : {name} {sync_indicator}"
+
+                // indicators
+                tab_sync_indicator       "<> "
+                tab_fullscreen_indicator "[] "
+                tab_floating_indicator   "⬚ "
+
+                tab_separator "#[fg=$base04] | "
+
+                pipe_zjstatus_hints_format "{output}"
+            }
+        }
+    }
+}
