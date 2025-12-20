@@ -73,6 +73,7 @@ input type:pointer {
     accel_profile flat
     pointer_accel 0
 }
+seat * hide_cursor when-typing enable
 
 ### Key bindings
 #
