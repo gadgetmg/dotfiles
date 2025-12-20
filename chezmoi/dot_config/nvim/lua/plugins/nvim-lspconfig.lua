@@ -6,7 +6,7 @@ return {
         marksman = {
           cmd_env = {
             DOTNET_SYSTEM_GLOBALIZATION_INVARIANT = true,
-          }
+          },
         },
         nil_ls = {
           enabled = not on_windows,
@@ -15,6 +15,9 @@ return {
               autoArchive = true,
             },
           },
+        },
+        jsonnet_ls = {
+          cmd = { "jsonnet-language-server", "-t" },
         },
       },
     },
