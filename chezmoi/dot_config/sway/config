@@ -22,34 +22,10 @@ set $menu wmenu-run -l 5 -N 1e1e2e -n cdd6f4 -S 89dceb -s 1e1e2e
 
 ### Output configuration
 #
-exec_always pkill -HUP kanshi || kanshi
-exec sleep 2 && systemctl --user start wallpaper.service
 output * {
     allow_tearing yes
     max_render_time off
 }
-# Default wallpaper (more resolutions are available in /run/current-system/sw/share/backgrounds/sway/)
-# output * bg /run/current-system/sw/share/backgrounds/sway/Sway_Wallpaper_Blue_1920x1080.png fill
-
-### Idle configuration
-#
-# Example configuration:
-#
-# exec swayidle -w \
-#          timeout 300 'swaylock -f -c 000000' \
-#          timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-#          before-sleep 'swaylock -f -c 000000'
-#
-# This will lock your screen after 300 seconds of inactivity, then turn off
-# your displays after another 300 seconds, and turn your screens back on when
-# resumed. It will also lock your screen before your computer goes to sleep.
-
-exec_always pkill -HUP swayidle || swayidle -w \
-         timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-         timeout 605 'swaylock -f -c 000000' \
-         timeout 900 'systemctl suspend' \
-         before-sleep 'swaylock -f -c 000000'
-exec wayland-pipewire-idle-inhibit
 
 ### Input configuration
 #
@@ -274,9 +250,20 @@ for_window [app_id="steam_app_.*"] fullscreen enable
 for_window [app_id="pavucontrol"] floating enable, resize set 800 1000
 for_window [app_id="firefox" title="^Extension:"] floating enable
 
+#
+# Startup:
+#
+exec_always pkill -HUP kanshi || kanshi
+exec_always pkill mako || true && mako
+exec_always pgrep blueman-applet || true && blueman-applet
+exec_always pkill wayland-pipewir || true && wayland-pipewire-idle-inhibit
+exec_always pkill swayidle || true && swayidle -w \
+         timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+         timeout 605 'swaylock -f -c 000000' \
+         timeout 900 'systemctl suspend' \
+         before-sleep 'swaylock -f -c 000000'
 exec dex -a -s ~/.config/autostart/
-exec mako
 exec sleep 2 && onedrivegui
-exec blueman-applet
+exec sleep 2 && systemctl --user start wallpaper.service
 
 include /etc/sway/config.d/*
