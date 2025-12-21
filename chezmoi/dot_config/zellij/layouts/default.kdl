@@ -21,7 +21,7 @@ layout {
                 color_base0E "#cba6f7" // mauve
                 color_base0F "#f2cdcd" // flamingo
 
-                format_left   "{mode}#[bg=$base01,bold,italic] {session} #[bg=none]{pipe_zjstatus_hints}"
+                format_left   "{mode}#[bg=$base01,fg=$base05,italic] {session} #[bg=none]{pipe_zjstatus_hints}"
                 format_center "{tabs}"
                 format_right  ""
                 format_space  ""
