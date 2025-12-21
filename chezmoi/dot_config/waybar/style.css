@@ -94,7 +94,7 @@
 #workspaces button.urgent,
 #memory.critical {
   animation: blink-critical 2s steps(2, end) infinite;
-  padding-bottom: 5px;
+  padding-bottom: 4px;
   border-bottom: 2px solid #1e1e2e;
 }
 
@@ -104,13 +104,13 @@
 #network.disconnected,
 #wireplumber.muted {
   animation: blink-warning 2s steps(2, end) infinite;
-  padding-bottom: 5px;
+  padding-bottom: 4px;
   border-bottom: 2px solid #1e1e2e;
 }
 
 #idle_inhibitor.activated {
   animation: blink-activated 2s steps(2, end) infinite;
-  padding-bottom: 5px;
+  padding-bottom: 4px;
   border-bottom: 2px solid #1e1e2e;
 }
 
@@ -135,6 +135,6 @@
   font-weight: bold;
   background-color: #303147; /* 12% lavender, 88% base */
   color: #b4befe;
-  padding-bottom: 5px;
+  padding-bottom: 4px;
   border-bottom: 2px solid #b4befe;
 }
