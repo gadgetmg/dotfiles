@@ -187,7 +187,6 @@
     ];
   };
 
-  systemd.network.wait-online.enable = false;
   systemd.packages = with pkgs; [lact];
   systemd.services.lactd.wantedBy = ["multi-user.target"];
   systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
@@ -219,6 +218,7 @@
   programs.wireshark.enable = true;
   programs.direnv.enable = true;
 
+  networking.dhcpcd.enable = false;
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [80 443 47984 47989 48010];
   networking.firewall.allowedUDPPorts = [47999 48010 48100 48200];
