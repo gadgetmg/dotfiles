@@ -300,6 +300,7 @@
       opencode
       openssl
       pavucontrol
+      playerctl
       protonup-qt
       protonvpn-gui
       python3

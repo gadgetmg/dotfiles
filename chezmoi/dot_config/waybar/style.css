@@ -11,24 +11,29 @@
  * -------------------------------------------------------------------------- */
 
 @keyframes blink-warning {
-  70% {
-    color: #cdd6f4;
-  }
-
-  to {
-    color: #11111b;
-    background-color: #fab387;
+  50% {
+    font-weight: bold;
+    background-color: #38363d; /* 12% yellow, 88% base */
+    color: #f9e2af;
+    border-color: #f9e2af;
   }
 }
 
 @keyframes blink-critical {
-  70% {
-    color: #cdd6f4;
+  50% {
+    font-weight: bold;
+    background-color: #382b3d; /* 12% red, 88% base */
+    color: #f38ba8;
+    border-color: #f38ba8;
   }
+}
 
-  to {
-    color: #11111b;
-    background-color: #f38ba8;
+@keyframes blink-activated {
+  50% {
+    font-weight: bold;
+    background-color: #303147; /* 12% lavender, 88% base */
+    color: #b4befe;
+    border-color: #b4befe;
   }
 }
 
@@ -47,7 +52,7 @@
 
 /* The whole bar */
 #waybar {
-  background: #1e1e2e;
+  background-color: #1e1e2e;
   color: #cdd6f4;
   font-family: Iosevka Nerd Font;
   font-size: 13px;
@@ -63,72 +68,73 @@
 #network,
 #wireplumber,
 #temperature,
-#tray {
-  padding-left: 6px;
-  padding-right: 6px;
-  padding-top: 3px;
-  padding-bottom: 3px;
+#tray,
+#idle_inhibitor,
+#mpris,
+#window,
+#workspaces button {
+  padding: 7px 7px 6px;
+  margin: 0px 1px;
 }
 
 /* -----------------------------------------------------------------------------
  * Module styles
  * -------------------------------------------------------------------------- */
 
-#clock {
-  font-weight: bold;
-}
-
-#cpu {
-  /* No styles */
-}
-
-#cpu.warning,
-#memory.warning,
-#disk.warning {
-  background-color: #fab387;
-  color: #11111b;
+#workspaces button {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 #mode,
 #cpu.critical,
 #memory.critical,
 #temperature.critical,
-#disk.critical {
-  background-color: #f38ba8;
-  color: #11111b;
-}
-
-#memory {
-  animation-timing-function: linear;
-  animation-iteration-count: infinite;
-  animation-direction: alternate;
-}
-
+#disk.critical,
+#workspaces button.urgent,
 #memory.critical {
-  animation-name: blink-critical;
-  animation-duration: 2s;
+  animation: blink-critical 2s steps(2, end) infinite;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #1e1e2e;
 }
 
+#cpu.warning,
+#memory.warning,
+#disk.warning,
 #network.disconnected,
 #wireplumber.muted {
-  background-color: #f9e2af;
-  color: #11111b;
+  animation: blink-warning 2s steps(2, end) infinite;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #1e1e2e;
 }
 
+#idle_inhibitor.activated {
+  animation: blink-activated 2s steps(2, end) infinite;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #1e1e2e;
+}
+
+#clock,
 #window {
   font-weight: bold;
 }
 
+#mpris.paused,
+#mpris.stopped,
 #workspaces button {
-  color: #a6adc8;
+  color: #7f849c;
 }
 
-#workspaces button.focused {
-  background-color: #585b70;
+#workspaces button.visible {
+  font-weight: bold;
   color: #cdd6f4;
 }
 
-#workspaces button.urgent {
-  border-color: #f38ba8;
-  color: #f38ba8;
+#workspaces button.focused,
+#mpris.playing {
+  font-weight: bold;
+  background-color: #303147; /* 12% lavender, 88% base */
+  color: #b4befe;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #b4befe;
 }

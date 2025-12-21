@@ -18,18 +18,20 @@
   "modules-left": ["sway/workspaces", "sway/mode"],
   "modules-center": ["sway/window"],
   "modules-right": [
+    "mpris",
     "group/hardware",
     "tray",
+    "idle_inhibitor",
     "wireplumber#source",
     "wireplumber",
-    "clock#date",
-    "clock#time",
+    "clock",
   ],
 
   "group/hardware": {
     "orientation": "inherit",
     "drawer": {
       "transition-duration": 250,
+      "click-to-reveal": true,
     },
     "modules": ["cpu", "memory", "disk", "network"],
   },
@@ -38,15 +40,9 @@
   // Modules
   // -------------------------------------------------------------------------
 
-  "clock#time": {
+  "clock": {
     "interval": 1,
-    "format": "{:%I:%M%p}",
-    "tooltip": false,
-  },
-
-  "clock#date": {
-    "interval": 10,
-    "format": "󰃭 {:%b %e}",
+    "format": "󰃭 {:%b %e %I:%M%p}",
     "tooltip-format": "{:%B %e, %Y}",
   },
 
@@ -81,8 +77,8 @@
 
   "network": {
     "interval": 5,
-    "format-wifi": "󰖩 {essid} ({signalStrength}%) 󰛴 {bandwidthDownBits} 󰛶 {bandwidthUpBits}",
-    "format-ethernet": "󰈀 {ifname} 󰛴 {bandwidthDownBits} 󰛶 {bandwidthUpBits}",
+    "format-wifi": "󰖩 {essid} ({signalStrength}%)  󰛴 {bandwidthDownBits}  󰛶 {bandwidthUpBits}",
+    "format-ethernet": "󰈀 {ifname}  󰛴 {bandwidthDownBits}  󰛶 {bandwidthUpBits}",
     "format-disconnected": "󰌙 Disconnected",
     "tooltip-format": "{ifname}: {ipaddr}",
   },
@@ -125,6 +121,24 @@
     "icons": {
       "steam": "/run/current-system/sw/share/icons/Papirus-Dark/16x16/panel/steam_tray_mono.svg",
       "OneDriveGUI": "/run/current-system/sw/share/icons/Papirus-Dark/16x16/apps/ms-onedrive.svg",
+    },
+  },
+
+  "idle_inhibitor": {
+    "format": "{icon}",
+    "format-icons": {
+      "activated": "󰛊 ",
+      "deactivated": "󰾫 ",
+    },
+  },
+
+  "mpris": {
+    "format": "{status_icon} {dynamic}",
+    "format-paused": "{status_icon} <i>{dynamic}</i>",
+    "dynamic-order": ["title", "artist"],
+    "status-icons": {
+      "playing": "▶",
+      "paused": "⏸",
     },
   },
 }
