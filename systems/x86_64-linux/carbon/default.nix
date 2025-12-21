@@ -92,6 +92,8 @@
   services.earlyoom.enable = true;
   services.gvfs.enable = true;
   services.logind.settings.Login.KillUserProcesses = true;
+  services.logind.settings.Login.HandlePowerKey = "ignore";
+  services.logind.settings.Login.HandlePowerKeyLongPress = "poweroff";
   services.openssh.enable = true;
   services.pipewire.enable = true;
   # services.pipewire.lowLatency.enable = true;
