@@ -91,7 +91,7 @@
   services.displayManager.defaultSession = "sway";
   services.earlyoom.enable = true;
   services.gvfs.enable = true;
-  services.logind.settings.Login.killUserProcesses = true;
+  services.logind.settings.Login.KillUserProcesses = true;
   services.openssh.enable = true;
   services.pipewire.enable = true;
   # services.pipewire.lowLatency.enable = true;
