@@ -217,6 +217,7 @@
   programs.gamemode.enableRenice = true;
   programs.virt-manager.enable = true;
   programs.wireshark.enable = true;
+  programs.direnv.enable = true;
 
   networking.networkmanager.enable = true;
   networking.firewall.allowedTCPPorts = [80 443 47984 47989 48010];
@@ -274,7 +275,6 @@
       chezmoi
       chromium
       dex
-      direnv
       foot
       fzf
       gcc
