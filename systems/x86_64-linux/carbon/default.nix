@@ -288,6 +288,7 @@
       chromium
       dex
       foot
+      fuzzel
       fzf
       gcc
       gh

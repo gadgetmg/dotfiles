@@ -18,7 +18,7 @@ set $right l
 # Your preferred terminal emulator
 set $term foot
 # Your preferred application launcher
-set $menu wmenu-run -l 5 -N 1e1e2e -n cdd6f4 -S 89dceb -s 1e1e2e
+set $menu fuzzel
 
 ### Output configuration
 #
