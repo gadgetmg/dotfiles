@@ -322,6 +322,7 @@
       xorg.xrandr
       zathura
       zellij
+      zoxide
     ];
   };
 

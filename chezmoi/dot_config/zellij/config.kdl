@@ -134,13 +134,20 @@ keybinds clear-defaults=true {
         bind "Alt o" { MoveTab "right"; }
         // bind "Alt p" { TogglePaneInGroup; }
         // bind "Alt Shift p" { ToggleGroupMarking; }
-        bind "Alt q" { Quit; }
+        bind "Alt z" {
+            LaunchOrFocusPlugin "zsm" {
+                floating true
+                move_to_focused_tab true
+                show_resurrectable_sessions true
+            }
+        }
     }
     shared_except "locked" "move" {
         bind "Alt m" { SwitchToMode "move"; }
     }
     shared_except "locked" "session" {
         bind "Alt o" { SwitchToMode "session"; }
+        bind "Alt q" { Detach; }
     }
     shared_except "locked" "pane" {
         bind "Alt h" { MessagePlugin { name "nvim_nav_left_tab"; payload "27,104"; }; }
@@ -243,6 +250,7 @@ plugins {
     zjstatus-hints location="https://github.com/b0o/zjstatus-hints/releases/latest/download/zjstatus-hints.wasm" {
         hide_in_base_mode true
     }
+    zsm location="https://github.com/liam-mackie/zsm/releases/latest/download/zsm.wasm"
 }
 
 // Plugins to load in the background when a new session starts
@@ -374,13 +382,13 @@ copy_command "wl-copy"
 // otherwise this will error if such a session exists.
 // Default: <RANDOM>
 // 
-// session_name "My singleton session"
+session_name "default"
  
 // When `session_name` is provided, attaches to that session
 // if it is already running or creates it otherwise.
 // Default: false
 // 
-// attach_to_session true
+attach_to_session true
  
 // Toggle between having Zellij lay out panes according to a predefined set of layouts whenever possible
 // Options:
