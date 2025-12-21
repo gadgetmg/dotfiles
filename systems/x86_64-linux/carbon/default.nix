@@ -74,6 +74,20 @@
     '';
   };
   services.displayManager.ly.enable = true;
+  services.displayManager.ly.settings = {
+    allow_empty_password = false;
+    clear_password = true;
+    vi_mode = true;
+    vi_default_mode = "insert";
+    login_cmd = "/etc/ly/login.sh";
+  };
+  environment.etc."ly/login.sh".mode = "0755";
+  environment.etc."ly/login.sh".text = ''
+    while read -r l; do
+        eval export $l
+    done < <(${pkgs.systemd}/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
+    exec "$@"
+  '';
   services.displayManager.defaultSession = "sway";
   services.earlyoom.enable = true;
   services.gvfs.enable = true;
@@ -207,10 +221,6 @@
   programs.ryzen-monitor-ng.enable = true;
   programs.sway.enable = true;
   programs.sway.wrapperFeatures.gtk = true;
-  programs.sway.extraSessionCommands = ''
-    export WLR_BACKENDS=libinput,drm
-    export PROTON_ENABLE_WAYLAND=1
-  '';
   programs.git.enable = true;
   programs.gamemode.enable = true;
   programs.gamemode.enableRenice = true;
