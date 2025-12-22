@@ -8,266 +8,321 @@
 
   facter.reportPath = ./facter.json;
 
-  sops.defaultSopsFile = ./secrets.yaml;
-  sops.secrets = {
-    "secureboot/keys/db/db.key".path = "/var/lib/sbctl/keys/db/db.key";
-    "secureboot/keys/db/db.pem".path = "/var/lib/sbctl/keys/db/db.pem";
-    "secureboot/keys/KEK/KEK.key".path = "/var/lib/sbctl/keys/KEK/KEK.key";
-    "secureboot/keys/KEK/KEK.pem".path = "/var/lib/sbctl/keys/KEK/KEK.pem";
-    "secureboot/keys/PK/PK.key".path = "/var/lib/sbctl/keys/PK/PK.key";
-    "secureboot/keys/PK/PK.pem".path = "/var/lib/sbctl/keys/PK/PK.pem";
-    "secureboot/GUID" = {
-      path = "/var/lib/sbctl/GUID";
-      mode = "644";
-    };
-    "openweathermap.env" = {
-      group = "users";
-      mode = "440";
-    };
-    "caddy.env" = {
-      group = "caddy";
-      mode = "440";
-    };
-  };
-
-  boot.initrd.systemd.enable = true;
-  boot.lanzaboote = {
-    enable = true;
-    pkiBundle = "/var/lib/sbctl";
-  };
-  services.scx = {
-    enable = true;
-    package = pkgs.scx.rustscheds;
-    scheduler = "scx_bpfland";
-  };
-
-  boot.kernelModules = ["nct6775"];
-  boot.kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfffd7fff"];
-  boot.kernelPackages = pkgs.linuxPackages_zen;
-
-  hardware.bluetooth.enable = true;
-  hardware.enableAllFirmware = true;
-  hardware.graphics.extraPackages = with pkgs; [libvdpau-va-gl];
-
-  fonts.enableDefaultPackages = true;
-  fonts.packages = with pkgs; [adwaita-fonts noto-fonts nerd-fonts.iosevka];
-  fonts.fontconfig.defaultFonts = {
-    sansSerif = ["Noto Sans"];
-    serif = ["Noto Serif"];
-    monospace = ["Iosevka Nerd Font"];
-    emoji = ["Noto Color Emoji"];
-  };
-  services.btrfs.autoScrub.enable = true;
-  services.blueman.enable = true;
-  services.caddy = {
-    enable = true;
-    package = pkgs.caddy.withPlugins {
-      plugins = ["github.com/caddy-dns/cloudflare@v0.2.2"];
-      hash = "sha256-dnhEjopeA0UiI+XVYHYpsjcEI6Y1Hacbi28hVKYQURg=";
-    };
-    environmentFile = "/run/secrets/caddy.env";
-    globalConfig = ''
-      acme_dns cloudflare {env.CF_API_TOKEN}
-    '';
-    virtualHosts."llama.seigra.net".extraConfig = ''
-      reverse_proxy http://localhost:8080
-    '';
-  };
-  services.displayManager.ly.enable = true;
-  services.displayManager.ly.settings = {
-    allow_empty_password = false;
-    clear_password = true;
-    vi_mode = true;
-    vi_default_mode = "insert";
-    login_cmd = "/etc/ly/login.sh";
-  };
-  environment.etc."ly/login.sh".mode = "0755";
-  environment.etc."ly/login.sh".text = ''
-    while read -r l; do
-        eval export $l
-    done < <(${pkgs.systemd}/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
-    exec "$@"
-  '';
-  services.displayManager.defaultSession = "sway";
-  services.earlyoom.enable = true;
-  services.gvfs.enable = true;
-  services.logind.settings.Login.KillUserProcesses = true;
-  services.logind.settings.Login.HandlePowerKey = "ignore";
-  services.logind.settings.Login.HandlePowerKeyLongPress = "poweroff";
-  services.openssh.enable = true;
-  services.pipewire.enable = true;
-  # services.pipewire.lowLatency.enable = true;
-  security.rtkit.enable = true;
-  services.xserver.xkb.variant = "colemak";
-  services.udisks2 = {
-    enable = true;
-    mountOnMedia = true;
-  };
-  services.printing.enable = true;
-  services.avahi = {
-    enable = true;
-    nssmdns4 = true;
-    openFirewall = true;
-  };
-  services.llama-swap = {
-    enable = true;
-    settings = let
-      llama-server = lib.getExe' pkgs.llama-cpp "llama-server";
-    in {
-      healthCheckTimeout = 1200;
-      macros.llama-server = "${llama-server} --port \${PORT} --jinja";
-      models = {
-        gpt-oss-20b = {
-          cmd = "\${llama-server} -hf ggml-org/gpt-oss-20b-GGUF -ngl 25 -c 131072 --temp 1.0 --top-k 0 --top-p 1.0";
-          ttl = 1800;
-        };
+  sops = {
+    defaultSopsFile = ./secrets.yaml;
+    secrets = {
+      "secureboot/keys/db/db.key".path = "/var/lib/sbctl/keys/db/db.key";
+      "secureboot/keys/db/db.pem".path = "/var/lib/sbctl/keys/db/db.pem";
+      "secureboot/keys/KEK/KEK.key".path = "/var/lib/sbctl/keys/KEK/KEK.key";
+      "secureboot/keys/KEK/KEK.pem".path = "/var/lib/sbctl/keys/KEK/KEK.pem";
+      "secureboot/keys/PK/PK.key".path = "/var/lib/sbctl/keys/PK/PK.key";
+      "secureboot/keys/PK/PK.pem".path = "/var/lib/sbctl/keys/PK/PK.pem";
+      "secureboot/GUID" = {
+        path = "/var/lib/sbctl/GUID";
+        mode = "644";
+      };
+      "openweathermap.env" = {
+        group = "users";
+        mode = "440";
+      };
+      "caddy.env" = {
+        group = "caddy";
+        mode = "440";
       };
     };
   };
-  services.passSecretService.enable = true;
-  services.resolved.enable = true;
-  systemd.services.llama-swap.environment.LLAMA_CACHE = "/var/cache/llama-swap";
-  systemd.services.llama-swap.serviceConfig.CacheDirectory = "llama-swap";
-  nix.settings.download-buffer-size = 524288000;
-  virtualisation.docker.enable = true;
-  virtualisation.docker.storageDriver = "btrfs";
-  virtualisation.docker.autoPrune.enable = true;
-  virtualisation.oci-containers.backend = "docker";
-  virtualisation.oci-containers.containers."wolf" = {
-    autoStart = true;
-    image = "ghcr.io/games-on-whales/wolf:stable";
-    environment = {
-      "HOST_APPS_STATE_FOLDER" = "/var/lib/wolf";
-      "XDG_RUNTIME_DIR" = "/tmp/sockets";
+
+  boot = {
+    initrd.systemd.enable = true;
+    lanzaboote = {
+      enable = true;
+      pkiBundle = "/var/lib/sbctl";
     };
-    volumes = [
-      "/dev/:/dev:rw"
-      "/etc/wolf/:/etc/wolf:rw"
-      "/var/lib/wolf/:/var/lib/wolf:rw"
-      "/run/udev:/run/udev:rw"
-      "/tmp/sockets:/tmp/sockets:rw"
-      "/var/run/docker.sock:/var/run/docker.sock:rw"
-    ];
-    log-driver = "journald";
-    extraOptions = [
-      "--device=/dev/dri:/dev/dri:rwm"
-      "--device=/dev/uhid:/dev/uhid:rwm"
-      "--device=/dev/uinput:/dev/uinput:rwm"
-      "--network=host"
-    ];
-  };
-  virtualisation.libvirt.enable = true;
-  virtualisation.libvirt.swtpm.enable = true;
-
-  virtualisation.libvirt.connections."qemu:///system" = {
-    pools = [
-      {
-        definition = inputs.nixvirt.lib.pool.writeXML {
-          name = "default";
-          uuid = "f0e6f7ac-1743-4a6d-a039-0ef1d72c78f7";
-          type = "dir";
-          target = {path = "/var/lib/libvirt/images";};
-        };
-        active = true;
-      }
-    ];
-    networks = [
-      {
-        definition = inputs.nixvirt.lib.network.writeXML {
-          name = "default";
-          uuid = "704742fd-87cc-4391-aaf0-1ac32fb1a951";
-          forward = {
-            mode = "nat";
-            nat = {
-              port = {
-                start = 1024;
-                end = 65535;
-              };
-            };
-          };
-          bridge = {name = "virbr0";};
-          mac = {address = "52:54:00:e3:f5:2d";};
-          ip = {
-            address = "192.168.74.1";
-            netmask = "255.255.255.0";
-            dhcp = {
-              range = {
-                start = "192.168.74.2";
-                end = "192.168.74.254";
-              };
-            };
-          };
-        };
-        active = true;
-      }
-    ];
+    kernelModules = ["nct6775"];
+    kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfffd7fff"];
+    kernelPackages = pkgs.linuxPackages_zen;
   };
 
-  systemd.packages = with pkgs; [lact];
-  systemd.services.lactd.wantedBy = ["multi-user.target"];
-  systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
-  # Prevents fake graphical session hack since we're correctly integrating sway with systemd
-  systemd.user.targets.nixos-fake-graphical-session = lib.mkForce {};
+  hardware = {
+    bluetooth.enable = true;
+    enableAllFirmware = true;
+    graphics.extraPackages = with pkgs; [libvdpau-va-gl];
+  };
 
-  programs.nix-ld.enable = true;
-  programs.zsh.enable = true;
-  programs.firefox.enable = true;
-  programs.gnupg.agent.enable = true;
-  programs.nm-applet.enable = true;
-  programs.steam.enable = true;
-  programs.steam.remotePlay.openFirewall = true;
-  programs.steam.extraPackages = with pkgs; [gamescope];
-  programs.steam.gamescopeSession.enable = true;
-  programs.steam.gamescopeSession.args = ["--adaptive-sync"];
-  programs.gamescope.enable = true;
-  programs.ryzen-monitor-ng.enable = true;
-  programs.sway.enable = true;
-  programs.sway.wrapperFeatures.gtk = true;
-  programs.git.enable = true;
-  programs.gamemode.enable = true;
-  programs.gamemode.enableRenice = true;
-  programs.virt-manager.enable = true;
-  programs.wireshark.enable = true;
-  programs.direnv.enable = true;
+  fonts = {
+    enableDefaultPackages = true;
+    packages = with pkgs; [adwaita-fonts noto-fonts nerd-fonts.iosevka];
+    fontconfig.defaultFonts = {
+      sansSerif = ["Noto Sans"];
+      serif = ["Noto Serif"];
+      monospace = ["Iosevka Nerd Font"];
+      emoji = ["Noto Color Emoji"];
+    };
+  };
 
-  networking.dhcpcd.enable = false;
-  networking.networkmanager.enable = true;
-  networking.firewall.allowedTCPPorts = [80 443 47984 47989 48010];
-  networking.firewall.allowedUDPPorts = [47999 48010 48100 48200];
-  networking.firewall.trustedInterfaces = ["virbr0"];
-  networking.resolvconf.enable = false;
+  services.btrfs = {
+    autoScrub.enable = true;
+  };
+
+  services = {
+    blueman.enable = true;
+    caddy = {
+      enable = true;
+      package = pkgs.caddy.withPlugins {
+        plugins = ["github.com/caddy-dns/cloudflare@v0.2.2"];
+        hash = "sha256-dnhEjopeA0UiI+XVYHYpsjcEI6Y1Hacbi28hVKYQURg=";
+      };
+      environmentFile = "/run/secrets/caddy.env";
+      globalConfig = ''
+        acme_dns cloudflare {env.CF_API_TOKEN}
+      '';
+      virtualHosts."llama.seigra.net".extraConfig = ''
+        reverse_proxy http://localhost:8080
+      '';
+    };
+    displayManager = {
+      ly = {
+        enable = true;
+        settings = {
+          allow_empty_password = false;
+          clear_password = true;
+          vi_mode = true;
+          vi_default_mode = "insert";
+          login_cmd = "/etc/ly/login.sh";
+        };
+      };
+      defaultSession = "sway";
+    };
+    scx = {
+      enable = true;
+      package = pkgs.scx.rustscheds;
+      scheduler = "scx_bpfland";
+    };
+    earlyoom.enable = true;
+    gvfs.enable = true;
+    logind.settings.Login = {
+      KillUserProcesses = true;
+      HandlePowerKey = "ignore";
+      HandlePowerKeyLongPress = "poweroff";
+    };
+    openssh.enable = true;
+    pipewire = {
+      enable = true;
+      # lowLatency.enable = true;
+    };
+    xserver.xkb.variant = "colemak";
+    udisks2 = {
+      enable = true;
+      mountOnMedia = true;
+    };
+    printing.enable = true;
+    avahi = {
+      enable = true;
+      nssmdns4 = true;
+      openFirewall = true;
+    };
+    llama-swap = {
+      enable = true;
+      settings = let
+        llama-server = lib.getExe' pkgs.llama-cpp "llama-server";
+      in {
+        healthCheckTimeout = 1200;
+        macros.llama-server = "${llama-server} --port \${PORT} --jinja";
+        models = {
+          gpt-oss-20b = {
+            cmd = "\${llama-server} -hf ggml-org/gpt-oss-20b-GGUF -ngl 25 -c 131072 --temp 1.0 --top-k 0 --top-p 1.0";
+            ttl = 1800;
+          };
+        };
+      };
+    };
+    passSecretService.enable = true;
+    resolved.enable = true;
+  };
+
+  security.rtkit.enable = true;
+
+  nix.settings.download-buffer-size = 524288000;
+
+  virtualisation = {
+    docker = {
+      enable = true;
+      storageDriver = "btrfs";
+      autoPrune.enable = true;
+    };
+    oci-containers = {
+      backend = "docker";
+      containers."wolf" = {
+        autoStart = true;
+        image = "ghcr.io/games-on-whales/wolf:stable";
+        environment = {
+          "HOST_APPS_STATE_FOLDER" = "/var/lib/wolf";
+          "XDG_RUNTIME_DIR" = "/tmp/sockets";
+        };
+        volumes = [
+          "/dev/:/dev:rw"
+          "/etc/wolf/:/etc/wolf:rw"
+          "/var/lib/wolf/:/var/lib/wolf:rw"
+          "/run/udev:/run/udev:rw"
+          "/tmp/sockets:/tmp/sockets:rw"
+          "/var/run/docker.sock:/var/run/docker.sock:rw"
+        ];
+        log-driver = "journald";
+        extraOptions = [
+          "--device=/dev/dri:/dev/dri:rwm"
+          "--device=/dev/uhid:/dev/uhid:rwm"
+          "--device=/dev/uinput:/dev/uinput:rwm"
+          "--network=host"
+        ];
+      };
+    };
+    libvirtd.enable = true;
+    libvirt = {
+      swtpm.enable = true;
+      connections."qemu:///system" = {
+        pools = [
+          {
+            definition = inputs.nixvirt.lib.pool.writeXML {
+              name = "default";
+              uuid = "f0e6f7ac-1743-4a6d-a039-0ef1d72c78f7";
+              type = "dir";
+              target = {path = "/var/lib/libvirt/images";};
+            };
+            active = true;
+          }
+        ];
+        networks = [
+          {
+            definition = inputs.nixvirt.lib.network.writeXML {
+              name = "default";
+              uuid = "704742fd-87cc-4391-aaf0-1ac32fb1a951";
+              forward = {
+                mode = "nat";
+                nat = {
+                  port = {
+                    start = 1024;
+                    end = 65535;
+                  };
+                };
+              };
+              bridge = {name = "virbr0";};
+              mac = {address = "52:54:00:e3:f5:2d";};
+              ip = {
+                address = "192.168.74.1";
+                netmask = "255.255.255.0";
+                dhcp = {
+                  range = {
+                    start = "192.168.74.2";
+                    end = "192.168.74.254";
+                  };
+                };
+              };
+            };
+            active = true;
+          }
+        ];
+      };
+    };
+  };
+
+  systemd = {
+    packages = with pkgs; [lact];
+    services = {
+      llama-swap = {
+        environment.LLAMA_CACHE = "/var/cache/llama-swap";
+        serviceConfig.CacheDirectory = "llama-swap";
+      };
+      lactd.wantedBy = ["multi-user.target"];
+    };
+    user = {
+      extraConfig = "DefaultTimeoutStopSec=10s";
+      # Prevents fake graphical session hack since we're correctly integrating sway with systemd
+      targets.nixos-fake-graphical-session = lib.mkForce {};
+    };
+  };
+
+  programs = {
+    nix-ld.enable = true;
+    zsh.enable = true;
+    firefox.enable = true;
+    gnupg.agent.enable = true;
+    nm-applet.enable = true;
+    steam = {
+      enable = true;
+      remotePlay.openFirewall = true;
+      extraPackages = with pkgs; [gamescope];
+      gamescopeSession = {
+        enable = true;
+        args = ["--adaptive-sync"];
+      };
+    };
+    gamescope.enable = true;
+    ryzen-monitor-ng.enable = true;
+    sway = {
+      enable = true;
+      wrapperFeatures.gtk = true;
+    };
+    git.enable = true;
+    gamemode = {
+      enable = true;
+      enableRenice = true;
+    };
+    virt-manager.enable = true;
+    wireshark.enable = true;
+    direnv.enable = true;
+  };
+
+  networking = {
+    dhcpcd.enable = false;
+    networkmanager.enable = true;
+    firewall = {
+      allowedTCPPorts = [80 443 47984 47989 48010]; # caddy, wolf (moonlight)
+      allowedUDPPorts = [47999 48010 48100 48200]; # wolf (moonlight)
+      trustedInterfaces = ["virbr0"];
+    };
+    resolvconf.enable = false;
+  };
 
   console.keyMap = "colemak";
 
   time.timeZone = "America/New_York";
 
-  environment.variables.VDPAU_DRIVER = "radeonsi";
-  environment.systemPackages = with pkgs; [
-    adwaita-icon-theme
-    adwaita-icon-theme-legacy
-    adwaita-qt
-    adwaita-qt6
-    btop-rocm
-    papirus-icon-theme
-    furmark
-    git
-    git-lfs
-    heroic
-    htop
-    iftop
-    iotop
-    jq
-    lact
-    libreoffice
-    lm_sensors
-    networkmanagerapplet
-    nvtopPackages.amd
-    pass
-    resources
-    sbctl
-    vulkan-tools
-    wireshark
-  ];
+  environment = {
+    etc."ly/login.sh".mode = "0755";
+    etc."ly/login.sh".text = ''
+      while read -r l; do
+          eval export $l
+      done < <(${pkgs.systemd}/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
+      exec "$@"
+    '';
+    variables.VDPAU_DRIVER = "radeonsi";
+    systemPackages = with pkgs; [
+      adwaita-icon-theme
+      adwaita-icon-theme-legacy
+      adwaita-qt
+      adwaita-qt6
+      btop-rocm
+      furmark
+      git
+      git-lfs
+      heroic
+      htop
+      iftop
+      iotop
+      jq
+      lact
+      libreoffice
+      lm_sensors
+      networkmanagerapplet
+      nvtopPackages.amd
+      papirus-icon-theme
+      pass
+      resources
+      sbctl
+      vulkan-tools
+      wireshark
+    ];
+  };
 
   users.users."matt" = {
     isNormalUser = true;
