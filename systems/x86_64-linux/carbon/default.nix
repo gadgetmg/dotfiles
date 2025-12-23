@@ -296,6 +296,7 @@
       exec "$@"
     '';
     variables.VDPAU_DRIVER = "radeonsi";
+    localBinInPath = true;
     systemPackages = with pkgs; [
       adwaita-icon-theme
       adwaita-icon-theme-legacy
@@ -342,6 +343,7 @@
       chezmoi
       chromium
       dex
+      file-roller
       foot
       fuzzel
       fzf
@@ -358,7 +360,7 @@
       mako
       mangohud
       ncmpcpp
-      nemo
+      nemo-with-extensions
       neovim
       nodejs
       nwg-look
