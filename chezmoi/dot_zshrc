@@ -1,10 +1,6 @@
-if [ -f $HOME/.config/plasma-workspace/env/editor.sh ]; then
-  source $HOME/.config/plasma-workspace/env/editor.sh
-fi
-
 if [[ -v ZELLIJ ]]; then
 else
-  exec zellij
+  exec systemd-run --scope --user zellij
 fi
 
 alias cat="bat"
