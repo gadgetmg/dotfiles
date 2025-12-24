@@ -157,14 +157,11 @@
         image = "ghcr.io/games-on-whales/wolf:stable";
         environment = {
           "HOST_APPS_STATE_FOLDER" = "/var/lib/wolf";
-          "XDG_RUNTIME_DIR" = "/tmp/sockets";
         };
         volumes = [
           "/dev/:/dev:rw"
-          "/etc/wolf/:/etc/wolf:rw"
           "/var/lib/wolf/:/var/lib/wolf:rw"
           "/run/udev:/run/udev:rw"
-          "/tmp/sockets:/tmp/sockets:rw"
           "/var/run/docker.sock:/var/run/docker.sock:rw"
         ];
         log-driver = "journald";
@@ -173,6 +170,7 @@
           "--device=/dev/uhid:/dev/uhid:rwm"
           "--device=/dev/uinput:/dev/uinput:rwm"
           "--network=host"
+          "--device-cgroup-rule=c 13:* rmw"
         ];
       };
     };
