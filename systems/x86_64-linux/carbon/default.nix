@@ -138,6 +138,142 @@
     };
     passSecretService.enable = true;
     resolved.enable = true;
+    wolf = {
+      enable = true;
+      openFirewall = true;
+      config = {
+        hostname = "carbon";
+        uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
+        profiles = [
+          {
+            id = "moonlight-profile-id";
+            apps = [
+              {
+                title = "Wolf UI";
+                start_virtual_compositor = true;
+                icon_png_path = "https://raw.githubusercontent.com/games-on-whales/wolf-ui/refs/heads/main/src/Icons/wolf_ui_icon.png";
+                runner = {
+                  base_create_json = ''
+                    {
+                      "HostConfig": {
+                        "IpcMode": "host",
+                        "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+                        "Privileged": false,
+                        "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+                      }
+                    }
+                  '';
+                  devices = [];
+                  env = [
+                    "GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia*"
+                    "WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock"
+                    "WOLF_UI_AUTOUPDATE=False"
+                    "LOGLEVEL=INFO"
+                  ];
+                  image = "ghcr.io/games-on-whales/wolf-ui:main";
+                  mounts = [
+                    "/var/run/wolf/wolf.sock:/var/run/wolf/wolf.sock"
+                  ];
+                  name = "Wolf-UI";
+                  ports = [];
+                  type = "docker";
+                };
+              }
+            ];
+          }
+          {
+            id = "matt";
+            name = "Matt";
+            apps = [
+              {
+                title = "RetroArch";
+                start_virtual_compositor = true;
+                icon_png_path = "https://games-on-whales.github.io/wildlife/apps/retroarch/assets/icon.png";
+                runner = {
+                  base_create_json = ''
+                    {
+                      "HostConfig": {
+                        "IpcMode": "host",
+                        "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+                        "Privileged": false,
+                        "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+                      }
+                    }
+                  '';
+                  devices = [];
+                  env = [
+                    "RUN_GAMESCOPE=true"
+                    "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
+                  ];
+                  image = "ghcr.io/games-on-whales/retroarch:edge";
+                  mounts = ["/home/matt/Games/ROMs:/mnt:ro"];
+                  name = "WolfRetroarch";
+                  ports = [];
+                  type = "docker";
+                };
+              }
+              {
+                start_virtual_compositor = true;
+                title = "Steam";
+                icon_png_path = "https://games-on-whales.github.io/wildlife/apps/steam/assets/icon.png";
+                runner = {
+                  base_create_json = ''
+                    {
+                      "HostConfig": {
+                        "IpcMode": "host",
+                        "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+                        "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+                        "Ulimits": [{"Name":"nofile", "Hard":10240, "Soft":10240}],
+                        "Privileged": false,
+                        "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+                      }
+                    }
+                  '';
+                  devices = [];
+                  env = [
+                    "PROTON_LOG=1"
+                    "RUN_GAMESCOPE=true"
+                    "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
+                  ];
+                  image = "ghcr.io/games-on-whales/steam:edge";
+                  mounts = ["/home/matt/.steam/steam/steamapps:/home/retro/.steam/steam/steamapps:rw"];
+                  name = "WolfSteam";
+                  ports = [];
+                  type = "docker";
+                };
+              }
+              {
+                title = "Lutris";
+                start_virtual_compositor = true;
+                icon_png_path = "https://games-on-whales.github.io/wildlife/apps/lutris/assets/icon.png";
+                runner = {
+                  base_create_json = ''
+                    {
+                      "HostConfig": {
+                        "IpcMode": "host",
+                        "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+                        "Privileged": false,
+                        "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+                      }
+                    }
+                  '';
+                  devices = [];
+                  env = [
+                    "RUN_GAMESCOPE=1"
+                    "GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia* /var/lutris/"
+                  ];
+                  image = "ghcr.io/games-on-whales/lutris:edge";
+                  mounts = ["lutris:/var/lutris/:rw"];
+                  name = "WolfLutris";
+                  ports = [];
+                  type = "docker";
+                };
+              }
+            ];
+          }
+        ];
+      };
+    };
   };
 
   security.rtkit.enable = true;
@@ -149,30 +285,6 @@
       enable = true;
       storageDriver = "btrfs";
       autoPrune.enable = true;
-    };
-    oci-containers = {
-      backend = "docker";
-      containers."wolf" = {
-        autoStart = true;
-        image = "ghcr.io/games-on-whales/wolf:stable";
-        environment = {
-          "HOST_APPS_STATE_FOLDER" = "/var/lib/wolf";
-        };
-        volumes = [
-          "/dev/:/dev:rw"
-          "/var/lib/wolf/:/var/lib/wolf:rw"
-          "/run/udev:/run/udev:rw"
-          "/var/run/docker.sock:/var/run/docker.sock:rw"
-        ];
-        log-driver = "journald";
-        extraOptions = [
-          "--device=/dev/dri:/dev/dri:rwm"
-          "--device=/dev/uhid:/dev/uhid:rwm"
-          "--device=/dev/uinput:/dev/uinput:rwm"
-          "--network=host"
-          "--device-cgroup-rule=c 13:* rmw"
-        ];
-      };
     };
     libvirtd.enable = true;
     libvirt = {
@@ -274,11 +386,11 @@
     dhcpcd.enable = false;
     networkmanager.enable = true;
     firewall = {
-      allowedTCPPorts = [80 443 47984 47989 48010]; # caddy, wolf (moonlight)
-      allowedUDPPorts = [47999 48010 48100 48200]; # wolf (moonlight)
+      allowedTCPPorts = [80 443]; # caddy
       trustedInterfaces = ["virbr0"];
     };
     resolvconf.enable = false;
+    interfaces.enp37s0.wakeOnLan.enable = true;
   };
 
   console.keyMap = "colemak";
