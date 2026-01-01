@@ -40,7 +40,7 @@
     };
     kernelModules = ["nct6775"];
     kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfffd7fff"];
-    kernelPackages = pkgs.linuxPackages_zen;
+    kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
   };
 
   hardware = {
@@ -108,7 +108,7 @@
     openssh.enable = true;
     pipewire = {
       enable = true;
-      # lowLatency.enable = true;
+      lowLatency.enable = true;
     };
     xserver.xkb.variant = "colemak";
     udisks2 = {
@@ -124,10 +124,10 @@
     llama-swap = {
       enable = true;
       settings = let
-        llama-server = lib.getExe' pkgs.llama-cpp "llama-server";
+        llama-server = lib.getExe' pkgs.llama-cpp-vulkan "llama-server";
       in {
         healthCheckTimeout = 1200;
-        macros.llama-server = "${llama-server} --port \${PORT} --jinja";
+        macros.llama-server = "${llama-server} --device Vulkan0 --port \${PORT} --jinja";
         models = {
           gpt-oss-20b = {
             cmd = "\${llama-server} -hf ggml-org/gpt-oss-20b-GGUF -ngl 25 -c 131072 --temp 1.0 --top-k 0 --top-p 1.0";
