@@ -44,6 +44,7 @@
   };
 
   hardware = {
+    cpu.amd.ryzen-smu.enable = true;
     bluetooth.enable = true;
     enableAllFirmware = true;
     graphics.extraPackages = with pkgs; [libvdpau-va-gl];
@@ -367,7 +368,6 @@
       };
     };
     gamescope.enable = true;
-    ryzen-monitor-ng.enable = true;
     sway = {
       enable = true;
       wrapperFeatures.gtk = true;
