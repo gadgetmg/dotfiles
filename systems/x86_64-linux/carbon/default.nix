@@ -355,7 +355,11 @@
     nm-applet.enable = true;
     steam = {
       enable = true;
+      extest.enable = true;
+      platformOptimizations.enable = true;
+      protontricks.enable = true;
       remotePlay.openFirewall = true;
+      localNetworkGameTransfers.openFirewall = true;
       extraPackages = with pkgs; [gamescope];
       gamescopeSession = {
         enable = true;
