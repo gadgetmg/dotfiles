@@ -61,11 +61,8 @@
     };
   };
 
-  services.btrfs = {
-    autoScrub.enable = true;
-  };
-
   services = {
+    btrfs.autoScrub.enable = true;
     blueman.enable = true;
     caddy = {
       enable = true;
