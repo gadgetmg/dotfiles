@@ -335,11 +335,10 @@
   };
 
   systemd = {
-    services = {
-      llama-swap = {
-        environment.LLAMA_CACHE = "/var/cache/llama-swap";
-        serviceConfig.CacheDirectory = "llama-swap";
-      };
+    # Configure cache directory for llama.cpp (via llama-swap) to download internet models
+    services.llama-swap = {
+      environment.LLAMA_CACHE = "/var/cache/llama-swap";
+      serviceConfig.CacheDirectory = "llama-swap";
     };
     user = {
       extraConfig = "DefaultTimeoutStopSec=10s";
