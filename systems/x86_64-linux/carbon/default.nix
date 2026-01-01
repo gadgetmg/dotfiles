@@ -99,6 +99,7 @@
       package = pkgs.scx.rustscheds;
       scheduler = "scx_bpfland";
     };
+    lact.enable = true;
     earlyoom.enable = true;
     gvfs.enable = true;
     logind.settings.Login = {
@@ -337,13 +338,11 @@
   };
 
   systemd = {
-    packages = with pkgs; [lact];
     services = {
       llama-swap = {
         environment.LLAMA_CACHE = "/var/cache/llama-swap";
         serviceConfig.CacheDirectory = "llama-swap";
       };
-      lactd.wantedBy = ["multi-user.target"];
     };
     user = {
       extraConfig = "DefaultTimeoutStopSec=10s";
@@ -421,7 +420,6 @@
       iftop
       iotop
       jq
-      lact
       libreoffice
       lm_sensors
       networkmanagerapplet
