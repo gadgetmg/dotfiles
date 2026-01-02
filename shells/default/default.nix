@@ -8,5 +8,6 @@ mkShell {
     sops
     ssh-to-age
     age
+    just
   ];
 }
