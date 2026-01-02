@@ -51,6 +51,11 @@
       inputs.nixpkgs.follows = "unstable";
     };
 
+    zen-browser = {
+      url = "github:0xc000022070/zen-browser-flake";
+      inputs.nixpkgs.follows = "unstable";
+    };
+
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 

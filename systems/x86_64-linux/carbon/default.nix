@@ -501,6 +501,7 @@
       xorg.xrandr
       zathura
       zellij
+      zen
       zoxide
     ];
   };
