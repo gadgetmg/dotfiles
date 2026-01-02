@@ -482,6 +482,7 @@
       protonup-qt
       protonvpn-gui
       python3
+      qalculate-gtk
       rclone
       ripgrep
       skim
