@@ -485,6 +485,7 @@
       qalculate-gtk
       rclone
       ripgrep
+      signal-desktop
       skim
       starship
       statix
