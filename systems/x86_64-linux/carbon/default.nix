@@ -47,7 +47,6 @@
     cpu.amd.ryzen-smu.enable = true;
     bluetooth.enable = true;
     enableAllFirmware = true;
-    graphics.extraPackages = with pkgs; [libvdpau-va-gl];
   };
 
   fonts = {
@@ -404,7 +403,6 @@
       done < <(${pkgs.systemd}/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
       exec "$@"
     '';
-    variables.VDPAU_DRIVER = "radeonsi";
     localBinInPath = true;
     systemPackages = with pkgs; [
       adwaita-icon-theme
