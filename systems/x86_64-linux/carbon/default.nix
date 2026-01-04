@@ -448,6 +448,7 @@
       cargo
       chezmoi
       chromium
+      darkly
       dex
       file-roller
       foot
@@ -480,7 +481,8 @@
       protonup-qt
       protonvpn-gui
       python3
-      qalculate-gtk
+      qalculate-qt
+      qt6Packages.qt6ct
       rclone
       ripgrep
       signal-desktop
