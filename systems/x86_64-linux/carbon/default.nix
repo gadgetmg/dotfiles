@@ -418,7 +418,7 @@
       iftop
       iotop
       jq
-      libreoffice
+      libreoffice-qt-fresh
       lm_sensors
       networkmanagerapplet
       nvtopPackages.amd
