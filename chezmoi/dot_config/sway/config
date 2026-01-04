@@ -248,7 +248,7 @@ for_window [app_id="qalculate"] floating enable
 #
 exec dex -a -s ~/.config/autostart/
 exec systemd-run --user --unit kanshi -- kanshi
-exec systemd-run --user --unit wayland-pipewire-idle-inhibit -- wayland-pipewire-idle-inhibit -v INFO
+exec systemd-run --user --unit wayland-pipewire-idle-inhibit -- wayland-pipewire-idle-inhibit
 exec systemd-run --user --unit swayidle -- swayidle -w \
          timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
          timeout 605 'swaylock -f -c 000000' \
