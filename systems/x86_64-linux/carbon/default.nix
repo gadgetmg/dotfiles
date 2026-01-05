@@ -417,25 +417,31 @@
     systemPackages = with pkgs; [
       adwaita-icon-theme
       adwaita-icon-theme-legacy
-      btop-rocm
-      furmark
+      bind
+      file-roller
+      foot
       git
       git-lfs
-      heroic
       htop
       iftop
       iotop
       jq
-      libreoffice-qt-fresh
       lm_sensors
+      nemo-with-extensions
       networkmanagerapplet
-      nvtopPackages.amd
-      papirus-icon-theme
+      nvtopPackages.full
+      openssl
       pass
+      pavucontrol
       resources
       sbctl
+      tcpdump
+      udiskie
+      unzip
       vulkan-tools
+      wget
       wireshark
+      xorg.xrandr
     ];
   };
 
@@ -454,40 +460,38 @@
       })
       bat
       bc
-      bind
+      btop
       caido
       cargo
       chezmoi
       chromium
       darkly
       dex
-      file-roller
-      foot
+      furmark
       fuzzel
       fzf
       gcc
       gh
       go
+      heroic
       jc
       kanshi
       kdiskmark
       lazygit
+      libreoffice-qt-fresh
       llm
       lua5_1
       luarocks
       mako
       mangohud
       ncmpcpp
-      nemo-with-extensions
       neovim
       nodejs
-      nwg-look
       obsidian
       onedrive
       onedrivegui
       opencode
-      openssl
-      pavucontrol
+      papirus-icon-theme
       playerctl
       protonup-qt
       protonvpn-gui
@@ -501,17 +505,12 @@
       starship
       statix
       swaybg
-      tcpdump
       tigervnc
-      udiskie
-      unzip
       vesktop
       waybar
       wayland-pipewire-idle-inhibit
-      wget
       wineWowPackages.stableFull
       wl-clipboard
-      xorg.xrandr
       zathura
       zellij
       zen
