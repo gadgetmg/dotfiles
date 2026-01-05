@@ -16,6 +16,8 @@ alias kaf="kubectl apply -f"
 alias kak="kubectl apply -k"
 alias kn="kubectl config set-context --current --namespace"
 
+alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
+
 bindkey -v
 eval "$(direnv hook zsh)"
 eval "$(starship init zsh)"
