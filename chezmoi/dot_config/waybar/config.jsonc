@@ -118,10 +118,7 @@
   "tray": {
     "icon-size": 14,
     "spacing": 6,
-    "icons": {
-      "steam": "/run/current-system/sw/share/icons/Papirus-Dark/16x16/panel/steam_tray_mono.svg",
-      "OneDriveGUI": "/run/current-system/sw/share/icons/Papirus-Dark/16x16/apps/ms-onedrive.svg",
-    },
+    "icons": {},
   },
 
   "idle_inhibitor": {

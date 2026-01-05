@@ -417,8 +417,6 @@
     systemPackages = with pkgs; [
       adwaita-icon-theme
       adwaita-icon-theme-legacy
-      adwaita-qt
-      adwaita-qt6
       btop-rocm
       furmark
       git
@@ -450,7 +448,10 @@
     extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd"];
     shell = pkgs.zsh;
     packages = with pkgs; [
-      (catppuccin-gtk.override {variant = "mocha";})
+      (catppuccin-gtk.override {
+        variant = "mocha";
+        accents = ["lavender"];
+      })
       bat
       bc
       bind
