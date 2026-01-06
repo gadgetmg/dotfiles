@@ -2,6 +2,7 @@
   lib,
   pkgs,
   inputs,
+  config,
   ...
 }: {
   imports = [./disks.nix];
@@ -77,19 +78,21 @@
         reverse_proxy http://localhost:8080
       '';
     };
-    displayManager = {
-      ly = {
-        enable = true;
-        settings = {
-          allow_empty_password = false;
-          clear_password = true;
-          vi_mode = true;
-          vi_default_mode = "insert";
-          login_cmd = "/etc/ly/login.sh";
+    greetd = {
+      enable = true;
+      settings = {
+        default_session = let
+          greetd-sway-config = pkgs.writeText "greetd-sway-config" ''
+            output 'HP Inc. HP E243d CNC103241L' disable
+            exec ${lib.getExe pkgs.swayidle} -w timeout 30 'systemctl suspend'
+            exec ${lib.getExe config.programs.regreet.package}; swaymsg exit
+          '';
+        in {
+          command = "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.sway} -c ${greetd-sway-config}";
         };
       };
-      defaultSession = "sway";
     };
+    displayManager.defaultSession = "sway-uwsm";
     scx = {
       enable = true;
       package = pkgs.scx.rustscheds;
@@ -102,6 +105,8 @@
       KillUserProcesses = true;
       HandlePowerKey = "ignore";
       HandlePowerKeyLongPress = "poweroff";
+      IdleAction = "suspend";
+      IdleActionSec = 300;
     };
     openssh.enable = true;
     pipewire = {
@@ -339,11 +344,7 @@
       environment.LLAMA_CACHE = "/var/cache/llama-swap";
       serviceConfig.CacheDirectory = "llama-swap";
     };
-    user = {
-      extraConfig = "DefaultTimeoutStopSec=10s";
-      # Prevents fake graphical session hack since we're correctly integrating sway with systemd
-      targets.nixos-fake-graphical-session = lib.mkForce {};
-    };
+    user.extraConfig = "DefaultTimeoutStopSec=10s";
   };
 
   programs = {
@@ -366,9 +367,35 @@
       };
     };
     gamescope.enable = true;
+    regreet = {
+      enable = true;
+      settings.GTK.application_prefer_dark_theme = true;
+      theme = {
+        name = "catppuccin-mocha-lavender-standard";
+        package = pkgs.catppuccin-gtk;
+      };
+      font = {
+        name = "Noto Sans";
+        package = pkgs.noto-fonts;
+      };
+      iconTheme = {
+        name = "Papirus-Dark";
+        package = pkgs.papirus-icon-theme;
+      };
+    };
     sway = {
       enable = true;
-      wrapperFeatures.gtk = true;
+      package = null;
+    };
+    uwsm = {
+      enable = true;
+      waylandCompositors = {
+        sway = {
+          prettyName = "Sway";
+          comment = "Sway compositor managed by UWSM";
+          binPath = lib.getExe' pkgs.sway "sway";
+        };
+      };
     };
     git.enable = true;
     gamemode = {
@@ -406,13 +433,10 @@
   time.timeZone = "America/New_York";
 
   environment = {
-    etc."ly/login.sh".mode = "0755";
-    etc."ly/login.sh".text = ''
-      while read -r l; do
-          eval export $l
-      done < <(${pkgs.systemd}/lib/systemd/user-environment-generators/30-systemd-environment-d-generator)
-      exec "$@"
-    '';
+    variables = {
+      XKB_DEFAULT_LAYOUT = "us";
+      XKB_DEFAULT_VARIANT = "colemak";
+    };
     localBinInPath = true;
     systemPackages = with pkgs; [
       adwaita-icon-theme
@@ -422,6 +446,7 @@
       foot
       git
       git-lfs
+      grim
       htop
       iftop
       iotop
@@ -433,8 +458,12 @@
       openssl
       pass
       pavucontrol
+      pulseaudio
       resources
       sbctl
+      sway
+      swayidle
+      swaylock
       tcpdump
       udiskie
       unzip
@@ -454,15 +483,12 @@
     extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd"];
     shell = pkgs.zsh;
     packages = with pkgs; [
-      (catppuccin-gtk.override {
-        variant = "mocha";
-        accents = ["lavender"];
-      })
       bat
       bc
       btop
       caido
       cargo
+      catppuccin-gtk
       chezmoi
       chromium
       darkly

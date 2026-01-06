@@ -1,6 +1,7 @@
 [Unit]
 Description=Update wallpaper
 Wants=wallpaper.timer
+After=sway-session.target
 
 [Service]
 Type=oneshot

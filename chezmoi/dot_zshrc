@@ -1,6 +1,8 @@
 if [[ -v ZELLIJ ]]; then
+elif systemctl --user is-active --quiet zellij.scope; then
+  exec zellij attach default
 else
-  exec systemd-run --scope --user zellij
+  exec systemd-run --user --scope --unit zellij -- zellij
 fi
 
 alias cat="bat"
