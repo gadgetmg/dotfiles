@@ -163,6 +163,9 @@
                         "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
                         "Privileged": false,
                         "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+                      },
+                      "Labels": {
+                        "inhibit-sleep": "true"
                       }
                     }
                   '';
@@ -277,6 +280,7 @@
         ];
       };
     };
+    docker-idle-inhibitor.enable = true;
   };
 
   security.rtkit.enable = true;
