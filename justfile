@@ -12,3 +12,6 @@ switch:
 
 boot:
   sudo nixos-rebuild boot --flake .
+
+cleanup:
+  sudo nix-collect-garbage -d
