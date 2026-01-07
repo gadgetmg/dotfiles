@@ -255,15 +255,17 @@
                 };
               }
               {
-                title = "Lutris";
+                title = "Heroic";
                 start_virtual_compositor = true;
-                icon_png_path = "https://games-on-whales.github.io/wildlife/apps/lutris/assets/icon.png";
+                icon_png_path = "https://games-on-whales.github.io/wildlife/apps/heroic-games-launcher/assets/icon.png";
                 runner = {
                   base_create_json = ''
                     {
                       "HostConfig": {
                         "IpcMode": "host",
-                        "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
+                        "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
+                        "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
+                        "Ulimits": [{"Name":"nofile", "Hard":10240, "Soft":10240}],
                         "Privileged": false,
                         "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
                       }
@@ -272,11 +274,11 @@
                   devices = [];
                   env = [
                     "RUN_GAMESCOPE=1"
-                    "GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia* /var/lutris/"
+                    "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
                   ];
-                  image = "ghcr.io/games-on-whales/lutris:edge";
-                  mounts = ["lutris:/var/lutris/:rw"];
-                  name = "WolfLutris";
+                  image = "ghcr.io/games-on-whales/heroic-games-launcher:edge";
+                  mounts = ["/home/matt/Games/Heroic:/home/retro/Games/Heroic:rw"];
+                  name = "WolfHeroic";
                   ports = [];
                   type = "docker";
                 };
