@@ -521,6 +521,8 @@
       luarocks
       mako
       mangohud
+      mpd
+      mpdris2
       ncmpcpp
       neovim
       nodejs
@@ -547,6 +549,7 @@
       wayland-pipewire-idle-inhibit
       wineWowPackages.stableFull
       wl-clipboard
+      ymuse
       zathura
       zellij
       zen
