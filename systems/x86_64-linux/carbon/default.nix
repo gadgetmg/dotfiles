@@ -496,6 +496,7 @@
       chromium
       darkly
       dex
+      discord
       furmark
       fuzzel
       fzf
@@ -535,7 +536,6 @@
       statix
       swaybg
       tigervnc
-      vesktop
       waybar
       wayland-pipewire-idle-inhibit
       wineWowPackages.stableFull

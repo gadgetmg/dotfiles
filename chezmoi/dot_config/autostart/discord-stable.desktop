@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Exec=/nix/store/q6fhyjwh9qfyvf0vvbblrmygnvjh61al-discord-0.0.117/opt/Discord/.Discord-wrapped
+Name=.Discord-wrapped
+Icon=/nix/store/q6fhyjwh9qfyvf0vvbblrmygnvjh61al-discord-0.0.117/opt/Discord/discord.png
+Comment=Text and voice chat for gamers.
+X-GNOME-Autostart-enabled=true
