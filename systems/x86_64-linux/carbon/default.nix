@@ -84,7 +84,14 @@
         default_session = let
           greetd-sway-config = pkgs.writeText "greetd-sway-config" ''
             output 'HP Inc. HP E243d CNC103241L' disable
-            exec ${lib.getExe pkgs.swayidle} -w timeout 30 'systemctl suspend'
+            input type:pointer {
+                accel_profile flat
+                pointer_accel 0
+            }
+            seat * hide_cursor when-typing enable
+            exec ${lib.getExe pkgs.swayidle} -w \
+              timeout 30 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+              idlehint 30
             exec ${lib.getExe config.programs.regreet.package}; swaymsg exit
           '';
         in {
