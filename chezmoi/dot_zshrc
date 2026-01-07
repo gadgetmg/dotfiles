@@ -5,6 +5,8 @@ else
   exec systemd-run --user --scope --unit zellij --quiet -- zellij
 fi
 
+export EDITOR=nvim
+
 alias cat="bat"
 alias c="bat"
 alias g="git"
