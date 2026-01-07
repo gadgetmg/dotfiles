@@ -18,7 +18,7 @@ set $right l
 # Your preferred terminal emulator
 set $term footclient
 # Your preferred application launcher
-set $menu fuzzel "--launch-prefix=uwsm app --"
+set $menu fuzzel "--launch-prefix=app2unit --"
 
 ### Output configuration
 #
@@ -52,7 +52,7 @@ seat * hide_cursor when-typing enable
 # Basics:
 #
 # Start a terminal
-bindsym $mod+Return exec uwsm app -- $term
+bindsym $mod+Return exec exec app2unit -- $term
 
 # Kill focused window
 bindsym $mod+Shift+q kill
@@ -242,9 +242,9 @@ for_window [app_id="qalculate"] floating enable
 #
 # Startup:
 #
-exec uwsm app -- kanshi
-exec uwsm app -- wayland-pipewire-idle-inhibit -v INFO
-exec uwsm app -- swayidle -w \
+exec exec app2unit -s s -- kanshi
+exec exec app2unit -s s -- wayland-pipewire-idle-inhibit -v INFO
+exec exec app2unit -s s -- swayidle -w \
   timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
   timeout 605 'swaylock -f' \
   idlehint 600 \

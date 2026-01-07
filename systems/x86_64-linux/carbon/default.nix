@@ -493,6 +493,7 @@
     extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd"];
     shell = pkgs.zsh;
     packages = with pkgs; [
+      app2unit
       bat
       bc
       btop
