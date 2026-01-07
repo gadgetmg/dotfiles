@@ -113,7 +113,6 @@
       enable = true;
       lowLatency.enable = true;
     };
-    xserver.xkb.variant = "colemak";
     udisks2 = {
       enable = true;
       mountOnMedia = true;
