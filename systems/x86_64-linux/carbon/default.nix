@@ -492,6 +492,7 @@
     extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode"];
     shell = pkgs.zsh;
     packages = with pkgs; [
+      ala-lape
       app2unit
       bat
       bc
@@ -546,7 +547,6 @@
       swaybg
       tigervnc
       waybar
-      wayland-pipewire-idle-inhibit
       wineWowPackages.stableFull
       wl-clipboard
       ymuse

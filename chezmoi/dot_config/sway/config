@@ -243,8 +243,8 @@ for_window [app_id="qalculate"] floating enable
 # Startup:
 #
 exec_always pkill -HUP kanshi || exec app2unit -s s -- kanshi
-exec_always pkill wayland-pipewir; exec app2unit -s s -- wayland-pipewire-idle-inhibit -v INFO
-exec_always pgrep swayidle || exec app2unit -s s -- swayidle -w \
+exec_always pgrep ala-lape || exec app2unit -s s -- ala-lape
+exec_always pgrep swayidle || exec app2unit -s s -- swayidle -d -w \
   timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
   timeout 605 'swaylock -f' \
   idlehint 600 \

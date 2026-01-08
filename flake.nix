@@ -56,6 +56,11 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    ala-lape = {
+      url = "git+https://git.madhouse-project.org/algernon/ala-lape.git";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
@@ -70,6 +75,7 @@
 
       overlays = with inputs; [
         nix-cachyos-kernel.overlays.pinned
+        ala-lape.overlays.default
       ];
 
       systems = {
