@@ -410,10 +410,7 @@
       };
     };
     git.enable = true;
-    gamemode = {
-      enable = true;
-      enableRenice = true;
-    };
+    gamemode.enable = true;
     virt-manager.enable = true;
     wireshark.enable = true;
     direnv = {
@@ -492,7 +489,7 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
     ];
-    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd"];
+    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode"];
     shell = pkgs.zsh;
     packages = with pkgs; [
       app2unit
