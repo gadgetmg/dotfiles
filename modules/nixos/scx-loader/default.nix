@@ -6,6 +6,8 @@
 # Added both packages to `environment.systemPackages` for the service to catch
 # the new polkit policy for scx_loader.
 #
+# Added "scx_beerland" and "scx_cake" to the enum for default scheduler options.
+#
 {
   lib,
   pkgs,
@@ -49,7 +51,9 @@ in {
 
     default_sched = lib.mkOption {
       type = lib.types.enum [
+        "scx_beerland"
         "scx_bpfland"
+        "scx_cake"
         "scx_cosmos"
         "scx_flash"
         "scx_lavd"

@@ -1,6 +1,7 @@
 {
   rustPlatform,
   fetchFromGitHub,
+  fetchpatch,
   scx,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
@@ -13,6 +14,14 @@ rustPlatform.buildRustPackage (finalAttrs: {
     tag = "v${finalAttrs.version}";
     hash = "sha256-lF3kRDPGI5x3GlGlVzSA/U9SI0/KjUry/eXZpM12bIg=";
   };
+
+  patches = [
+    # Adds support for scx_cake scheduler
+    (fetchpatch {
+      url = "https://github.com/sched-ext/scx-loader/commit/28b682ab5dfa5750fec89023c5abe6a9433709a7.diff";
+      hash = "sha256-e7hZIkoBlRheP1lIojepNfZegC1IASbIbvc5vHi7Ltg=";
+    })
+  ];
 
   postInstall = ''
     install -Dm444 configs/org.scx.Loader.policy $out/share/polkit-1/actions/org.scx.Loader.policy

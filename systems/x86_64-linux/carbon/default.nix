@@ -102,7 +102,7 @@
     displayManager.defaultSession = "sway-uwsm";
     scx_loader = {
       enable = true;
-      default_sched = "scx_bpfland";
+      default_sched = "scx_cake";
     };
     lact.enable = true;
     earlyoom.enable = true;
