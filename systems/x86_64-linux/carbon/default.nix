@@ -380,7 +380,10 @@
     gamescope.enable = true;
     regreet = {
       enable = true;
-      settings.GTK.application_prefer_dark_theme = true;
+      settings = {
+        GTK.application_prefer_dark_theme = true;
+        widget.clock.format = "%I:%M%p";
+      };
       theme = {
         name = "catppuccin-mocha-lavender-standard";
         package = pkgs.catppuccin-gtk;
