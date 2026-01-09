@@ -100,10 +100,9 @@
       };
     };
     displayManager.defaultSession = "sway-uwsm";
-    scx = {
+    scx_loader = {
       enable = true;
-      package = pkgs.scx.rustscheds;
-      scheduler = "scx_bpfland";
+      default_sched = "scx_bpfland";
     };
     lact.enable = true;
     earlyoom.enable = true;
