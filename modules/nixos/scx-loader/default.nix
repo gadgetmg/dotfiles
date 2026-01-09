@@ -223,6 +223,17 @@ in {
         })
       ];
     };
+
+    # Polkit rule for "scx" group to manage schedulers
+    users.groups.scx = {};
+    security.polkit.extraConfig = ''
+      polkit.addRule(function(action, subject) {
+          if (action.id == "org.scx.loader.manage-schedulers" &&
+              subject.isInGroup("scx")) {
+              return polkit.Result.YES;
+          }
+      });
+    '';
     assertions = [
       {
         assertion = lib.versionAtLeast config.boot.kernelPackages.kernel.version "6.12";

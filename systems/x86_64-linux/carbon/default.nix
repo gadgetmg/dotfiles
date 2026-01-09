@@ -488,7 +488,7 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
     ];
-    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode"];
+    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode" "scx"];
     shell = pkgs.zsh;
     packages = with pkgs; [
       ala-lape
