@@ -507,6 +507,7 @@
       darkly
       dex
       discord
+      fastfetch
       furmark
       fuzzel
       fzf
