@@ -7,8 +7,6 @@
 }: {
   imports = [./disks.nix];
 
-  facter.reportPath = ./facter.json;
-
   sops = {
     defaultSopsFile = ./secrets.yaml;
     secrets = {
