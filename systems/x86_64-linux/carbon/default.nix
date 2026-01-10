@@ -50,10 +50,10 @@
 
   fonts = {
     enableDefaultPackages = true;
-    packages = with pkgs; [adwaita-fonts noto-fonts nerd-fonts.iosevka];
+    packages = with pkgs; [adwaita-fonts roboto roboto-serif noto-fonts nerd-fonts.iosevka];
     fontconfig.defaultFonts = {
-      sansSerif = ["Noto Sans"];
-      serif = ["Noto Serif"];
+      sansSerif = ["Roboto Condensed"];
+      serif = ["Roboto Serif"];
       monospace = ["Iosevka Nerd Font"];
       emoji = ["Noto Color Emoji"];
     };
