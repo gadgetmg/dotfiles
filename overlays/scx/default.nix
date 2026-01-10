@@ -1,4 +1,4 @@
-{lib, ...}: final: prev: {
+_: final: prev: {
   scx =
     prev.scx
     // {
