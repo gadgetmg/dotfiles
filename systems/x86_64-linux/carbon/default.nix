@@ -211,7 +211,7 @@
                   '';
                   devices = [];
                   env = [
-                    "RUN_GAMESCOPE=true"
+                    "RUN_SWAY=1"
                     "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
                   ];
                   image = "ghcr.io/games-on-whales/retroarch:edge";
@@ -241,7 +241,7 @@
                   devices = [];
                   env = [
                     "PROTON_LOG=1"
-                    "RUN_GAMESCOPE=true"
+                    "RUN_SWAY=1"
                     "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
                   ];
                   image = "ghcr.io/games-on-whales/steam:edge";
@@ -270,7 +270,7 @@
                   '';
                   devices = [];
                   env = [
-                    "RUN_GAMESCOPE=1"
+                    "RUN_SWAY=1"
                     "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
                   ];
                   image = "ghcr.io/games-on-whales/heroic-games-launcher:edge";
