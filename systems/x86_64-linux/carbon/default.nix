@@ -61,6 +61,39 @@
 
   services = {
     btrfs.autoScrub.enable = true;
+    btrbk.instances = {
+      userdata = {
+        onCalendar = "minutely";
+        settings = {
+          snapshot_preserve_min = "1h";
+          snapshot_preserve = "48h";
+          volume = {
+            "/.rootvol" = {
+              subvolume = {
+                "home" = {snapshot_create = "onchange";};
+                "persist" = {snapshot_create = "onchange";};
+                "root" = {snapshot_create = "onchange";};
+              };
+            };
+          };
+        };
+      };
+      systemdata = {
+        onCalendar = "daily";
+        settings = {
+          snapshot_preserve_min = "latest";
+          snapshot_preserve = "0h 2d";
+          volume = {
+            "/.rootvol" = {
+              subvolume = {
+                "log" = {};
+                "nix" = {};
+              };
+            };
+          };
+        };
+      };
+    };
     blueman.enable = true;
     caddy = {
       enable = true;

@@ -26,6 +26,11 @@
                 content = {
                   type = "btrfs";
                   extraArgs = ["-f"];
+                  mountpoint = "/.rootvol";
+                  mountOptions = [
+                    "compress=zstd"
+                    "noatime"
+                  ];
                   subvolumes = {
                     "/root" = {
                       mountpoint = "/";
