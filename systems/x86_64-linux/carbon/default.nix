@@ -183,6 +183,53 @@
       config = {
         hostname = "carbon";
         uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
+        gstreamer = {
+          audio = {
+            default_audio_params = "queue max-size-buffers=3 leaky=downstream ! audiorate ! audioconvert";
+            default_opus_encoder = "opusenc bitrate={bitrate} bitrate-type=cbr frame-size={packet_duration} bandwidth=fullband audio-type=restricted-lowdelay max-payload-size=1400";
+            default_sink = ''
+              rtpmoonlightpay_audio name=moonlight_pay packet_duration={packet_duration} encrypt={encrypt} aes_key="{aes_key}" aes_iv="{aes_iv}" !
+              appsink name=wolf_udp_sink
+            '';
+            default_source = "interpipesrc name=interpipesrc_{}_audio listen-to={session_id}_audio is-live=true stream-sync=restart-ts max-bytes=0 max-buffers=3 block=false";
+          };
+          video = {
+            default_sink = ''
+              rtpmoonlightpay_video name=moonlight_pay payload_size={payload_size} fec_percentage={fec_percentage} min_required_fec_packets={min_required_fec_packets} !
+              appsink sync=false name=wolf_udp_sink
+            '';
+            default_source = "interpipesrc name=interpipesrc_{}_video listen-to={session_id}_video is-live=true stream-sync=restart-ts max-bytes=0 max-buffers=1 leaky-type=downstream";
+            defaults = {
+              va = {
+                video_params_zero_copy = ''
+                  vapostproc add-borders=true !
+                  video/x-raw(memory:VAMemory), width={width}, height={height}, pixel-aspect-ratio=1/1
+                '';
+              };
+            };
+            av1_encoders = [
+              {
+                check_elements = ["vaav1enc" "vapostproc"];
+                encoder_pipeline = "vaav1enc ref-frames=1 bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=2";
+                plugin_name = "va";
+              }
+            ];
+            h264_encoders = [
+              {
+                check_elements = ["vah264enc" "vapostproc"];
+                encoder_pipeline = "vah264enc ref-frames=1 num-slices={slices_per_frame} bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=2";
+                plugin_name = "va";
+              }
+            ];
+            hevc_encoders = [
+              {
+                check_elements = ["vah265enc" "vapostproc"];
+                encoder_pipeline = "vah265enc ref-frames=1 num-slices={slices_per_frame} bitrate={bitrate} cpb-size={bitrate} key-int-max=1024 rate-control=cqp target-usage=2";
+                plugin_name = "va";
+              }
+            ];
+          };
+        };
         profiles = [
           {
             id = "moonlight-profile-id";
