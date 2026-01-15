@@ -16,6 +16,7 @@ _: final: prev: {
         cargoDeps = prevAttrs.cargoDeps.overrideAttrs (prevAttrs: {
           vendorStaging = prevAttrs.vendorStaging.overrideAttrs {
             inherit (finalAttrs) src;
+            patches = finalAttrs.cargoPatches;
             outputHash = "sha256-jCUTmM54Yz3NQOHdANs6cQr8GVDVCzpRP/AOk1bE+I4=";
           };
         });
