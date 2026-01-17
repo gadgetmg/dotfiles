@@ -626,6 +626,7 @@
       starship
       statix
       swaybg
+      teams-for-linux
       tigervnc
       waybar
       wineWowPackages.stableFull
