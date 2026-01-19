@@ -28,6 +28,7 @@
         group = "caddy";
         mode = "440";
       };
+      "restic.env" = {};
     };
   };
 
@@ -61,38 +62,23 @@
 
   services = {
     btrfs.autoScrub.enable = true;
-    btrbk.instances = {
-      userdata = {
-        onCalendar = "minutely";
-        settings = {
-          snapshot_preserve_min = "1h";
-          snapshot_preserve = "48h";
-          volume = {
-            "/.rootvol" = {
-              subvolume = {
-                "home" = {snapshot_create = "onchange";};
-                "persist" = {snapshot_create = "onchange";};
-                "root" = {snapshot_create = "onchange";};
-              };
-            };
-          };
-        };
+    restic.backups.carbon = {
+      timerConfig = {
+        OnCalendar = "05:00";
+        Persistent = true;
       };
-      systemdata = {
-        onCalendar = "daily";
-        settings = {
-          snapshot_preserve_min = "latest";
-          snapshot_preserve = "0h 2d";
-          volume = {
-            "/.rootvol" = {
-              subvolume = {
-                "log" = {};
-                "nix" = {};
-              };
-            };
-          };
-        };
-      };
+      runCheck = true;
+      repository = "s3:https://truenas.lan.seigra.net:9000/restic/carbon";
+      paths = [
+        "/"
+        "/home"
+        "/opt/steam/steamapps/compatdata"
+        "/opt/roms"
+      ];
+      extraBackupArgs = ["--verbose" "--one-file-system"];
+      inhibitsSleep = true;
+      environmentFile = "/run/secrets/restic.env";
+      pruneOpts = [ "--keep-daily 7" ];
     };
     blueman.enable = true;
     caddy = {
@@ -295,7 +281,7 @@
                     "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
                   ];
                   image = "ghcr.io/games-on-whales/retroarch:edge";
-                  mounts = ["/home/matt/Games/ROMs:/mnt:ro"];
+                  mounts = ["/opt/roms:/mnt:ro"];
                   name = "WolfRetroarch";
                   ports = [];
                   type = "docker";
@@ -325,7 +311,7 @@
                     "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
                   ];
                   image = "ghcr.io/games-on-whales/steam:edge";
-                  mounts = ["/home/matt/.steam/steam/steamapps:/home/retro/.steam/steam/steamapps:rw"];
+                  mounts = ["/opt/steam/steamapps:/home/retro/.steam/steam/steamapps:rw"];
                   name = "WolfSteam";
                   ports = [];
                   type = "docker";
@@ -354,7 +340,7 @@
                     "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
                   ];
                   image = "ghcr.io/games-on-whales/heroic-games-launcher:edge";
-                  mounts = ["/home/matt/Games/Heroic:/home/retro/Games/Heroic:rw"];
+                  mounts = ["/opt/heroic:/home/retro/Games/Heroic:rw"];
                   name = "WolfHeroic";
                   ports = [];
                   type = "docker";
@@ -368,7 +354,18 @@
     docker-idle-inhibitor.enable = true;
   };
 
-  security.rtkit.enable = true;
+  security = {
+    rtkit.enable = true;
+    pam.mount = {
+      enable = true;
+      extraVolumes = [
+        # Mount shared game libraries into home directories
+        ''<volume fstype="none" path="/opt/steam/steamapps" mountpoint="~/.local/share/Steam/steamapps" options="bind" />''
+        ''<volume fstype="none" path="/opt/heroic" mountpoint="~/Games/Heroic" options="bind" />''
+        ''<volume fstype="none" path="/opt/roms" mountpoint="~/Games/ROMs" options="bind" />''
+      ];
+    };
+  };
 
   nix.settings.download-buffer-size = 524288000;
 

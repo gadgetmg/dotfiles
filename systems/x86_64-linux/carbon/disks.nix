@@ -26,48 +26,57 @@
                 content = {
                   type = "btrfs";
                   extraArgs = ["-f"];
-                  mountpoint = "/.rootvol";
-                  mountOptions = [
-                    "compress=zstd"
-                    "noatime"
-                  ];
                   subvolumes = {
-                    "/root" = {
+                    "@root" = {
                       mountpoint = "/";
                       mountOptions = [
                         "compress=zstd"
                         "noatime"
                       ];
                     };
-                    "/home" = {
+                    "@home" = {
                       mountpoint = "/home";
                       mountOptions = [
                         "compress=zstd"
                         "noatime"
                       ];
                     };
-                    "/nix" = {
+                    "@steam" = {
+                      mountpoint = "/opt/steam";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+                    "@heroic" = {
+                      mountpoint = "/opt/heroic";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+                    "@roms" = {
+                      mountpoint = "/opt/roms";
+                      mountOptions = [
+                        "compress=zstd"
+                        "noatime"
+                      ];
+                    };
+                    "@nix" = {
                       mountpoint = "/nix";
                       mountOptions = [
                         "compress=zstd"
                         "noatime"
                       ];
                     };
-                    "/persist" = {
-                      mountpoint = "/persist";
-                      mountOptions = [
-                        "compress=zstd"
-                        "noatime"
-                      ];
-                    };
-                    "/log" = {
+                    "@log" = {
                       mountpoint = "/var/log";
                       mountOptions = [
                         "compress=zstd"
                         "noatime"
                       ];
                     };
-                    "/swap" = {
+                    "@swap" = {
                       mountpoint = "/.swapvol";
                       swap.swapfile.size = "32G";
                     };
@@ -80,7 +89,12 @@
       };
     };
   };
-
-  fileSystems."/persist".neededForBoot = true;
+  systemd.tmpfiles.rules = [
+    # Type Path        Mode    UID     GID     Age  Argument
+    "d /opt            0755    0       0       -    -"
+    "d /opt/steam      0777    0       100     -    -"
+    "d /opt/heroic     0777    0       100     -    -"
+    "d /opt/roms       0777    0       100     -    -"
+  ];
   fileSystems."/var/log".neededForBoot = true;
 }
