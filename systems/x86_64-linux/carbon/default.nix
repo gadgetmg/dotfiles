@@ -66,6 +66,7 @@
       timerConfig = {
         OnCalendar = "05:00";
         Persistent = true;
+        WakeSystem = true;
       };
       runCheck = true;
       repository = "s3:https://truenas.lan.seigra.net:9000/restic/carbon";
@@ -78,7 +79,7 @@
       extraBackupArgs = ["--verbose" "--one-file-system"];
       inhibitsSleep = true;
       environmentFile = "/run/secrets/restic.env";
-      pruneOpts = [ "--keep-daily 7" ];
+      pruneOpts = ["--keep-daily 7"];
     };
     blueman.enable = true;
     caddy = {
