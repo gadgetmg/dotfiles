@@ -62,7 +62,26 @@
 
   services = {
     btrfs.autoScrub.enable = true;
-    restic.backups.carbon = {
+    snapper = {
+      snapshotInterval = "minutely";
+      configs = let
+        defaults = {
+          FSTYPE = "btrfs";
+          TIMELINE_CREATE = true;
+          TIMELINE_CLEANUP = true;
+          TIMELINE_LIMIT_HOURLY = 48;
+          TIMELINE_LIMIT_DAILY = 7;
+          ALLOW_GROUPS = ["snapper"];
+        };
+      in {
+        root = defaults // {SUBVOLUME = "/";};
+        home = defaults // {SUBVOLUME = "/home";};
+        steam = defaults // {SUBVOLUME = "/opt/steam";};
+        heroic = defaults // {SUBVOLUME = "/opt/heroic";};
+        roms = defaults // {SUBVOLUME = "/opt/roms";};
+      };
+    };
+    restic.backups.nas = {
       timerConfig = {
         OnCalendar = "05:00";
         Persistent = true;
@@ -567,7 +586,7 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
     ];
-    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode" "scx"];
+    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode" "scx" "snapper"];
     shell = pkgs.zsh;
     packages = with pkgs; [
       ala-lape
