@@ -388,6 +388,10 @@
   };
 
   nix.settings.download-buffer-size = 524288000;
+  nixpkgs = {
+    hostPlatform = "x86_64-linux";
+    config.rocmSupport = true;
+  };
 
   virtualisation = {
     docker = {
@@ -524,6 +528,7 @@
   };
 
   networking = {
+    hostName = "carbon";
     dhcpcd.enable = false;
     networkmanager.enable = true;
     firewall = {

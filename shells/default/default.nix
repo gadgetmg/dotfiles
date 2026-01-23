@@ -1,8 +1,5 @@
-{
-  pkgs,
-  mkShell,
-}:
-mkShell {
+{pkgs, ...}:
+pkgs.mkShell {
   packages = with pkgs; [
     nixos-anywhere
     sops

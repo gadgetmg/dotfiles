@@ -1,8 +1,4 @@
-{
-  channels,
-  inputs,
-  ...
-}: final: prev: {
+_: final: prev: {
   cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3 = prev.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3.extend (_: prevKernelPackages: {
     ryzen-smu = with prevKernelPackages;
       ryzen-smu.overrideAttrs (prevAttrs: let

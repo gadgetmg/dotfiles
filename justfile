@@ -1,6 +1,9 @@
 update *INPUTS:
   nix flake update {{INPUTS}}
 
+repl:
+  nixos-rebuild repl --flake .
+
 build:
   nixos-rebuild build --flake .
 
