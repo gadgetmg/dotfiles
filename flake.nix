@@ -92,6 +92,7 @@
           nix = {
             channel.enable = false;
             settings = {
+              experimental-features = ["nix-command" "flakes"];
               auto-optimise-store = true;
               substituters = [
                 "https://lanzaboote.cachix.org"
