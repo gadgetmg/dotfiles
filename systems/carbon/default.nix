@@ -71,7 +71,6 @@
           TIMELINE_CLEANUP = true;
           TIMELINE_LIMIT_HOURLY = 48;
           TIMELINE_LIMIT_DAILY = 7;
-          ALLOW_GROUPS = ["snapper"];
         };
       in {
         root = defaults // {SUBVOLUME = "/";};
@@ -591,7 +590,7 @@
     openssh.authorizedKeys.keys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
     ];
-    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode" "scx" "snapper"];
+    extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode" "scx"];
     shell = pkgs.zsh;
     packages = with pkgs; [
       ala-lape
