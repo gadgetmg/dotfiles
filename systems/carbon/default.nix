@@ -324,13 +324,9 @@
                     }
                   '';
                   devices = [];
-                  env = [
-                    "PROTON_LOG=1"
-                    "RUN_SWAY=1"
-                    "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
-                  ];
-                  image = "ghcr.io/games-on-whales/steam:edge";
-                  mounts = ["/opt/steam/steamapps:/home/retro/.steam/steam/steamapps:rw"];
+                  env = [];
+                  image = "ghcr.io/gadgetmg/steam:sway";
+                  mounts = ["/opt/steam/steamapps:/home/retro/.local/share/Steam/steamapps:rw"];
                   name = "WolfSteam";
                   ports = [];
                   type = "docker";
