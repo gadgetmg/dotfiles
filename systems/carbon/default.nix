@@ -154,6 +154,16 @@
     pipewire = {
       enable = true;
       lowLatency.enable = true;
+      extraConfig.pipewire-pulse = {
+        "block-source-volume" = {
+          "pulse.rules" = [
+            {
+              matches = [{"application.process.binary" = "electron";}];
+              actions = {quirks = ["block-source-volume"];};
+            }
+          ];
+        };
+      };
     };
     udisks2 = {
       enable = true;
