@@ -9,6 +9,7 @@
       }: {
         imports = [
           inputs.self.modules.nixos.common
+          inputs.self.modules.nixos.sway
           inputs.disko.nixosModules.disko
           inputs.lanzaboote.nixosModules.lanzaboote
           inputs.nix-gaming.nixosModules.pipewireLowLatency
