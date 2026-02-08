@@ -1,41 +1,55 @@
-{pkgs, ...}: {
-  nixpkgs.hostPlatform = "x86_64-linux";
+{inputs, ...}: {
+  flake.nixosConfigurations.wsl = inputs.nixpkgs.lib.nixosSystem {
+    modules = [
+      ({pkgs, ...}: {
+        imports = [
+          inputs.self.modules.nixos.common
+          inputs.nixos-wsl.nixosModules.default
+        ];
+        wsl.enable = true;
 
-  programs.nix-ld.enable = true;
-  programs.zsh.enable = true;
-  programs.git.enable = true;
+        nixpkgs.hostPlatform = "x86_64-linux";
 
-  virtualisation.docker.enable = true;
+        programs = {
+          nix-ld.enable = true;
+          zsh.enable = true;
+          git.enable = true;
+        };
 
-  users.users."nixos" = {
-    isNormalUser = true;
-    initialPassword = "nixos";
-    extraGroups = [
-      "wheel"
-      "docker"
-    ];
-    shell = pkgs.zsh;
-    packages = with pkgs; [
-      cargo
-      chezmoi
-      foot
-      fzf
-      gcc
-      git
-      lazygit
-      lua5_1
-      luarocks
-      neovim
-      nixfmt-rfc-style
-      nodejs
-      ripgrep
-      skim
-      starship
-      unzip
-      wget
-      zellij
+        virtualisation.docker.enable = true;
+
+        users.users."nixos" = {
+          isNormalUser = true;
+          initialPassword = "nixos";
+          extraGroups = [
+            "wheel"
+            "docker"
+          ];
+          shell = pkgs.zsh;
+          packages = with pkgs; [
+            cargo
+            chezmoi
+            foot
+            fzf
+            gcc
+            git
+            lazygit
+            lua5_1
+            luarocks
+            neovim
+            nixfmt-rfc-style
+            nodejs
+            ripgrep
+            skim
+            starship
+            unzip
+            wget
+            zellij
+          ];
+        };
+
+        system.stateVersion = "24.11";
+      })
     ];
   };
-
-  system.stateVersion = "24.11";
 }
