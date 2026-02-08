@@ -32,6 +32,7 @@
           inputs.self.modules.nixos.colemak
           inputs.self.modules.nixos.ssh
           inputs.self.modules.nixos.power
+          inputs.self.modules.nixos.overclocking
           ./_disks.nix
         ];
 
@@ -48,18 +49,15 @@
         boot = {
           initrd.systemd.enable = true;
           kernelModules = ["nct6775"];
-          kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfffd7fff"];
           kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
         };
 
         hardware = {
-          cpu.amd.ryzen-smu.enable = true;
           bluetooth.enable = true;
           enableAllFirmware = true;
         };
 
         services = {
-          lact.enable = true;
           earlyoom.enable = true;
           resolved.enable = true;
         };

@@ -5,6 +5,8 @@
       inputs.nix-gaming.nixosModules.platformOptimizations
     ];
 
+    boot.kernelParams = ["mitigations=off"];
+
     services.pipewire.lowLatency.enable = true;
 
     security.rtkit.enable = true;
