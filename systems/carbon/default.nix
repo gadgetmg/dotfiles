@@ -27,7 +27,6 @@
           inputs.self.modules.nixos.teams
           inputs.self.modules.nixos.libvirt
           inputs.self.modules.nixos.gaming
-          inputs.self.modules.nixos.sessions
           inputs.self.modules.nixos.colemak
           inputs.self.modules.nixos.ssh
           inputs.self.modules.nixos.power
@@ -35,23 +34,11 @@
           inputs.self.modules.nixos.wireshark
           inputs.self.modules.nixos.openweathermap
           inputs.self.modules.nixos.zen3
+          inputs.self.modules.nixos.desktop
           ./_disks.nix
         ];
 
-        boot = {
-          initrd.systemd.enable = true;
-          kernelModules = ["nct6775"];
-        };
-
-        hardware = {
-          bluetooth.enable = true;
-          enableAllFirmware = true;
-        };
-
-        services = {
-          earlyoom.enable = true;
-          resolved.enable = true;
-        };
+        boot.kernelModules = ["nct6775"];
 
         nixpkgs = {
           hostPlatform = "x86_64-linux";
