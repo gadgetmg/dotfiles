@@ -36,6 +36,7 @@
           inputs.self.modules.nixos.zen3
           inputs.self.modules.nixos.desktop
           inputs.self.modules.nixos.shell
+          inputs.self.modules.nixos.neovim
           ./_disks.nix
         ];
 
@@ -68,19 +69,13 @@
         environment = {
           systemPackages = with pkgs; [
             caido
-            cargo
             chezmoi
             chromium
             discord
             furmark
-            gcc
-            go
             kdiskmark
             libreoffice-qt-fresh
             llm
-            lua5_1
-            luarocks
-            nodejs
             obsidian
             onedrive
             onedrivegui
@@ -88,7 +83,6 @@
             qalculate-qt
             resources
             signal-desktop
-            statix
             tigervnc
             vulkan-tools
             wineWowPackages.stableFull
