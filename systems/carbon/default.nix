@@ -35,6 +35,7 @@
           inputs.self.modules.nixos.openweathermap
           inputs.self.modules.nixos.zen3
           inputs.self.modules.nixos.desktop
+          inputs.self.modules.nixos.shell
           ./_disks.nix
         ];
 
@@ -53,22 +54,8 @@
         };
 
         programs = {
-          nix-index-database.comma.enable = true;
           nix-ld.enable = true;
-          zsh.enable = true;
           firefox.enable = true;
-          git.enable = true;
-          direnv = {
-            enable = true;
-            settings = {
-              global = {
-                disable_stdin = true;
-                strict_env = true;
-                warn_timeout = 0;
-                hide_env_diff = true;
-              };
-            };
-          };
         };
 
         networking = {
@@ -79,68 +66,36 @@
         time.timeZone = "America/New_York";
 
         environment = {
-          localBinInPath = true;
           systemPackages = with pkgs; [
-            bat
-            bc
-            bind
-            btop
             caido
             cargo
             chezmoi
             chromium
             discord
-            fastfetch
             furmark
-            fzf
             gcc
-            gh
-            git
-            git-lfs
             go
-            htop
-            iftop
-            iotop
-            jc
-            jq
             kdiskmark
-            lazygit
             libreoffice-qt-fresh
             llm
-            lm_sensors
             lua5_1
             luarocks
-            ncmpcpp
-            neovim
             nodejs
-            nvtopPackages.full
             obsidian
             onedrive
             onedrivegui
-            opencode
-            openssl
-            pass
             python3
             qalculate-qt
-            rclone
             resources
-            ripgrep
             signal-desktop
-            skim
-            starship
             statix
-            tcpdump
             tigervnc
-            unzip
             vulkan-tools
-            wget
             wineWowPackages.stableFull
             xorg.xrandr
             ymuse
             zathura
-            zellij
             zen
-            zoxide
           ];
         };
 
