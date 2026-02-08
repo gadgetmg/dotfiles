@@ -154,7 +154,6 @@
               };
             };
           };
-          displayManager.defaultSession = "sway-uwsm";
           scx_loader = {
             enable = true;
             default_sched = "scx_cake";
@@ -525,20 +524,6 @@
               package = pkgs.papirus-icon-theme;
             };
           };
-          sway = {
-            enable = true;
-            package = null;
-          };
-          uwsm = {
-            enable = true;
-            waylandCompositors = {
-              sway = {
-                prettyName = "Sway";
-                comment = "Sway compositor managed by UWSM";
-                binPath = lib.getExe' pkgs.sway "sway";
-              };
-            };
-          };
           git.enable = true;
           gamemode.enable = true;
           virt-manager.enable = true;
@@ -583,7 +568,6 @@
             adwaita-icon-theme-legacy
             bind
             file-roller
-            foot
             git
             git-lfs
             grim
@@ -601,9 +585,6 @@
             pulseaudio
             resources
             sbctl
-            sway
-            swayidle
-            swaylock
             tcpdump
             udiskie
             unzip
@@ -638,7 +619,6 @@
             discord
             fastfetch
             furmark
-            fuzzel
             fzf
             gcc
             gh
@@ -654,8 +634,6 @@
             luarocks
             mako
             mangohud
-            mpd
-            mpdris2
             ncmpcpp
             neovim
             nodejs
@@ -679,7 +657,6 @@
             swaybg
             teams-for-linux
             tigervnc
-            waybar
             wineWowPackages.stableFull
             wl-clipboard
             ymuse
