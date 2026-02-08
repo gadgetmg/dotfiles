@@ -68,6 +68,7 @@
       nemo-with-extensions
       networkmanagerapplet
       papirus-icon-theme
+      pavucontrol
       playerctl
       pulseaudio
       qt6Packages.qt6ct

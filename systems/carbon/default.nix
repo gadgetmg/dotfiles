@@ -8,14 +8,16 @@
         ...
       }: {
         imports = [
-          inputs.self.modules.nixos.common
-          inputs.self.modules.nixos.sway
           inputs.disko.nixosModules.disko
+          inputs.sops-nix.nixosModules.sops
+          inputs.nix-index-database.nixosModules.nix-index
           inputs.nixos-hardware.nixosModules.common-cpu-amd
           inputs.nixos-hardware.nixosModules.common-cpu-amd-pstate
           inputs.nixos-hardware.nixosModules.common-gpu-amd
           inputs.nixos-hardware.nixosModules.common-pc
           inputs.nixos-hardware.nixosModules.common-pc-ssd
+          inputs.self.modules.nixos.common
+          inputs.self.modules.nixos.sway
           inputs.self.modules.nixos.scx
           inputs.self.modules.nixos.secureboot
           inputs.self.modules.nixos.backups
@@ -26,6 +28,7 @@
           inputs.self.modules.nixos.teams
           inputs.self.modules.nixos.libvirt
           inputs.self.modules.nixos.gaming
+          inputs.self.modules.nixos.sessions
           ./_disks.nix
         ];
 
@@ -60,7 +63,6 @@
           earlyoom.enable = true;
           gvfs.enable = true;
           logind.settings.Login = {
-            KillUserProcesses = true;
             HandlePowerKey = "ignore";
             HandlePowerKeyLongPress = "poweroff";
             IdleAction = "suspend";
@@ -84,14 +86,9 @@
 
         security.rtkit.enable = true;
 
-        nix.settings.download-buffer-size = 524288000;
         nixpkgs = {
           hostPlatform = "x86_64-linux";
           config.rocmSupport = true;
-          overlays = [
-            inputs.nix-cachyos-kernel.overlays.pinned
-            inputs.self.overlays.kernel-clang
-          ];
         };
 
         virtualisation = {
@@ -101,9 +98,8 @@
           };
         };
 
-        systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
-
         programs = {
+          nix-index-database.comma.enable = true;
           nix-ld.enable = true;
           zsh.enable = true;
           firefox.enable = true;
@@ -125,10 +121,7 @@
 
         networking = {
           hostName = "carbon";
-          dhcpcd.enable = false;
           networkmanager.enable = true;
-          firewall.trustedInterfaces = ["virbr0"];
-          resolvconf.enable = false;
           interfaces.enp37s0.wakeOnLan.enable = true;
         };
 
@@ -143,39 +136,9 @@
           };
           localBinInPath = true;
           systemPackages = with pkgs; [
-            bind
-            git
-            git-lfs
-            htop
-            iftop
-            iotop
-            jq
-            lm_sensors
-            nvtopPackages.full
-            openssl
-            pass
-            pavucontrol
-            resources
-            tcpdump
-            unzip
-            vulkan-tools
-            wget
-            wireshark
-            xorg.xrandr
-          ];
-        };
-
-        users.users."matt" = {
-          isNormalUser = true;
-          initialPassword = "matt";
-          openssh.authorizedKeys.keys = [
-            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
-          ];
-          extraGroups = ["docker" "networkmanager" "wheel" "wireshark"];
-          shell = pkgs.zsh;
-          packages = with pkgs; [
             bat
             bc
+            bind
             btop
             caido
             cargo
@@ -187,38 +150,64 @@
             fzf
             gcc
             gh
+            git
+            git-lfs
             go
+            htop
+            iftop
+            iotop
             jc
+            jq
             kdiskmark
             lazygit
             libreoffice-qt-fresh
             llm
+            lm_sensors
             lua5_1
             luarocks
-            mangohud
             ncmpcpp
             neovim
             nodejs
+            nvtopPackages.full
             obsidian
             onedrive
             onedrivegui
             opencode
+            openssl
+            pass
             python3
             qalculate-qt
             rclone
+            resources
             ripgrep
             signal-desktop
             skim
             starship
             statix
+            tcpdump
             tigervnc
+            unzip
+            vulkan-tools
+            wget
             wineWowPackages.stableFull
+            wireshark
+            xorg.xrandr
             ymuse
             zathura
             zellij
             zen
             zoxide
           ];
+        };
+
+        users.users."matt" = {
+          isNormalUser = true;
+          initialPassword = "matt";
+          openssh.authorizedKeys.keys = [
+            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
+          ];
+          extraGroups = ["docker" "networkmanager" "wheel" "wireshark"];
+          shell = pkgs.zsh;
         };
 
         system.stateVersion = "24.11";

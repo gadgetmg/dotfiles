@@ -26,9 +26,10 @@
     };
 
     environment.systemPackages = with pkgs; [
+      heroic
+      mangohud
       protonup-qt
       protonvpn-gui
-      heroic
     ];
 
     users.users."matt".extraGroups = ["gamemode"];

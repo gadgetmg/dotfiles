@@ -1,23 +1,22 @@
 {inputs, ...}: {
   flake.modules.nixos.common = {config, ...}: {
-    imports = [
-      inputs.sops-nix.nixosModules.sops
-      inputs.nix-index-database.nixosModules.nix-index
-    ];
-    programs.nix-index-database.comma.enable = true;
     nixpkgs = {
       config.allowUnfree = true;
       overlays = [
+        inputs.nix-cachyos-kernel.overlays.pinned
         inputs.ala-lape.overlays.default
+        inputs.self.overlays.kernel-clang
         inputs.self.overlays.overrides
         inputs.self.overlays.upstream
       ];
     };
+
     nix = {
       channel.enable = false;
       settings = {
         experimental-features = ["nix-command" "flakes"];
         auto-optimise-store = true;
+        download-buffer-size = 1073741824;
         substituters = [
           "https://lanzaboote.cachix.org"
           "https://mic92.cachix.org"
@@ -38,7 +37,7 @@
       gc = {
         automatic = true;
         dates = "daily";
-        options = "--delete-older-than 30d";
+        options = "--delete-older-than 7d";
       };
     };
   };
