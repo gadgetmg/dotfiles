@@ -11,7 +11,6 @@
           inputs.self.modules.nixos.common
           inputs.self.modules.nixos.sway
           inputs.disko.nixosModules.disko
-          inputs.lanzaboote.nixosModules.lanzaboote
           inputs.nix-gaming.nixosModules.pipewireLowLatency
           inputs.nix-gaming.nixosModules.platformOptimizations
           inputs.nixos-hardware.nixosModules.common-cpu-amd
@@ -23,22 +22,13 @@
           inputs.self.nixosModules.docker-idle-inhibitor
           inputs.self.modules.nixos.scx
           inputs.self.nixosModules.wolf
+          inputs.self.modules.nixos.secureboot
           ./_disks.nix
         ];
 
         sops = {
           defaultSopsFile = ./secrets.yaml;
           secrets = {
-            "secureboot/keys/db/db.key".path = "/var/lib/sbctl/keys/db/db.key";
-            "secureboot/keys/db/db.pem".path = "/var/lib/sbctl/keys/db/db.pem";
-            "secureboot/keys/KEK/KEK.key".path = "/var/lib/sbctl/keys/KEK/KEK.key";
-            "secureboot/keys/KEK/KEK.pem".path = "/var/lib/sbctl/keys/KEK/KEK.pem";
-            "secureboot/keys/PK/PK.key".path = "/var/lib/sbctl/keys/PK/PK.key";
-            "secureboot/keys/PK/PK.pem".path = "/var/lib/sbctl/keys/PK/PK.pem";
-            "secureboot/GUID" = {
-              path = "/var/lib/sbctl/GUID";
-              mode = "644";
-            };
             "openweathermap.env" = {
               group = "users";
               mode = "440";
@@ -53,10 +43,6 @@
 
         boot = {
           initrd.systemd.enable = true;
-          lanzaboote = {
-            enable = true;
-            pkiBundle = "/var/lib/sbctl";
-          };
           kernelModules = ["nct6775"];
           kernelParams = ["mitigations=off" "amdgpu.ppfeaturemask=0xfffd7fff"];
           kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;

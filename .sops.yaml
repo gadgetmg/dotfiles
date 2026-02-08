@@ -2,7 +2,12 @@ keys:
   - &user_matt age14j53rr640k25j2z5q3y2dl3um0kkp2tlh4ptm8espz8ws907z9eqzlpevn
   - &system_carbon age1jfk3z4cwhqwduahl0hvvgkuywqu9rauxfjharnv74eauf3rnwcuq6z0mfc
 creation_rules:
-  - path_regex: systems/.*/carbon/secrets.*$
+  - path_regex: modules/.*/secrets.*$
+    key_groups:
+      - age:
+          - *system_carbon
+          - *user_matt
+  - path_regex: systems/carbon/secrets.*$
     key_groups:
       - age:
           - *system_carbon
