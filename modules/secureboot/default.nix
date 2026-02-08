@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake.modules.nixos.secureboot = {
+  flake.modules.nixos.secureboot = {pkgs, ...}: {
     imports = [
       inputs.sops-nix.nixosModules.sops
       inputs.lanzaboote.nixosModules.lanzaboote
@@ -26,5 +26,7 @@
       enable = true;
       pkiBundle = "/var/lib/sbctl";
     };
+
+    environment.systemPackages = [pkgs.sbctl];
   };
 }

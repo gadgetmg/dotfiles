@@ -263,7 +263,6 @@
             pavucontrol
             pulseaudio
             resources
-            sbctl
             tcpdump
             udiskie
             unzip
