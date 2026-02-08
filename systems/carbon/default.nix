@@ -86,18 +86,7 @@
           resolved.enable = true;
         };
 
-        security = {
-          rtkit.enable = true;
-          pam.mount = {
-            enable = true;
-            extraVolumes = [
-              # Mount shared game libraries into home directories
-              ''<volume fstype="none" path="/opt/steam/steamapps" mountpoint="~/.local/share/Steam/steamapps" options="bind" />''
-              ''<volume fstype="none" path="/opt/heroic" mountpoint="~/Games/Heroic" options="bind" />''
-              ''<volume fstype="none" path="/opt/roms" mountpoint="~/Games/ROMs" options="bind" />''
-            ];
-          };
-        };
+        security.rtkit.enable = true;
 
         nix.settings.download-buffer-size = 524288000;
         nixpkgs = {
@@ -112,7 +101,6 @@
         virtualisation = {
           docker = {
             enable = true;
-            storageDriver = "btrfs";
             autoPrune.enable = true;
           };
           libvirtd.enable = true;

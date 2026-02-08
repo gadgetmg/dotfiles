@@ -96,5 +96,15 @@
     "d /opt/heroic     0777    0       100     -    -"
     "d /opt/roms       0777    0       100     -    -"
   ];
+  security.pam.mount = {
+    enable = true;
+    extraVolumes = [
+      # Mount shared game libraries into home directories
+      ''<volume fstype="none" path="/opt/steam/steamapps" mountpoint="~/.local/share/Steam/steamapps" options="bind" />''
+      ''<volume fstype="none" path="/opt/heroic" mountpoint="~/Games/Heroic" options="bind" />''
+      ''<volume fstype="none" path="/opt/roms" mountpoint="~/Games/ROMs" options="bind" />''
+    ];
+  };
   fileSystems."/var/log".neededForBoot = true;
+  virtualisation.docker.storageDriver = "btrfs";
 }
