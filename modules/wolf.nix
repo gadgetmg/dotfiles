@@ -8,10 +8,16 @@
     services = {
       docker-idle-inhibitor.enable = true;
 
-      wolf = {
+      wolf = let
+        hosts = {
+          carbon.uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
+        };
+        thisHost = hosts."${config.networking.hostName}";
+      in {
         enable = true;
         openFirewall = true;
         config = {
+          inherit (thisHost) uuid;
           hostname = config.networking.hostName;
           gstreamer = {
             audio = {

@@ -31,6 +31,7 @@
           inputs.self.modules.nixos.sessions
           inputs.self.modules.nixos.colemak
           inputs.self.modules.nixos.ssh
+          inputs.self.modules.nixos.power
           ./_disks.nix
         ];
 
@@ -58,15 +59,8 @@
         };
 
         services = {
-          wolf.config.uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
           lact.enable = true;
           earlyoom.enable = true;
-          logind.settings.Login = {
-            HandlePowerKey = "ignore";
-            HandlePowerKeyLongPress = "poweroff";
-            IdleAction = "suspend";
-            IdleActionSec = 300;
-          };
           resolved.enable = true;
         };
 
