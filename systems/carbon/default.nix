@@ -73,7 +73,6 @@
 
         networking = {
           hostName = "carbon";
-          networkmanager.enable = true;
           interfaces.enp37s0.wakeOnLan.enable = true;
         };
 
@@ -148,7 +147,7 @@
         users.users."matt" = {
           isNormalUser = true;
           initialPassword = "matt";
-          extraGroups = ["docker" "networkmanager" "wheel"];
+          extraGroups = ["docker" "wheel"];
           shell = pkgs.zsh;
         };
 

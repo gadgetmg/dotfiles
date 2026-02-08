@@ -14,5 +14,9 @@
     };
 
     systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
+
+    networking.networkmanager.enable = true;
+
+    users.users."matt".extraGroups = ["networkmanager"];
   };
 }
