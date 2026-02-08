@@ -5,6 +5,7 @@
     ...
   }: {
     services.displayManager.defaultSession = "sway-uwsm";
+
     programs = {
       sway = {
         enable = true;
@@ -20,7 +21,20 @@
           };
         };
       };
+      nm-applet.enable = true;
     };
+
+    fonts = {
+      enableDefaultPackages = true;
+      packages = with pkgs; [adwaita-fonts roboto roboto-serif noto-fonts nerd-fonts.iosevka];
+      fontconfig.defaultFonts = {
+        sansSerif = ["Roboto Condensed"];
+        serif = ["Roboto Serif"];
+        monospace = ["Iosevka Nerd Font"];
+        emoji = ["Noto Color Emoji"];
+      };
+    };
+
     systemd.user = {
       targets = {
         default.wants = [
@@ -34,15 +48,36 @@
         ];
       };
     };
+
     environment.systemPackages = with pkgs; [
+      adwaita-icon-theme
+      adwaita-icon-theme-legacy
+      ala-lape
+      app2unit
+      catppuccin-gtk
+      darkly
+      dex
+      file-roller
       foot
       fuzzel
+      grim
+      kanshi
+      mako
       mpd
       mpdris2
+      nemo-with-extensions
+      networkmanagerapplet
+      papirus-icon-theme
+      playerctl
+      pulseaudio
+      qt6Packages.qt6ct
       sway
+      swaybg
       swayidle
       swaylock
+      udiskie
       waybar
+      wl-clipboard
     ];
   };
 }

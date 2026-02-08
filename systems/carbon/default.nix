@@ -53,17 +53,6 @@
           enableAllFirmware = true;
         };
 
-        fonts = {
-          enableDefaultPackages = true;
-          packages = with pkgs; [adwaita-fonts roboto roboto-serif noto-fonts nerd-fonts.iosevka];
-          fontconfig.defaultFonts = {
-            sansSerif = ["Roboto Condensed"];
-            serif = ["Roboto Serif"];
-            monospace = ["Iosevka Nerd Font"];
-            emoji = ["Noto Color Emoji"];
-          };
-        };
-
         services = {
           wolf.config.uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
           btrfs.autoScrub.enable = true;
@@ -82,16 +71,6 @@
           pipewire = {
             enable = true;
             lowLatency.enable = true;
-            extraConfig.pipewire-pulse = {
-              "block-source-volume" = {
-                "pulse.rules" = [
-                  {
-                    matches = [{"application.process.binary" = "electron";}];
-                    actions = {quirks = ["block-source-volume"];};
-                  }
-                ];
-              };
-            };
           };
           udisks2 = {
             enable = true;
@@ -192,7 +171,6 @@
           zsh.enable = true;
           firefox.enable = true;
           gnupg.agent.enable = true;
-          nm-applet.enable = true;
           steam = {
             enable = true;
             extest.enable = true;
@@ -244,28 +222,20 @@
           };
           localBinInPath = true;
           systemPackages = with pkgs; [
-            adwaita-icon-theme
-            adwaita-icon-theme-legacy
             bind
-            file-roller
             git
             git-lfs
-            grim
             htop
             iftop
             iotop
             jq
             lm_sensors
-            nemo-with-extensions
-            networkmanagerapplet
             nvtopPackages.full
             openssl
             pass
             pavucontrol
-            pulseaudio
             resources
             tcpdump
-            udiskie
             unzip
             vulkan-tools
             wget
@@ -283,18 +253,13 @@
           extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode"];
           shell = pkgs.zsh;
           packages = with pkgs; [
-            ala-lape
-            app2unit
             bat
             bc
             btop
             caido
             cargo
-            catppuccin-gtk
             chezmoi
             chromium
-            darkly
-            dex
             discord
             fastfetch
             furmark
@@ -304,14 +269,12 @@
             go
             heroic
             jc
-            kanshi
             kdiskmark
             lazygit
             libreoffice-qt-fresh
             llm
             lua5_1
             luarocks
-            mako
             mangohud
             ncmpcpp
             neovim
@@ -320,23 +283,18 @@
             onedrive
             onedrivegui
             opencode
-            papirus-icon-theme
-            playerctl
             protonup-qt
             protonvpn-gui
             python3
             qalculate-qt
-            qt6Packages.qt6ct
             rclone
             ripgrep
             signal-desktop
             skim
             starship
             statix
-            swaybg
             tigervnc
             wineWowPackages.stableFull
-            wl-clipboard
             ymuse
             zathura
             zellij
