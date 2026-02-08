@@ -33,6 +33,7 @@
           inputs.self.modules.nixos.ssh
           inputs.self.modules.nixos.power
           inputs.self.modules.nixos.overclocking
+          inputs.self.modules.nixos.wireshark
           ./_disks.nix
         ];
 
@@ -80,7 +81,6 @@
           zsh.enable = true;
           firefox.enable = true;
           git.enable = true;
-          wireshark.enable = true;
           direnv = {
             enable = true;
             settings = {
@@ -159,7 +159,6 @@
             vulkan-tools
             wget
             wineWowPackages.stableFull
-            wireshark
             xorg.xrandr
             ymuse
             zathura
@@ -172,7 +171,7 @@
         users.users."matt" = {
           isNormalUser = true;
           initialPassword = "matt";
-          extraGroups = ["docker" "networkmanager" "wheel" "wireshark"];
+          extraGroups = ["docker" "networkmanager" "wheel"];
           shell = pkgs.zsh;
         };
 
