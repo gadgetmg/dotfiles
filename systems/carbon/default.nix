@@ -24,6 +24,7 @@
           inputs.self.nixosModules.wolf
           inputs.self.modules.nixos.secureboot
           inputs.self.modules.nixos.backups
+          inputs.self.modules.nixos.snapshots
           ./_disks.nix
         ];
 
@@ -67,24 +68,6 @@
 
         services = {
           btrfs.autoScrub.enable = true;
-          snapper = {
-            snapshotInterval = "minutely";
-            configs = let
-              defaults = {
-                FSTYPE = "btrfs";
-                TIMELINE_CREATE = true;
-                TIMELINE_CLEANUP = true;
-                TIMELINE_LIMIT_HOURLY = 48;
-                TIMELINE_LIMIT_DAILY = 7;
-              };
-            in {
-              root = defaults // {SUBVOLUME = "/";};
-              home = defaults // {SUBVOLUME = "/home";};
-              steam = defaults // {SUBVOLUME = "/opt/steam";};
-              heroic = defaults // {SUBVOLUME = "/opt/heroic";};
-              roms = defaults // {SUBVOLUME = "/opt/roms";};
-            };
-          };
           blueman.enable = true;
           caddy = {
             enable = true;
