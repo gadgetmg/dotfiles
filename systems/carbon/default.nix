@@ -26,6 +26,7 @@
           inputs.self.modules.nixos.llama
           inputs.self.modules.nixos.wolf
           inputs.self.modules.nixos.greetd
+          inputs.self.modules.nixos.teams
           ./_disks.nix
         ];
 
@@ -333,7 +334,6 @@
             starship
             statix
             swaybg
-            teams-for-linux
             tigervnc
             wineWowPackages.stableFull
             wl-clipboard
