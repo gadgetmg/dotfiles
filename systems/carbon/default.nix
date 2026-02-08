@@ -58,7 +58,6 @@
 
         services = {
           wolf.config.uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
-          blueman.enable = true;
           lact.enable = true;
           earlyoom.enable = true;
           logind.settings.Login = {
@@ -68,18 +67,6 @@
             IdleActionSec = 300;
           };
           openssh.enable = true;
-          pipewire.enable = true;
-          udisks2 = {
-            enable = true;
-            mountOnMedia = true;
-          };
-          printing.enable = true;
-          avahi = {
-            enable = true;
-            nssmdns4 = true;
-            openFirewall = true;
-          };
-          passSecretService.enable = true;
           resolved.enable = true;
         };
 
@@ -102,7 +89,6 @@
           nix-ld.enable = true;
           zsh.enable = true;
           firefox.enable = true;
-          gnupg.agent.enable = true;
           git.enable = true;
           wireshark.enable = true;
           direnv = {

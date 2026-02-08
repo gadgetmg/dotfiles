@@ -22,6 +22,7 @@
         };
       };
       nm-applet.enable = true;
+      gnupg.agent.enable = true;
     };
 
     fonts = {
@@ -35,7 +36,22 @@
       };
     };
 
-    services.gvfs.enable = true;
+    services = {
+      blueman.enable = true;
+      gvfs.enable = true;
+      pipewire.enable = true;
+      udisks2 = {
+        enable = true;
+        mountOnMedia = true;
+      };
+      printing.enable = true;
+      avahi = {
+        enable = true;
+        nssmdns4 = true;
+        openFirewall = true;
+      };
+      passSecretService.enable = true;
+    };
 
     systemd.user = {
       targets = {
