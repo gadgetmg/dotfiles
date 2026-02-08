@@ -35,6 +35,8 @@
       };
     };
 
+    services.gvfs.enable = true;
+
     systemd.user = {
       targets = {
         default.wants = [

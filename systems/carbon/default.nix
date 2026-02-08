@@ -29,6 +29,7 @@
           inputs.self.modules.nixos.libvirt
           inputs.self.modules.nixos.gaming
           inputs.self.modules.nixos.sessions
+          inputs.self.modules.nixos.colemak
           ./_disks.nix
         ];
 
@@ -57,11 +58,9 @@
 
         services = {
           wolf.config.uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
-          btrfs.autoScrub.enable = true;
           blueman.enable = true;
           lact.enable = true;
           earlyoom.enable = true;
-          gvfs.enable = true;
           logind.settings.Login = {
             HandlePowerKey = "ignore";
             HandlePowerKeyLongPress = "poweroff";
@@ -125,15 +124,9 @@
           interfaces.enp37s0.wakeOnLan.enable = true;
         };
 
-        console.keyMap = "colemak";
-
         time.timeZone = "America/New_York";
 
         environment = {
-          variables = {
-            XKB_DEFAULT_LAYOUT = "us";
-            XKB_DEFAULT_VARIANT = "colemak";
-          };
           localBinInPath = true;
           systemPackages = with pkgs; [
             bat
