@@ -24,17 +24,13 @@
     systemd.user = {
       targets = {
         default.wants = [
-          "mpd.service"
+          "mpd.socket"
+          "mpDris2.service"
         ];
         sway-session.wants = [
           "waybar.service"
           "mako.service"
           "foot-server.socket"
-        ];
-      };
-      services = {
-        mpd.wants = [
-          "mpDris2.service"
         ];
       };
     };
