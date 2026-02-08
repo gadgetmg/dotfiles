@@ -18,7 +18,6 @@
           inputs.nixos-hardware.nixosModules.common-gpu-amd
           inputs.nixos-hardware.nixosModules.common-pc
           inputs.nixos-hardware.nixosModules.common-pc-ssd
-          inputs.nixvirt.nixosModules.default
           inputs.self.modules.nixos.scx
           inputs.self.modules.nixos.secureboot
           inputs.self.modules.nixos.backups
@@ -27,6 +26,7 @@
           inputs.self.modules.nixos.wolf
           inputs.self.modules.nixos.greetd
           inputs.self.modules.nixos.teams
+          inputs.self.modules.nixos.libvirt
           ./_disks.nix
         ];
 
@@ -103,53 +103,6 @@
             enable = true;
             autoPrune.enable = true;
           };
-          libvirtd.enable = true;
-          libvirt = {
-            swtpm.enable = true;
-            connections."qemu:///system" = {
-              pools = [
-                {
-                  definition = inputs.nixvirt.lib.pool.writeXML {
-                    name = "default";
-                    uuid = "f0e6f7ac-1743-4a6d-a039-0ef1d72c78f7";
-                    type = "dir";
-                    target = {path = "/var/lib/libvirt/images";};
-                  };
-                  active = true;
-                }
-              ];
-              networks = [
-                {
-                  definition = inputs.nixvirt.lib.network.writeXML {
-                    name = "default";
-                    uuid = "704742fd-87cc-4391-aaf0-1ac32fb1a951";
-                    forward = {
-                      mode = "nat";
-                      nat = {
-                        port = {
-                          start = 1024;
-                          end = 65535;
-                        };
-                      };
-                    };
-                    bridge = {name = "virbr0";};
-                    mac = {address = "52:54:00:e3:f5:2d";};
-                    ip = {
-                      address = "192.168.74.1";
-                      netmask = "255.255.255.0";
-                      dhcp = {
-                        range = {
-                          start = "192.168.74.2";
-                          end = "192.168.74.254";
-                        };
-                      };
-                    };
-                  };
-                  active = true;
-                }
-              ];
-            };
-          };
         };
 
         systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
@@ -175,7 +128,6 @@
           gamescope.enable = true;
           git.enable = true;
           gamemode.enable = true;
-          virt-manager.enable = true;
           wireshark.enable = true;
           direnv = {
             enable = true;
@@ -238,7 +190,7 @@
           openssh.authorizedKeys.keys = [
             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
           ];
-          extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode"];
+          extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "gamemode"];
           shell = pkgs.zsh;
           packages = with pkgs; [
             bat
