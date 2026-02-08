@@ -25,6 +25,7 @@
           inputs.self.modules.nixos.snapshots
           inputs.self.modules.nixos.llama
           inputs.self.modules.nixos.wolf
+          inputs.self.modules.nixos.greetd
           ./_disks.nix
         ];
 
@@ -66,27 +67,6 @@
           wolf.config.uuid = "00a6a114-f021-4f76-bb7a-7d3e5ce35b5b";
           btrfs.autoScrub.enable = true;
           blueman.enable = true;
-          greetd = {
-            enable = true;
-            settings = {
-              default_session = let
-                greetd-sway-config = pkgs.writeText "greetd-sway-config" ''
-                  output 'HP Inc. HP E243d CNC103241L' disable
-                  input type:pointer {
-                      accel_profile flat
-                      pointer_accel 0
-                  }
-                  seat * hide_cursor when-typing enable
-                  exec ${lib.getExe pkgs.swayidle} -w \
-                    timeout 30 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
-                    idlehint 30
-                  exec ${lib.getExe config.programs.regreet.package}; swaymsg exit
-                '';
-              in {
-                command = "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.sway} -c ${greetd-sway-config}";
-              };
-            };
-          };
           lact.enable = true;
           earlyoom.enable = true;
           gvfs.enable = true;
@@ -226,25 +206,6 @@
             };
           };
           gamescope.enable = true;
-          regreet = {
-            enable = true;
-            settings = {
-              GTK.application_prefer_dark_theme = true;
-              widget.clock.format = "%I:%M%p";
-            };
-            theme = {
-              name = "catppuccin-mocha-lavender-standard";
-              package = pkgs.catppuccin-gtk;
-            };
-            font = {
-              name = "Noto Sans";
-              package = pkgs.noto-fonts;
-            };
-            iconTheme = {
-              name = "Papirus-Dark";
-              package = pkgs.papirus-icon-theme;
-            };
-          };
           git.enable = true;
           gamemode.enable = true;
           virt-manager.enable = true;
