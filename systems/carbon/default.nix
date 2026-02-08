@@ -11,8 +11,6 @@
           inputs.self.modules.nixos.common
           inputs.self.modules.nixos.sway
           inputs.disko.nixosModules.disko
-          inputs.nix-gaming.nixosModules.pipewireLowLatency
-          inputs.nix-gaming.nixosModules.platformOptimizations
           inputs.nixos-hardware.nixosModules.common-cpu-amd
           inputs.nixos-hardware.nixosModules.common-cpu-amd-pstate
           inputs.nixos-hardware.nixosModules.common-gpu-amd
@@ -27,6 +25,7 @@
           inputs.self.modules.nixos.greetd
           inputs.self.modules.nixos.teams
           inputs.self.modules.nixos.libvirt
+          inputs.self.modules.nixos.gaming
           ./_disks.nix
         ];
 
@@ -68,10 +67,7 @@
             IdleActionSec = 300;
           };
           openssh.enable = true;
-          pipewire = {
-            enable = true;
-            lowLatency.enable = true;
-          };
+          pipewire.enable = true;
           udisks2 = {
             enable = true;
             mountOnMedia = true;
@@ -112,22 +108,7 @@
           zsh.enable = true;
           firefox.enable = true;
           gnupg.agent.enable = true;
-          steam = {
-            enable = true;
-            extest.enable = true;
-            platformOptimizations.enable = true;
-            protontricks.enable = true;
-            remotePlay.openFirewall = true;
-            localNetworkGameTransfers.openFirewall = true;
-            extraPackages = with pkgs; [gamescope];
-            gamescopeSession = {
-              enable = true;
-              args = ["--adaptive-sync"];
-            };
-          };
-          gamescope.enable = true;
           git.enable = true;
-          gamemode.enable = true;
           wireshark.enable = true;
           direnv = {
             enable = true;
@@ -190,7 +171,7 @@
           openssh.authorizedKeys.keys = [
             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
           ];
-          extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "gamemode"];
+          extraGroups = ["docker" "networkmanager" "wheel" "wireshark"];
           shell = pkgs.zsh;
           packages = with pkgs; [
             bat
@@ -207,7 +188,6 @@
             gcc
             gh
             go
-            heroic
             jc
             kdiskmark
             lazygit
@@ -223,8 +203,6 @@
             onedrive
             onedrivegui
             opencode
-            protonup-qt
-            protonvpn-gui
             python3
             qalculate-qt
             rclone
