@@ -30,6 +30,7 @@
           inputs.self.modules.nixos.gaming
           inputs.self.modules.nixos.sessions
           inputs.self.modules.nixos.colemak
+          inputs.self.modules.nixos.ssh
           ./_disks.nix
         ];
 
@@ -66,7 +67,6 @@
             IdleAction = "suspend";
             IdleActionSec = 300;
           };
-          openssh.enable = true;
           resolved.enable = true;
         };
 
@@ -180,9 +180,6 @@
         users.users."matt" = {
           isNormalUser = true;
           initialPassword = "matt";
-          openssh.authorizedKeys.keys = [
-            "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
-          ];
           extraGroups = ["docker" "networkmanager" "wheel" "wireshark"];
           shell = pkgs.zsh;
         };
