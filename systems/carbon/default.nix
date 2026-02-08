@@ -23,6 +23,7 @@
           inputs.self.modules.nixos.scx
           inputs.self.nixosModules.wolf
           inputs.self.modules.nixos.secureboot
+          inputs.self.modules.nixos.backups
           ./_disks.nix
         ];
 
@@ -37,7 +38,6 @@
               group = "caddy";
               mode = "440";
             };
-            "restic.env" = {};
           };
         };
 
@@ -84,25 +84,6 @@
               heroic = defaults // {SUBVOLUME = "/opt/heroic";};
               roms = defaults // {SUBVOLUME = "/opt/roms";};
             };
-          };
-          restic.backups.nas = {
-            timerConfig = {
-              OnCalendar = "05:00";
-              Persistent = true;
-              WakeSystem = true;
-            };
-            runCheck = true;
-            repository = "s3:https://truenas.lan.seigra.net:9000/restic/carbon";
-            paths = [
-              "/"
-              "/home"
-              "/opt/steam/steamapps/compatdata"
-              "/opt/roms"
-            ];
-            extraBackupArgs = ["--verbose" "--one-file-system"];
-            inhibitsSleep = true;
-            environmentFile = "/run/secrets/restic.env";
-            pruneOpts = ["--keep-daily 7"];
           };
           blueman.enable = true;
           caddy = {
