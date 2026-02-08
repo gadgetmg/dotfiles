@@ -34,13 +34,13 @@
           inputs.self.modules.nixos.overclocking
           inputs.self.modules.nixos.wireshark
           inputs.self.modules.nixos.openweathermap
+          inputs.self.modules.nixos.zen3
           ./_disks.nix
         ];
 
         boot = {
           initrd.systemd.enable = true;
           kernelModules = ["nct6775"];
-          kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
         };
 
         hardware = {
