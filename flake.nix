@@ -60,5 +60,5 @@
     nixos-hardware.url = "github:NixOS/nixos-hardware";
   };
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./systems ./modules]);
+  outputs = inputs: inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./modules]);
 }

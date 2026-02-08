@@ -1,5 +1,8 @@
-{
+{inputs, ...}: {
   flake.modules.nixos.shell = {pkgs, ...}: {
+    imports = [
+      inputs.nix-index-database.nixosModules.nix-index
+    ];
     programs = {
       nix-index-database.comma.enable = true;
       zsh.enable = true;
@@ -34,6 +37,7 @@
         jc
         jq
         lazygit
+        llm
         lm_sensors
         ncmpcpp
         neovim
@@ -41,6 +45,7 @@
         opencode
         openssl
         pass
+        python3
         rclone
         ripgrep
         skim

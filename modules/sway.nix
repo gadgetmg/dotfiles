@@ -55,10 +55,6 @@
 
     systemd.user = {
       targets = {
-        default.wants = [
-          "mpd.socket"
-          "mpDris2.service"
-        ];
         sway-session.wants = [
           "waybar.service"
           "mako.service"
@@ -81,14 +77,13 @@
       grim
       kanshi
       mako
-      mpd
-      mpdris2
       nemo-with-extensions
       networkmanagerapplet
       papirus-icon-theme
       pavucontrol
       playerctl
       pulseaudio
+      qalculate-qt
       qt6Packages.qt6ct
       sway
       swaybg
@@ -97,6 +92,7 @@
       udiskie
       waybar
       wl-clipboard
+      xorg.xrandr
     ];
   };
 }
