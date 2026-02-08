@@ -21,7 +21,7 @@
           inputs.nixos-hardware.nixosModules.common-pc-ssd
           inputs.nixvirt.nixosModules.default
           inputs.self.nixosModules.docker-idle-inhibitor
-          inputs.self.nixosModules.scx-loader
+          inputs.self.modules.nixos.scx
           inputs.self.nixosModules.wolf
           ./_disks.nix
         ];
@@ -153,10 +153,6 @@
                 command = "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.sway} -c ${greetd-sway-config}";
               };
             };
-          };
-          scx_loader = {
-            enable = true;
-            default_sched = "scx_cake";
           };
           lact.enable = true;
           earlyoom.enable = true;
@@ -417,7 +413,6 @@
           overlays = [
             inputs.nix-cachyos-kernel.overlays.pinned
             inputs.self.overlays.kernel-clang
-            inputs.self.overlays.scx
           ];
         };
 
@@ -601,7 +596,7 @@
           openssh.authorizedKeys.keys = [
             "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAyCuCnOoArBy2Sp1Rx8jOJRGA8436eYt4tpKUcsGmwx gadgetmg@pm.me"
           ];
-          extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode" "scx"];
+          extraGroups = ["docker" "networkmanager" "wheel" "wireshark" "libvirtd" "gamemode"];
           shell = pkgs.zsh;
           packages = with pkgs; [
             ala-lape
