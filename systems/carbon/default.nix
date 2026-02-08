@@ -9,7 +9,6 @@
       }: {
         imports = [
           inputs.disko.nixosModules.disko
-          inputs.sops-nix.nixosModules.sops
           inputs.nix-index-database.nixosModules.nix-index
           inputs.nixos-hardware.nixosModules.common-cpu-amd
           inputs.nixos-hardware.nixosModules.common-cpu-amd-pstate
@@ -34,18 +33,9 @@
           inputs.self.modules.nixos.power
           inputs.self.modules.nixos.overclocking
           inputs.self.modules.nixos.wireshark
+          inputs.self.modules.nixos.openweathermap
           ./_disks.nix
         ];
-
-        sops = {
-          defaultSopsFile = ./secrets.yaml;
-          secrets = {
-            "openweathermap.env" = {
-              group = "users";
-              mode = "440";
-            };
-          };
-        };
 
         boot = {
           initrd.systemd.enable = true;
