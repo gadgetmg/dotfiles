@@ -5,7 +5,7 @@
       overlays = [
         inputs.nix-cachyos-kernel.overlays.pinned
         inputs.ala-lape.overlays.default
-        inputs.self.overlays.kernel-clang
+        inputs.self.overlays.kernel-lto-patches
         inputs.self.overlays.overrides
         inputs.self.overlays.upstream
       ];
