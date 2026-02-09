@@ -1,9 +1,5 @@
-{inputs, ...}: {
+{
   flake.modules.nixos.scx = {pkgs, ...}: {
-    nixpkgs.overlays = [
-      inputs.self.overlays.scx
-    ];
-
     services.scx-loader = {
       enable = true;
       settings.default_sched = "scx_cake";
