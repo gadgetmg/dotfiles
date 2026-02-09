@@ -4,7 +4,6 @@
       scx =
         prev.scx
         // {
-          loader = self'.packages.scx-loader;
           rustscheds = prev.scx.rustscheds.overrideAttrs (finalAttrs: prevAttrs: {
             patches =
               (prevAttrs.patches or [])
@@ -23,6 +22,15 @@
                 outputHash = "sha256-OAYpelpGxU5EyCb4QG0f8EPXcP+EblhFmDXw0I3BxTQ=";
               };
             });
+          });
+          loader = prev.scx.loader.overrideAttrs (finalAttrs: prevAttrs: {
+            patches = [
+              # Adds support for scx_cake scheduler
+              (final.fetchpatch {
+                url = "https://github.com/sched-ext/scx-loader/commit/28b682ab5dfa5750fec89023c5abe6a9433709a7.diff";
+                hash = "sha256-e7hZIkoBlRheP1lIojepNfZegC1IASbIbvc5vHi7Ltg=";
+              })
+            ];
           });
         };
     });

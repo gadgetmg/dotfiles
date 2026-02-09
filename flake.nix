@@ -7,6 +7,12 @@
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     trunk.url = "github:nixos/nixpkgs/master";
 
+    nixpkgs-patcher.url = "github:gepbird/nixpkgs-patcher";
+    nixpkgs-patch-scx-loader = {
+      url = "https://github.com/NixOS/nixpkgs/pull/483360.diff";
+      flake = false;
+    };
+
     disko = {
       url = "github:nix-community/disko/v1.11.0";
       inputs.nixpkgs.follows = "nixpkgs";
