@@ -30,6 +30,7 @@
       documents
       vnc
       discord
+      element
       signal
       onedrive
       benchmarks
