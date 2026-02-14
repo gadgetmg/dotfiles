@@ -3,6 +3,7 @@
     nixpkgsPatcher = {inherit inputs;};
     modules = with inputs.self.modules.nixos; [
       common
+      kmscon
       sway
       scx
       secureboot
