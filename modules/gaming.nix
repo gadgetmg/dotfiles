@@ -7,7 +7,10 @@
 
     boot.kernelParams = ["mitigations=off"];
 
-    services.pipewire.lowLatency.enable = true;
+    services.pipewire.lowLatency = {
+      enable = true;
+      quantum = 80;
+    };
 
     security.rtkit.enable = true;
 
