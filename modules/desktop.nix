@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.desktop = {
+  flake.modules.nixos.desktop = _: {
     boot.initrd.systemd.enable = true;
 
     hardware = {

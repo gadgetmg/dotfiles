@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake.modules.nixos.carbon = {
+  flake.modules.nixos.carbon = _: {
     imports = [
       inputs.self.modules.nixos.msi-b450i-gaming-plus-ac
       inputs.self.modules.nixos.zen3

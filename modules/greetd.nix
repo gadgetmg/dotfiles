@@ -13,15 +13,15 @@
       };
       theme = {
         name = "catppuccin-mocha-lavender-standard";
-        package = pkgs.catppuccin-gtk;
+        package = with pkgs; catppuccin-gtk;
       };
       font = {
         name = "Noto Sans";
-        package = pkgs.noto-fonts;
+        package = with pkgs; noto-fonts;
       };
       iconTheme = {
         name = "Papirus-Dark";
-        package = pkgs.papirus-icon-theme;
+        package = with pkgs; papirus-icon-theme;
       };
     };
 
@@ -36,13 +36,13 @@
                 pointer_accel 0
             }
             seat * hide_cursor when-typing enable
-            exec ${lib.getExe pkgs.swayidle} -w \
+            exec ${lib.getExe (with pkgs; swayidle)} -w \
               timeout 30 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
               idlehint 30
             exec ${lib.getExe config.programs.regreet.package}; swaymsg exit
           '';
         in {
-          command = "${pkgs.dbus}/bin/dbus-run-session ${lib.getExe pkgs.sway} -c ${greetd-sway-config}";
+          command = "${(with pkgs; dbus)}/bin/dbus-run-session ${lib.getExe (with pkgs; sway)} -c ${greetd-sway-config}";
         };
       };
     };

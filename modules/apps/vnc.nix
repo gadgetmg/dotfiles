@@ -1,5 +1,5 @@
 {
   flake.modules.nixos.vnc = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.tigervnc];
+    environment.systemPackages = with pkgs; [tigervnc];
   };
 }

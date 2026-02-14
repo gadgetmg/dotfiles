@@ -17,7 +17,7 @@
       };
     in {
       inherit (trunk) caido onedrive;
-      inherit (unstable) lact opencode llama-cpp llama-cpp-vulkan llama-swap;
+      inherit (unstable) lact opencode llama-cpp llama-cpp-vulkan llama-swap nixd;
       zen = inputs'.zen-browser.packages.default;
     });
 }

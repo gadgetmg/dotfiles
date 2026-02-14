@@ -17,7 +17,7 @@
         # Use docker CLI to list running containers with label
         has_label() {
           # Returns success (0) when at least one container matches
-          ${getExe pkgs.docker} ps --filter "label=$LABEL" --format '{{.ID}}' | grep -q . || return 1
+          ${getExe (with pkgs; docker)} ps --filter "label=$LABEL" --format '{{.ID}}' | grep -q . || return 1
         }
 
         inhibit_pid=0

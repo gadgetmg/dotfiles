@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.scx = {pkgs, ...}: {
+  flake.modules.nixos.scx = _: {
     services.scx-loader = {
       enable = true;
       settings.default_sched = "scx_cake";

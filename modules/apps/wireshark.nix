@@ -1,7 +1,7 @@
 {
   flake.modules.nixos.wireshark = {pkgs, ...}: {
     programs.wireshark.enable = true;
-    environment.systemPackages = [pkgs.wireshark];
+    environment.systemPackages = with pkgs; [wireshark];
     users.users."matt".extraGroups = ["wireshark"];
   };
 }

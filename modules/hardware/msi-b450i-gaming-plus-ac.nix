@@ -1,5 +1,5 @@
 {inputs, ...}: {
-  flake.modules.nixos.msi-b450i-gaming-plus-ac = {
+  flake.modules.nixos.msi-b450i-gaming-plus-ac = _: {
     imports = [
       inputs.nixos-hardware.nixosModules.common-pc
     ];

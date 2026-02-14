@@ -1,5 +1,5 @@
 {
   flake.modules.nixos.chezmoi = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.chezmoi];
+    environment.systemPackages = with pkgs; [chezmoi];
   };
 }

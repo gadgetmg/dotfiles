@@ -1,5 +1,5 @@
 {
   flake.modules.nixos.obsidian = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.obsidian];
+    environment.systemPackages = with pkgs; [obsidian];
   };
 }

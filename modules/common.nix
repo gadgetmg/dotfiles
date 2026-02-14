@@ -1,17 +1,6 @@
-{inputs, ...}: {
+{withSystem, ...}: {
   flake.modules.nixos.common = {config, ...}: {
-    nixpkgs = {
-      config.allowUnfree = true;
-      overlays = [
-        inputs.nix-cachyos-kernel.overlays.pinned
-        inputs.ala-lape.overlays.default
-        inputs.self.overlays.kernel-lto-patches
-        inputs.self.overlays.overrides
-        inputs.self.overlays.scx
-        inputs.self.overlays.upstream
-      ];
-    };
-
+    nixpkgs.pkgs = withSystem config.nixpkgs.hostPlatform.system ({pkgs, ...}: pkgs);
     nix = {
       channel.enable = false;
       settings = {

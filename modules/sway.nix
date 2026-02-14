@@ -17,7 +17,7 @@
           sway = {
             prettyName = "Sway";
             comment = "Sway compositor managed by UWSM";
-            binPath = lib.getExe' pkgs.sway "sway";
+            binPath = lib.getExe' (with pkgs; sway) "sway";
           };
         };
       };

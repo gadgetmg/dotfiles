@@ -312,8 +312,8 @@
         }."${backend}";
       dockerCommand =
         {
-          "docker" = "${pkgs.docker}/bin/docker";
-          "podman" = "${pkgs.podman}/bin/podman";
+          "docker" = "${with pkgs; docker}/bin/docker";
+          "podman" = "${with pkgs; podman}/bin/podman";
         }."${backend}";
       baseConfig = pkgs.writeTextFile {
         name = "wolf-base-config";
@@ -381,7 +381,7 @@
           allowedUDPPorts = [47999 48010 48100 48200];
         };
         system.activationScripts.wolfConfig.text = ''
-          ${pkgs.yq}/bin/tomlq -t -s '.[0] * .[1]' ${cfg.configDir}/config.toml $(cat ${baseConfig}) > ${cfg.configDir}/config.toml.new
+          ${with pkgs; yq}/bin/tomlq -t -s '.[0] * .[1]' ${cfg.configDir}/config.toml $(cat ${baseConfig}) > ${cfg.configDir}/config.toml.new
           mv ${cfg.configDir}/config.toml.new ${cfg.configDir}/config.toml
         '';
       };

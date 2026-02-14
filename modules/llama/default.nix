@@ -18,7 +18,7 @@
       llama-swap = {
         enable = true;
         settings = let
-          llama-server = lib.getExe' pkgs.llama-cpp-vulkan "llama-server";
+          llama-server = lib.getExe' (with pkgs; llama-cpp-vulkan) "llama-server";
         in {
           healthCheckTimeout = 1200;
           macros.llama-server = "${llama-server} --device Vulkan0 --port \${PORT} --jinja";
@@ -33,7 +33,7 @@
 
       caddy = {
         enable = true;
-        package = pkgs.caddy.withPlugins {
+        package = with pkgs; caddy.withPlugins {
           plugins = ["github.com/caddy-dns/cloudflare@v0.2.2"];
           hash = "sha256-dnhEjopeA0UiI+XVYHYpsjcEI6Y1Hacbi28hVKYQURg=";
         };

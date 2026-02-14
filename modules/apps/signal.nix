@@ -1,5 +1,5 @@
 {
   flake.modules.nixos.signal = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.signal-desktop];
+    environment.systemPackages = with pkgs; [signal-desktop];
   };
 }

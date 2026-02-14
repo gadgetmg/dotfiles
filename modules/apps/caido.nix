@@ -1,5 +1,5 @@
 {
   flake.modules.nixos.caido = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.caido];
+    environment.systemPackages = with pkgs; [caido];
   };
 }

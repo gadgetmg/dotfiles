@@ -1,9 +1,5 @@
 {
-  perSystem = {
-    config,
-    pkgs,
-    ...
-  }: {
+  perSystem = {pkgs, ...}: {
     devShells.default = pkgs.mkShell {
       packages = with pkgs; [
         nixos-anywhere
@@ -11,6 +7,7 @@
         ssh-to-age
         age
         just
+        nixd
       ];
     };
   };

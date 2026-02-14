@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.docker = {
+  flake.modules.nixos.docker = _: {
     virtualisation.docker = {
       enable = true;
       autoPrune.enable = true;

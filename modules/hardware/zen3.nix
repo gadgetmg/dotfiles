@@ -5,7 +5,7 @@
       inputs.nixos-hardware.nixosModules.common-cpu-amd-pstate
     ];
 
-    boot.kernelPackages = pkgs.cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
+    boot.kernelPackages = with pkgs; cachyosKernels.linuxPackages-cachyos-latest-lto-x86_64-v3;
     hardware.cpu.amd.ryzen-smu.enable = true;
   };
 }

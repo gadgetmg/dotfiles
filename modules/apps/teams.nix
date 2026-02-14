@@ -1,6 +1,6 @@
 {
   flake.modules.nixos.teams = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.teams-for-linux];
+    environment.systemPackages = with pkgs; [teams-for-linux];
 
     services.pipewire.extraConfig.pipewire-pulse = {
       "block-source-volume" = {

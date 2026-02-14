@@ -1,5 +1,5 @@
 {
   flake.modules.nixos.wine = {pkgs, ...}: {
-    environment.systemPackages = [pkgs.wineWowPackages.stableFull];
+    environment.systemPackages = with pkgs; [wineWowPackages.stableFull];
   };
 }
