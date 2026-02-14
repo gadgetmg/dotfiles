@@ -7,7 +7,6 @@
         ssh-to-age
         age
         just
-        nixd
       ];
     };
   };

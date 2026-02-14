@@ -9,6 +9,7 @@
       lua5_1
       luarocks
       neovim
+      nixd
       nodejs
       statix
     ];
