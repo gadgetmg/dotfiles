@@ -31,7 +31,7 @@
       vnc
       discord
       signal
-      onedrive
+      #onedrive
       benchmarks
       wine
       docker
