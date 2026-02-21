@@ -27,6 +27,8 @@
       caido
       chezmoi
       browsers
+      mail
+      obsidian
       music
       documents
       vnc
