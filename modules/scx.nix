@@ -1,8 +1,9 @@
 {
-  flake.modules.nixos.scx = _: {
+  flake.modules.nixos.scx = {pkgs, ...}: {
     services.scx-loader = {
       enable = true;
       settings.default_sched = "scx_cake";
+      package = with pkgs; scx.loader;
     };
 
     # Polkit rule for "scx" group to manage schedulers
