@@ -24,9 +24,9 @@ environments across NixOS and non-NixOS systems.
   runs the CachyOS kernel, a customized kernel tuned for performance and
   responsiveness via the
   [nix-cachyos-kernel flake](https://github.com/xddxdd/nix-cachyos-kernel).
-- **[sched_ext](https://github.com/sched-ext/scx)** - My configuration adds a
-  [NixOS module for the `scx_loader` service](https://github.com/NixOS/nixpkgs/pull/445224)
-  and patches in the experimental, gaming-focused
+- **[sched_ext](https://github.com/sched-ext/scx)** - My configuration adds the
+  [NixOS module for the `scx_loader` service](https://github.com/NixOS/nixpkgs/pull/483360)
+  and configures the experimental, gaming-focused
   [`scx_cake` scheduler](https://github.com/sched-ext/scx/pull/3202).
 - **[llama-swap](https://github.com/mostlygeek/llama-swap)** - My desktop hosts
   an OpenAI API compatible service for my network, powered by llama-swap and

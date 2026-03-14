@@ -13,7 +13,6 @@
         inputs.ala-lape.overlays.default
         inputs.self.overlays.kernel-lto-patches
         inputs.self.overlays.overrides
-        inputs.self.overlays.scx
         inputs.self.overlays.upstream
       ];
     };
