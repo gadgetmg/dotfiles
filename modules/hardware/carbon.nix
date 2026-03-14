@@ -10,7 +10,10 @@
     nixpkgs.hostPlatform = "x86_64-linux";
     networking = {
       hostName = "carbon";
-      interfaces.enp37s0.wakeOnLan.enable = true;
+      interfaces = {
+        enp37s0.wakeOnLan.enable = true;
+        enp44s0.wakeOnLan.enable = true;
+      };
     };
     time.timeZone = "America/New_York";
     system.stateVersion = "24.11";
