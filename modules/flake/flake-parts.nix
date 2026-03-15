@@ -14,6 +14,7 @@
         inputs.self.overlays.kernel-lto-patches
         inputs.self.overlays.overrides
         inputs.self.overlays.upstream
+        inputs.self.overlays.default
       ];
     };
   };
