@@ -2,7 +2,10 @@
   flake.modules.nixos.scx = {pkgs, ...}: {
     services.scx-loader = {
       enable = true;
-      settings.default_sched = "scx_cake";
+      settings = {
+        default_sched = "scx_bpfland";
+        default_mode = "LowLatency";
+      };
       package = with pkgs; scx.loader;
     };
 
