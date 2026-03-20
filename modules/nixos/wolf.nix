@@ -347,7 +347,12 @@
         };
         systemd.services.wolf = {
           description = "Games on Whales Wolf";
+          after = ["network-online.target"];
+          requires = ["network-online.target"];
+          wantedBy = ["multi-user.target"];
           serviceConfig = {
+            Restart = "always";
+            RestartSec = "5s";
             # necessary as wolf is sometimes unable to connect to WolfPulseAudio after a restart
             ExecStartPre = "-${dockerCommand} rm --force WolfPulseAudio";
           };
