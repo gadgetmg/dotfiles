@@ -5,7 +5,6 @@
       inputs.self.modules.nixos.zen3
       inputs.self.modules.nixos.rdna4
       inputs.self.modules.nixos.ssd
-      inputs.self.modules.nixos.atlantic
       inputs.disko.nixosModules.disko
     ];
     nixpkgs.hostPlatform = "x86_64-linux";
