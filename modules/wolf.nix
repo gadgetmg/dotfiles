@@ -21,13 +21,13 @@
           hostname = config.networking.hostName;
           gstreamer = {
             audio = {
-              default_audio_params = "queue max-size-buffers=3 leaky=downstream ! audiorate ! audioconvert";
+              default_audio_params = "queue max-size-buffers=1 leaky=downstream ! audiorate ! audioconvert";
               default_opus_encoder = "opusenc bitrate={bitrate} bitrate-type=cbr frame-size={packet_duration} bandwidth=fullband audio-type=restricted-lowdelay max-payload-size=1400";
               default_sink = ''
                 rtpmoonlightpay_audio name=moonlight_pay packet_duration={packet_duration} encrypt={encrypt} aes_key="{aes_key}" aes_iv="{aes_iv}" !
                 appsink name=wolf_udp_sink
               '';
-              default_source = "interpipesrc name=interpipesrc_{}_audio listen-to={session_id}_audio is-live=true stream-sync=restart-ts max-bytes=0 max-buffers=3 block=false";
+              default_source = "interpipesrc name=interpipesrc_{}_audio listen-to={session_id}_audio is-live=true stream-sync=restart-ts max-bytes=0 max-buffers=1 block=false";
             };
             video = {
               default_sink = ''
