@@ -31,6 +31,7 @@
       obsidian
       music
       documents
+      images
       vnc
       discord
       element
