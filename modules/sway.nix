@@ -54,6 +54,27 @@
     };
 
     systemd.user = {
+      services = {
+        windows10spotlight-background = {
+          description = "Download and apply Windows 10 Spotlight background to Sway";
+          after = ["sway-session.target"];
+          wantedBy = ["sway-session.target"];
+          serviceConfig = {
+            Type = "oneshot";
+            ExecStart = lib.getExe pkgs.local.windows10spotlight-background;
+          };
+        };
+      };
+      timers = {
+        windows10spotlight-background = {
+          description = "Download and apply Windows 10 Spotlight background to Sway";
+          timerConfig = {
+            OnCalendar = "hourly";
+            Unit = "windows10spotlight-background.service";
+            Persistent = true;
+          };
+        };
+      };
       targets = {
         sway-session.wants = [
           "waybar.service"
