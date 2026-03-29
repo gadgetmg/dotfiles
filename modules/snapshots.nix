@@ -15,7 +15,7 @@
           TIMELINE_LIMIT_DAILY = 7;
         };
         mkIfEnabled = name: mount:
-          lib.optionalAttrs config.fileSystems.${mount}.enable
+          lib.optionalAttrs (config.fileSystems.${mount}.enable or false)
           {
             ${name} = defaults // {SUBVOLUME = mount;};
           };

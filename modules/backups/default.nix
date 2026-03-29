@@ -22,8 +22,8 @@
       repository = "s3:https://truenas.lan.seigra.net:9000/restic/${config.networking.hostName}";
       paths =
         ["/" "/home"]
-        ++ lib.optional config.fileSystems."/opt/steam".enable "/opt/steam/steamapps/compatdata"
-        ++ lib.optional config.fileSystems."/opt/roms".enable "/opt/roms";
+        ++ lib.optional (config.fileSystems."/opt/steam".enable or false) "/opt/steam/steamapps/compatdata"
+        ++ lib.optional (config.fileSystems."/opt/roms".enable or false) "/opt/roms";
       extraBackupArgs = ["--verbose" "--one-file-system"];
       inhibitsSleep = true;
       environmentFile = "/run/secrets/restic.env";
