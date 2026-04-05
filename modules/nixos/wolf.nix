@@ -10,6 +10,16 @@
   in {
     options.services.wolf = with lib; {
       enable = mkEnableOption "Enable Games on Whales Wolf";
+      image = mkOption {
+        type = types.str;
+        default = "ghcr.io/games-on-whales/wolf:stable";
+        description = "Container image for Wolf";
+      };
+      pull = mkOption {
+        type = types.str;
+        default = "always";
+        description = "Image pull policy for Wolf container";
+      };
       stateDir = mkOption {
         type = types.str;
         default = "/var/lib/wolf";
@@ -324,9 +334,8 @@
         virtualisation.oci-containers = {
           backend = "docker"; # currently, wolf-ui crashes when run under podman
           containers."wolf" = {
+            inherit (cfg) image pull;
             serviceName = "wolf";
-            image = "ghcr.io/games-on-whales/wolf:stable";
-            pull = "always";
             networks = ["host"];
             devices = [
               "/dev/dri:/dev/dri:rwm"
