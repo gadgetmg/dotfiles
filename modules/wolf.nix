@@ -96,6 +96,7 @@
                       "WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock"
                       "WOLF_UI_AUTOUPDATE=False"
                       "LOGLEVEL=INFO"
+                      "TZ=America/New_York"
                     ];
                     image = "ghcr.io/games-on-whales/wolf-ui:main";
                     mounts = [
@@ -131,6 +132,7 @@
                     env = [
                       "RUN_SWAY=1"
                       "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
+                      "TZ=America/New_York"
                     ];
                     image = "ghcr.io/games-on-whales/retroarch:edge";
                     mounts = ["/opt/roms:/mnt:ro"];
@@ -157,7 +159,9 @@
                       }
                     '';
                     devices = [];
-                    env = [];
+                    env = [
+                      "TZ=America/New_York"
+                    ];
                     image = "ghcr.io/gadgetmg/steam:sway";
                     mounts = ["/opt/steam/steamapps:/home/retro/.local/share/Steam/steamapps:rw"];
                     name = "WolfSteam";
@@ -186,6 +190,7 @@
                     env = [
                       "RUN_SWAY=1"
                       "GOW_REQUIRED_DEVICES=/dev/input/* /dev/dri/* /dev/nvidia*"
+                      "TZ=America/New_York"
                     ];
                     image = "ghcr.io/games-on-whales/heroic-games-launcher:edge";
                     mounts = ["/opt/heroic:/home/retro/Games/Heroic:rw"];
