@@ -15,6 +15,11 @@
         default = "ghcr.io/games-on-whales/wolf:stable";
         description = "Container image for Wolf";
       };
+      pulseImage = mkOption {
+        type = types.str;
+        default = "ghcr.io/games-on-whales/pulseaudio:master";
+        description = "Container image for Wolf PulseAudio server";
+      };
       pull = mkOption {
         type = types.str;
         default = "always";
@@ -352,6 +357,9 @@
             extraOptions = [
               "--device-cgroup-rule=c 13:* rmw"
             ];
+            environment = {
+              WOLF_PULSE_IMAGE = cfg.pulseImage;
+            };
           };
         };
         systemd.services.wolf = {
