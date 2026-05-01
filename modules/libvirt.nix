@@ -1,7 +1,7 @@
 {inputs, ...}: {
   flake.modules.nixos.libvirt = {
     config,
-    lib,
+    pkgs,
     ...
   }: let
     hosts = {
@@ -29,6 +29,7 @@
       inputs.nixvirt.nixosModules.default
     ];
     virtualisation = {
+      libvirtd.qemu.vhostUserPackages = [pkgs.virtiofsd];
       libvirtd.enable = true;
       libvirt.swtpm.enable = true;
     };
