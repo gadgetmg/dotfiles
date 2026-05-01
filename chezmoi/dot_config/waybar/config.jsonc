@@ -20,6 +20,7 @@
   "modules-right": [
     "mpris",
     "group/hardware",
+    "sway/language",
     "tray",
     "idle_inhibitor",
     "wireplumber#source",
@@ -97,6 +98,11 @@
     "all-outputs": false,
     "disable-scroll": true,
     "format": "{name}",
+  },
+
+  "sway/language": {
+    "format": "{long}",
+    "on-click": "swaymsg input type:keyboard xkb_switch_layout next",
   },
 
   "wireplumber": {
