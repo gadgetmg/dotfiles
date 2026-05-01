@@ -1,18 +1,13 @@
 {
   inputs = {
     flake-parts.url = "github:hercules-ci/flake-parts";
+    flake-input-patcher.url = "github:jfly/flake-input-patcher";
     import-tree.url = "github:vic/import-tree";
     pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     trunk.url = "github:nixos/nixpkgs/master";
-
-    nixpkgs-patcher.url = "github:gepbird/nixpkgs-patcher";
-    nixpkgs-patch-scx-loader = {
-      url = "https://github.com/NixOS/nixpkgs/pull/483360.diff";
-      flake = false;
-    };
 
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
@@ -63,5 +58,20 @@
     };
   };
 
-  outputs = inputs: inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./modules]);
+  outputs = inputs': let
+    inherit (inputs'.flake-input-patcher.lib.x86_64-linux) patch fetchpatch;
+    inputs = patch inputs' {
+      nixpkgs.patches = [
+        (fetchpatch {
+          name = "nixos/scx-loader: init scx-loader at 1.0.19";
+          url = "https://github.com/NixOS/nixpkgs/pull/483360.diff";
+          excludes = [
+            "nixos/doc/manual/release-notes/rl-2605.section.md"
+          ];
+          hash = "sha256-LAsOKXgDSV+aak8iW9oMJI4221RGCt4k/7e7AmsbSNg=";
+        })
+      ];
+    };
+  in
+    inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./modules]);
 }

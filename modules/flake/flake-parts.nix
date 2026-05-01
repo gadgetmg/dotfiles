@@ -2,7 +2,7 @@
   imports = [inputs.flake-parts.flakeModules.modules];
   debug = true;
   perSystem = {system, ...}: {
-    _module.args.pkgs = import (inputs.nixpkgs-patcher.lib.patchNixpkgs {inherit inputs system;}) {
+    _module.args.pkgs = import inputs.nixpkgs {
       inherit system;
       config = {
         allowUnfree = true;

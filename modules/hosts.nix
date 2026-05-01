@@ -1,6 +1,5 @@
 {inputs, ...}: {
-  flake.nixosConfigurations.carbon = inputs.nixpkgs-patcher.lib.nixosSystem {
-    nixpkgsPatcher = {inherit inputs;};
+  flake.nixosConfigurations.carbon = inputs.nixpkgs.lib.nixosSystem {
     modules = with inputs.self.modules.nixos; [
       common
       kmscon
@@ -46,7 +45,7 @@
     ];
   };
 
-  flake.nixosConfigurations.wsl = inputs.nixpkgs-patcher.lib.nixosSystem {
+  flake.nixosConfigurations.wsl = inputs.nixpkgs.lib.nixosSystem {
     nixpkgsPatcher = {inherit inputs;};
     modules = with inputs.self.modules.nixos; [
       common
