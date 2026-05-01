@@ -40,6 +40,7 @@
       benchmarks
       wine
       docker
+      rustdesk
       matt
       carbon
     ];
