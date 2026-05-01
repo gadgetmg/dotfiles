@@ -14,6 +14,8 @@
       mode = "440";
     };
 
+    environment.systemPackages = with pkgs; [llama-cpp-vulkan];
+
     services = {
       llama-swap = {
         enable = true;
@@ -23,8 +25,16 @@
           healthCheckTimeout = 1200;
           macros.llama-server = "${llama-server} --device Vulkan0 --port \${PORT} --jinja";
           models = {
-            gpt-oss-20b = {
-              cmd = "\${llama-server} -hf ggml-org/gpt-oss-20b-GGUF -ngl 25 -c 131072 --temp 1.0 --top-k 0 --top-p 1.0";
+            gemma-4-26b-a4b-it = {
+              cmd = "\${llama-server} -hf bartowski/google_gemma-4-26B-A4B-it-GGUF:IQ3_XS -ngl 31 -ctk q4_1 -ctv q4_1";
+              ttl = 1800;
+            };
+            gemma-4-e4b-it = {
+              cmd = "\${llama-server} -hf bartowski/google_gemma-4-E4B-it-GGUF:Q6_K -ngl 43";
+              ttl = 1800;
+            };
+            gemma-4-e2b-it = {
+              cmd = "\${llama-server} -hf bartowski/google_gemma-4-E2B-it-GGUF:Q6_K -ngl 36";
               ttl = 1800;
             };
           };
@@ -33,10 +43,11 @@
 
       caddy = {
         enable = true;
-        package = with pkgs; caddy.withPlugins {
-          plugins = ["github.com/caddy-dns/cloudflare@v0.2.2"];
-          hash = "sha256-Gb1nC5fZfj7IodQmKmEPGygIHNYhKWV1L0JJiqnVtbs=";
-        };
+        package = with pkgs;
+          caddy.withPlugins {
+            plugins = ["github.com/caddy-dns/cloudflare@v0.2.4"];
+            hash = "sha256-4WF7tIx8d6O/Bd0q9GhMch8lS3nlR5N3Zg4ApA3hrKw=";
+          };
         environmentFile = "/run/secrets/caddy.env";
         globalConfig = ''
           acme_dns cloudflare {env.CF_API_TOKEN}

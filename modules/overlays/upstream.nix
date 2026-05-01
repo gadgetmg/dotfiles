@@ -16,8 +16,8 @@
         config.allowUnfree = true;
       };
     in {
-      inherit (trunk) caido onedrive;
-      inherit (unstable) opencode llama-cpp llama-cpp-vulkan llama-swap nixd kmscon;
+      inherit (trunk) caido onedrive llama-cpp llama-cpp-vulkan;
+      inherit (unstable) opencode llama-swap nixd kmscon;
       zen = inputs'.zen-browser.packages.default;
     });
 }
