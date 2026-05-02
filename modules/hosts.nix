@@ -46,7 +46,6 @@
   };
 
   flake.nixosConfigurations.wsl = inputs.nixpkgs.lib.nixosSystem {
-    nixpkgsPatcher = {inherit inputs;};
     modules = with inputs.self.modules.nixos; [
       common
       matt
