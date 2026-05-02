@@ -3,7 +3,6 @@
     flake-parts.url = "github:hercules-ci/flake-parts";
     flake-input-patcher.url = "github:jfly/flake-input-patcher";
     import-tree.url = "github:vic/import-tree";
-    pkgs-by-name-for-flake-parts.url = "github:drupol/pkgs-by-name-for-flake-parts";
 
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -11,6 +10,11 @@
 
     nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+
+    gadgetmg-pkgs = {
+      url = "github:gadgetmg/nix-packages";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     disko = {
       url = "github:nix-community/disko/v1.11.0";

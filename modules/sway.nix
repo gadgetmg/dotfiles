@@ -61,7 +61,7 @@
           wantedBy = ["sway-session.target"];
           serviceConfig = {
             Type = "oneshot";
-            ExecStart = lib.getExe pkgs.local.windows10spotlight-background;
+            ExecStart = lib.getExe pkgs.windows10spotlight-background;
           };
         };
       };

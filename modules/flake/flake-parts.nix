@@ -11,10 +11,10 @@
       overlays = [
         inputs.nix-cachyos-kernel.overlays.pinned
         inputs.ala-lape.overlays.default
+        inputs.gadgetmg-pkgs.overlays.default
         inputs.self.overlays.kernel-lto-patches
         inputs.self.overlays.overrides
         inputs.self.overlays.upstream
-        inputs.self.overlays.default
       ];
     };
   };
