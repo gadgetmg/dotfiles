@@ -18,7 +18,7 @@
   "modules-left": ["sway/workspaces", "sway/mode"],
   "modules-center": ["sway/window"],
   "modules-right": [
-    "mpris",
+    "mpd",
     "group/hardware",
     "sway/language",
     "tray",
@@ -135,14 +135,12 @@
     },
   },
 
-  "mpris": {
-    "player": "mpd",
-    "format": "{status_icon} {dynamic}",
-    "format-paused": "{status_icon} <i>{dynamic}</i>",
-    "dynamic-order": ["title", "artist"],
-    "status-icons": {
-      "playing": "▶",
-      "paused": "⏸",
-    },
+  "mpd": {
+    "format": "󰝚  {title}",
+    "format-paused": "󰝚  <i>{title}</i>",
+    "format-stopped": "󰝚",
+    "format-disconnected": "󰝚",
+    "on-click": "mpc toggle",
+    "interval": 1,
   },
 }

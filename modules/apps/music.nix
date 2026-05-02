@@ -5,6 +5,7 @@
       "mpDris2.service"
     ];
     environment.systemPackages = with pkgs; [
+      mpc
       mpd
       mpdris2
       ymuse
