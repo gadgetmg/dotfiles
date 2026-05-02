@@ -101,7 +101,7 @@
   },
 
   "sway/language": {
-    "format": "{long}",
+    "format": "󰥻  {long}",
     "on-click": "swaymsg input type:keyboard xkb_switch_layout next",
   },
 
