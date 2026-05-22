@@ -8,12 +8,16 @@
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     trunk.url = "github:nixos/nixpkgs/master";
 
-    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
     nixos-hardware.url = "github:NixOS/nixos-hardware";
 
     gadgetmg-pkgs = {
       url = "github:gadgetmg/nix-packages";
       inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    nix-cachyos-kernel = {
+      url = "github:xddxdd/nix-cachyos-kernel/release";
+      inputs.nixpkgs.follows = "trunk";
     };
 
     disko = {
@@ -62,19 +66,23 @@
     };
   };
 
-  outputs = inputs': let
-    inherit (inputs'.flake-input-patcher.lib.x86_64-linux) patch fetchpatch;
-    inputs = patch inputs' {
-      nixpkgs.patches = [
-        (fetchpatch {
-          name = "nixos/scx-loader: init scx-loader at 1.0.19";
-          url = "https://github.com/NixOS/nixpkgs/pull/483360.diff";
-          excludes = [
-            "nixos/doc/manual/release-notes/rl-2605.section.md"
-          ];
-          hash = "sha256-LAsOKXgDSV+aak8iW9oMJI4221RGCt4k/7e7AmsbSNg=";
-        })
-      ];
+  outputs = unpatchedInputs: let
+    inherit (unpatchedInputs.flake-input-patcher.lib.x86_64-linux) patch fetchpatch;
+    inputs = patch {
+      inherit unpatchedInputs;
+      flakePath = ./.;
+      patchSpec = {
+        nixpkgs.patches = [
+          (fetchpatch {
+            name = "nixos/scx-loader: init scx-loader at 1.0.19";
+            url = "https://github.com/NixOS/nixpkgs/pull/483360.diff";
+            excludes = [
+              "nixos/doc/manual/release-notes/rl-2605.section.md"
+            ];
+            hash = "sha256-LAsOKXgDSV+aak8iW9oMJI4221RGCt4k/7e7AmsbSNg=";
+          })
+        ];
+      };
     };
   in
     inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./modules]);
