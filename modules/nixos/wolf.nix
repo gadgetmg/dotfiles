@@ -368,7 +368,7 @@
           requires = ["network-online.target"];
           wantedBy = ["multi-user.target"];
           serviceConfig = {
-            Restart = "always";
+            Restart = lib.mkForce "always";
             RestartSec = "5s";
             # necessary as wolf is sometimes unable to connect to WolfPulseAudio after a restart
             ExecStartPre = "-${dockerCommand} rm --force WolfPulseAudio";

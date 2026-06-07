@@ -4,7 +4,7 @@
     flake-input-patcher.url = "github:jfly/flake-input-patcher";
     import-tree.url = "github:vic/import-tree";
 
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
     unstable.url = "github:nixos/nixpkgs/nixos-unstable";
     trunk.url = "github:nixos/nixpkgs/master";
 
@@ -79,7 +79,7 @@
             excludes = [
               "nixos/doc/manual/release-notes/rl-2605.section.md"
             ];
-            hash = "sha256-LAsOKXgDSV+aak8iW9oMJI4221RGCt4k/7e7AmsbSNg=";
+            hash = "sha256-zqKukdpxj1zG0eJYp/WCfyIx2wEE40tuWfovSFGOw0A=";
           })
         ];
       };
