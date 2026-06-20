@@ -1,6 +1,6 @@
 return {
   {
-    "catppuccin",
+    "catppuccin/nvim",
     opts = {
       transparent_background = true,
       custom_highlights = {
