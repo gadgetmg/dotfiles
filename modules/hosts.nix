@@ -40,6 +40,7 @@
       wine
       docker
       rustdesk
+      protonvpn
       matt
       carbon
     ];

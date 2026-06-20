@@ -113,7 +113,7 @@
       udiskie
       waybar
       wl-clipboard
-      xorg.xrandr
+      xrandr
     ];
   };
 }

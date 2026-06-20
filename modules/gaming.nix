@@ -36,7 +36,6 @@
       heroic
       mangohud
       protonup-qt
-      protonvpn-gui
     ];
 
     users.users."matt".extraGroups = ["gamemode"];
