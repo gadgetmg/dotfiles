@@ -337,7 +337,7 @@
     in
       lib.mkIf cfg.enable {
         virtualisation.oci-containers = {
-          backend = "docker"; # currently, wolf-ui crashes when run under podman
+          backend = "podman";
           containers."wolf" = {
             inherit (cfg) image pull;
             serviceName = "wolf";
@@ -353,12 +353,14 @@
               "${dockerSocket}:/var/run/docker.sock"
               "/dev/:/dev"
               "/run/udev:/run/udev"
+              "/run/wolf"
             ];
             extraOptions = [
               "--device-cgroup-rule=c 13:* rmw"
             ];
             environment = {
               WOLF_PULSE_IMAGE = cfg.pulseImage;
+              XDG_RUNTIME_DIR = "/run/wolf";
             };
           };
         };
