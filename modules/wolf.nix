@@ -107,22 +107,29 @@
                   runner = {
                     base_create_json = ''
                       {
+                        "Tty": true,
                         "HostConfig": {
                           "IpcMode": "host",
                           "CapAdd": ["SYS_ADMIN", "SYS_NICE", "SYS_PTRACE", "NET_RAW", "MKNOD", "NET_ADMIN"],
                           "SecurityOpt": ["seccomp=unconfined", "apparmor=unconfined"],
                           "Ulimits": [{"Name":"nofile", "Hard":10240, "Soft":10240}],
                           "Privileged": false,
-                          "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
+                          "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"],
+                          "CgroupnsMode": "host",
+                          "Tmpfs": {
+                            "/run": "rw,noexec,nosuid,size=65536k",
+                            "/tmp": "rw,noexec,nosuid,size=65536k"
+                          }
                         }
                       }
                     '';
                     devices = [];
-                    env = [
-                      "TZ=America/New_York"
+                    env = [];
+                    image = "ghcr.io/gadgetmg/steam:gamescope";
+                    mounts = [
+                      "/sys/fs/cgroup:/sys/fs/cgroup:rw"
+                      "/opt/steam/steamapps:/home/retro/.local/share/Steam/steamapps:rw"
                     ];
-                    image = "ghcr.io/gadgetmg/steam:sway";
-                    mounts = ["/opt/steam/steamapps:/home/retro/.local/share/Steam/steamapps:rw"];
                     name = "WolfSteam";
                     ports = [];
                     type = "docker";
