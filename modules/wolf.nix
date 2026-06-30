@@ -73,47 +73,6 @@
               id = "moonlight-profile-id";
               apps = [
                 {
-                  title = "Wolf UI";
-                  start_virtual_compositor = true;
-                  icon_png_path = "https://raw.githubusercontent.com/games-on-whales/wolf-ui/refs/heads/main/src/Icons/wolf_ui_icon.png";
-                  runner = {
-                    base_create_json = ''
-                      {
-                        "HostConfig": {
-                          "IpcMode": "host",
-                          "CapAdd": ["NET_RAW", "MKNOD", "NET_ADMIN", "SYS_ADMIN", "SYS_NICE"],
-                          "Privileged": false,
-                          "DeviceCgroupRules": ["c 13:* rmw", "c 244:* rmw"]
-                        },
-                        "Labels": {
-                          "inhibit-sleep": "true"
-                        }
-                      }
-                    '';
-                    devices = [];
-                    env = [
-                      "GOW_REQUIRED_DEVICES=/dev/input/event* /dev/dri/* /dev/nvidia*"
-                      "WOLF_SOCKET_PATH=/var/run/wolf/wolf.sock"
-                      "WOLF_UI_AUTOUPDATE=False"
-                      "LOGLEVEL=INFO"
-                      "TZ=America/New_York"
-                    ];
-                    image = "ghcr.io/games-on-whales/wolf-ui:main";
-                    mounts = [
-                      "/var/run/wolf/wolf.sock:/var/run/wolf/wolf.sock"
-                    ];
-                    name = "Wolf-UI";
-                    ports = [];
-                    type = "docker";
-                  };
-                }
-              ];
-            }
-            {
-              id = "matt";
-              name = "Matt";
-              apps = [
-                {
                   title = "RetroArch";
                   start_virtual_compositor = true;
                   icon_png_path = "https://games-on-whales.github.io/wildlife/apps/retroarch/assets/icon.png";
