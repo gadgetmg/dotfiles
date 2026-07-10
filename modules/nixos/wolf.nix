@@ -336,44 +336,31 @@
       };
     in
       lib.mkIf cfg.enable {
-        virtualisation.oci-containers = {
-          backend = "podman";
-          containers."wolf" = {
-            inherit (cfg) image pull;
-            serviceName = "wolf";
-            networks = ["host"];
-            devices = [
-              "/dev/dri:/dev/dri:rwm"
-              "/dev/uhid:/dev/uhid:rwm"
-              "/dev/uinput:/dev/uinput:rwm"
-            ];
-            volumes = [
-              "${cfg.configDir}:/etc/wolf/cfg"
-              "${cfg.stateDir}:/etc/wolf"
-              "${dockerSocket}:/var/run/docker.sock"
-              "/dev/:/dev"
-              "/run/udev:/run/udev"
-              "/run/wolf"
-            ];
-            extraOptions = [
-              "--device-cgroup-rule=c 13:* rmw"
-            ];
-            environment = {
-              WOLF_PULSE_IMAGE = cfg.pulseImage;
-              XDG_RUNTIME_DIR = "/run/wolf";
-            };
-          };
-        };
         systemd.services.wolf = {
           description = "Games on Whales Wolf";
           after = ["network-online.target"];
           requires = ["network-online.target"];
           wantedBy = ["multi-user.target"];
+          environment = {
+            HOST_APPS_STATE_FOLDER = cfg.stateDir;
+            WOLF_CFG_FILE = "${cfg.configDir}/config.toml";
+            WOLF_DOCKER_SOCKET = dockerSocket;
+            WOLF_PRIVATE_CERT_FILE = "${cfg.configDir}/cert.pem";
+            WOLF_PRIVATE_KEY_FILE = "${cfg.configDir}/key.pem";
+            WOLF_PULSE_IMAGE = cfg.pulseImage;
+            XDG_RUNTIME_DIR = "/var/run/wolf";
+            WOLF_LOG_LEVEL = "DEBUG";
+          };
           serviceConfig = {
             Restart = lib.mkForce "always";
             RestartSec = "5s";
             # necessary as wolf is sometimes unable to connect to WolfPulseAudio after a restart
-            ExecStartPre = "-${dockerCommand} rm --force WolfPulseAudio";
+            ExecStartPre = [
+              "-${dockerCommand} rm --force WolfPulseAudio"
+              "${pkgs.coreutils}/bin/ln -f -s ${pkgs.wolf}/bin/fake-udev ${cfg.stateDir}/fake-udev"
+            ];
+            ExecStart = "${lib.getExe pkgs.wolf}";
+            RuntimeDirectory = "wolf";
           };
           restartTriggers = [
             baseConfig
