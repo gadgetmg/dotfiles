@@ -46,5 +46,7 @@
         };
       };
     };
+
+    security.pam.services.greetd.gnupg.enable = true;
   };
 }
