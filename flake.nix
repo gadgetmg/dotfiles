@@ -71,6 +71,25 @@
     };
   };
 
+  nixConfig = {
+    extra-substituters = [
+      "https://lanzaboote.cachix.org"
+      "https://mic92.cachix.org"
+      "https://nix-community.cachix.org"
+      "https://nix-gaming.cachix.org"
+      "https://attic.xuyh0120.win/lantian"
+      "https://nix-cache.tokidoki.dev/tokidoki"
+    ];
+    extra-trusted-public-keys = [
+      "lanzaboote.cachix.org-1:Nt9//zGmqkg1k5iu+B3bkj3OmHKjSw9pvf3faffLLNk="
+      "mic92.cachix.org-1:gi8IhgiT3CYZnJsaW7fxznzTkMUOn1RY4GmXdT/nXYQ="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+      "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
+      "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
+      "tokidoki:MD4VWt3kK8Fmz3jkiGoNRJIW31/QAm7l1Dcgz2Xa4hk="
+    ];
+  };
+
   outputs = unpatchedInputs: let
     inherit (unpatchedInputs.flake-input-patcher.lib.x86_64-linux) patch fetchpatch;
     inputs = patch {
