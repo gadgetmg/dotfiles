@@ -41,6 +41,7 @@
       docker
       rustdesk
       protonvpn
+      tailscale
       matt
       carbon
     ];
