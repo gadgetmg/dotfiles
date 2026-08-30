@@ -17,28 +17,55 @@
     environment.systemPackages = with pkgs; [llama-cpp-vulkan];
 
     services = {
-      llama-swap = {
+      llama-cpp = {
         enable = true;
-        settings = let
-          llama-server = lib.getExe' (with pkgs; llama-cpp-vulkan) "llama-server";
-        in {
-          healthCheckTimeout = 1200;
-          macros.llama-server = "${llama-server} --device Vulkan0 --port \${PORT} --jinja";
-          models = {
-            gemma-4-26b-a4b-it = {
-              cmd = "\${llama-server} -hf bartowski/google_gemma-4-26B-A4B-it-GGUF:IQ3_XS -ngl 31 -ctk q4_1 -ctv q4_1";
-              ttl = 1800;
-            };
-            gemma-4-e4b-it = {
-              cmd = "\${llama-server} -hf bartowski/google_gemma-4-E4B-it-GGUF:Q6_K -ngl 43";
-              ttl = 1800;
-            };
-            gemma-4-e2b-it = {
-              cmd = "\${llama-server} -hf bartowski/google_gemma-4-E2B-it-GGUF:Q6_K -ngl 36";
-              ttl = 1800;
-            };
-          };
-        };
+        package = with pkgs; llama-cpp-vulkan;
+        extraFlags = [
+          "--device"
+          "Vulkan0"
+          "--sleep-idle-seconds"
+          "1800"
+          "--cors-origins"
+          "localhost"
+        ];
+        modelsPreset = let
+          mkPreset = repo: overrides:
+            {
+              hf-repo = repo;
+              n-gpu-layers = "all";
+              fit-target = "256";
+              mmproj-offload = "off";
+            }
+            // overrides;
+          mkPresets = repos: overrides:
+            lib.genAttrs repos (repo: mkPreset repo overrides);
+        in
+          mkPresets [
+            "bartowski/Qwen_Qwen3.6-35B-A3B-GGUF:Q6_K"
+            "bartowski/google_gemma-4-26B-A4B-it-GGUF:Q6_K"
+          ] {
+            cpu-moe = "on";
+            ctx-size = "262144";
+            spec-default = "on";
+            spec-type = "draft-mtp";
+            spec-draft-type-k = "q8_0";
+            spec-draft-type-v = "q8_0";
+            spec-draft-n-max = "3";
+            spec-draft-p-min = "0.75";
+          }
+          // mkPresets [
+            "bartowski/Qwen3.8-27B-GGUF:IQ2_S" # ~ full context (256k)
+            "bartowski/Qwen3.8-27B-GGUF:IQ3_XXS" # ~ 1/2 context (128k)
+            "bartowski/google_gemma-4-26B-A4B-it-GGUF:IQ3_M" # ~ full context (256k)
+            "bartowski/google_gemma-4-26B-A4B-it-GGUF:IQ4_XS" # ~ 1/2 context (128k)
+          ] {
+            cache-type-k = "q4_0";
+            cache-type-v = "q4_0";
+          }
+          // mkPresets [
+            "bartowski/google_gemma-4-E4B-it-GGUF:Q6_K"
+            "bartowski/google_gemma-4-E2B-it-GGUF:Q6_K"
+          ] {};
       };
 
       caddy = {
@@ -59,11 +86,5 @@
     };
 
     networking.firewall.allowedTCPPorts = [80 443];
-
-    # Configure cache directory for llama.cpp (via llama-swap) to download internet models
-    systemd.services.llama-swap = {
-      environment.LLAMA_CACHE = "/var/cache/llama-swap";
-      serviceConfig.CacheDirectory = "llama-swap";
-    };
   };
 }
