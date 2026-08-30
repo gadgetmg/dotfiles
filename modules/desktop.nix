@@ -1,5 +1,5 @@
 {
-  flake.modules.nixos.desktop = _: {
+  flake.modules.nixos.desktop = {pkgs, ...}: {
     boot.initrd.systemd.enable = true;
 
     hardware = {
@@ -18,5 +18,9 @@
     networking.networkmanager.enable = true;
 
     users.users."matt".extraGroups = ["networkmanager"];
+
+    environment.systemPackages = with pkgs; [
+      gnome-disk-utility
+    ];
   };
 }
