@@ -1,8 +1,8 @@
 {
   flake.modules.nixos.power = _: {
     services.logind.settings.Login = {
-      HandlePowerKey = "suspend";
-      IdleAction = "suspend";
+      HandlePowerKey = "ignore";
+      IdleAction = "ignore";
       IdleActionSec = 300;
     };
   };
