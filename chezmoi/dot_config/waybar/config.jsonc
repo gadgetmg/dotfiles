@@ -141,6 +141,10 @@
     "format-stopped": "󰝚",
     "format-disconnected": "󰝚",
     "on-click": "mpc toggle",
+    "on-click-right": "mpc stop",
+    "on-click-middle": "ymuse",
+    "on-scroll-up": "mpc volume +5",
+    "on-scroll-down": "mpc volume -5",
     "interval": 1,
   },
 }
