@@ -31,43 +31,44 @@
     virtualisation = {
       libvirtd.qemu.vhostUserPackages = [pkgs.virtiofsd];
       libvirtd.enable = true;
-      libvirt.swtpm.enable = true;
-    };
-    programs.virt-manager.enable = true;
-    users.users."matt".extraGroups = ["libvirtd"];
-    virtualisation.libvirt = {
-      connections."qemu:///system" = {
-        pools = [
-          {
-            definition = inputs.nixvirt.lib.pool.writeXML {
-              inherit (thisHost.pool) uuid;
-              name = "default";
-              type = "dir";
-              target = {path = "/var/lib/libvirt/images";};
-            };
-            active = true;
-          }
-        ];
-        networks = [
-          {
-            definition = inputs.nixvirt.lib.network.writeXML {
-              inherit (thisHost.network.default) uuid mac ip;
-              name = "default";
-              bridge.name = "virbr0";
-              forward = {
-                mode = "nat";
-                nat = {
-                  port = {
-                    start = 1024;
-                    end = 65535;
+      spiceUSBRedirection.enable = true;
+      libvirt = {
+        swtpm.enable = true;
+        connections."qemu:///system" = {
+          pools = [
+            {
+              definition = inputs.nixvirt.lib.pool.writeXML {
+                inherit (thisHost.pool) uuid;
+                name = "default";
+                type = "dir";
+                target = {path = "/var/lib/libvirt/images";};
+              };
+              active = true;
+            }
+          ];
+          networks = [
+            {
+              definition = inputs.nixvirt.lib.network.writeXML {
+                inherit (thisHost.network.default) uuid mac ip;
+                name = "default";
+                bridge.name = "virbr0";
+                forward = {
+                  mode = "nat";
+                  nat = {
+                    port = {
+                      start = 1024;
+                      end = 65535;
+                    };
                   };
                 };
               };
-            };
-            active = true;
-          }
-        ];
+              active = true;
+            }
+          ];
+        };
       };
     };
+    programs.virt-manager.enable = true;
+    users.users."matt".extraGroups = ["libvirtd"];
   };
 }
