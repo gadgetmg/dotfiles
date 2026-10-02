@@ -4,8 +4,7 @@
     flake-input-patcher.url = "github:jfly/flake-input-patcher";
     import-tree.url = "github:vic/import-tree";
 
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-26.05";
-    unstable.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     trunk.url = "github:nixos/nixpkgs/master";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
@@ -16,8 +15,8 @@
     };
 
     nix-cachyos-kernel = {
-      url = "github:xddxdd/nix-cachyos-kernel/release";
-      inputs.nixpkgs.follows = "trunk";
+      url = "github:xddxdd/nix-cachyos-kernel";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
 
     disko = {
@@ -26,7 +25,7 @@
     };
 
     lanzaboote = {
-      url = "github:nix-community/lanzaboote/v1.0.0";
+      url = "github:nix-community/lanzaboote/v1.2.0";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -72,42 +71,37 @@
   };
 
   nixConfig = {
-    extra-substituters = [
+    substituters = [
+      "https://cache.nixos.org/"
       "https://lanzaboote.cachix.org"
       "https://mic92.cachix.org"
       "https://nix-community.cachix.org"
       "https://nix-gaming.cachix.org"
       "https://attic.xuyh0120.win/lantian"
+      "https://cache.xinux.uz"
       "https://nix-cache.tokidoki.dev/tokidoki"
-    ];
-    extra-trusted-public-keys = [
-      "lanzaboote.cachix.org-1:Nt9//zGmqkg1k5iu+B3bkj3OmHKjSw9pvf3faffLLNk="
-      "mic92.cachix.org-1:gi8IhgiT3CYZnJsaW7fxznzTkMUOn1RY4GmXdT/nXYQ="
-      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
-      "nix-gaming.cachix.org-1:nbjlureqMbRAxR1gJ/f3hxemL9svXaZF/Ees8vCUUs4="
-      "lantian:EeAUQ+W+6r7EtwnmYjeVwx5kOGEBpjlBfPlzGlTNvHc="
-      "tokidoki:MD4VWt3kK8Fmz3jkiGoNRJIW31/QAm7l1Dcgz2Xa4hk="
     ];
   };
 
-  outputs = unpatchedInputs: let
-    inherit (unpatchedInputs.flake-input-patcher.lib.x86_64-linux) patch fetchpatch;
-    inputs = patch {
-      inherit unpatchedInputs;
-      flakePath = ./.;
-      patchSpec = {
-        nixpkgs.patches = [
-          (fetchpatch {
-            name = "nixos/scx-loader: init scx-loader at 1.0.19";
-            url = "https://github.com/NixOS/nixpkgs/pull/483360.diff";
-            excludes = [
-              "nixos/doc/manual/release-notes/rl-2605.section.md"
-            ];
-            hash = "sha256-zqKukdpxj1zG0eJYp/WCfyIx2wEE40tuWfovSFGOw0A=";
-          })
-        ];
-      };
-    };
-  in
-    inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./modules]);
+  outputs = inputs: inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./modules]);
+  #   outputs = unpatchedInputs: let
+  #     inherit (unpatchedInputs.flake-input-patcher.lib.x86_64-linux) patch fetchpatch;
+  #     inputs = patch {
+  #       inherit unpatchedInputs;
+  #       flakePath = ./.;
+  #       patchSpec = {
+  #         nixpkgs.patches = [
+  #           (fetchpatch {
+  #             name = "scx-loader: init at 1.1.1, add nixos module and test";
+  #             url = "https://github.com/NixOS/nixpkgs/pull/523462.diff";
+  #             excludes = [
+  #               "nixos/doc/manual/release-notes/rl-2611.section.md"
+  #             ];
+  #             hash = "sha256-O1+CkcIrtiYlCaecaXDa92sIz2uvuz3Dg9glnAv6Wpk=";
+  #           })
+  #         ];
+  #       };
+  #     };
+  #   in
+  #     inputs.flake-parts.lib.mkFlake {inherit inputs;} (inputs.import-tree [./modules]);
 }

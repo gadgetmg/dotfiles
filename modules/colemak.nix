@@ -7,9 +7,9 @@
       XKB_DEFAULT_VARIANT = "colemak,";
     };
 
-    services.kmscon.extraConfig = ''
-      xkb-layout=us,us
-      xkb-variant=colemak,
-    '';
+    services.kmscon.config = {
+      xkb-layout = "us,us";
+      xkb-variant = "colemak";
+    };
   };
 }

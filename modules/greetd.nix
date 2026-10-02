@@ -5,7 +5,7 @@
     lib,
     ...
   }: {
-    programs.regreet = {
+    services.displayManager.regreet = {
       enable = true;
       settings = {
         GTK.application_prefer_dark_theme = true;
@@ -39,7 +39,7 @@
             exec ${lib.getExe (with pkgs; swayidle)} -w \
               timeout 30 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
               idlehint 30
-            exec ${lib.getExe config.programs.regreet.package}; swaymsg exit
+            exec ${lib.getExe config.services.displayManager.regreet.package}; swaymsg exit
           '';
         in {
           command = "${(with pkgs; dbus)}/bin/dbus-run-session ${lib.getExe (with pkgs; sway)} -c ${greetd-sway-config}";

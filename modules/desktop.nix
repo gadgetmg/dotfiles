@@ -13,7 +13,9 @@
       logind.settings.Login.KillUserProcesses = true;
     };
 
-    systemd.user.extraConfig = "DefaultTimeoutStopSec=10s";
+    systemd.user.settings.Manager = {
+      DefaultTimeoutStopSec = "10s";
+    };
 
     networking.networkmanager.enable = true;
 

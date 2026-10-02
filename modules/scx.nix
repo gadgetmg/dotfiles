@@ -1,12 +1,11 @@
 {
-  flake.modules.nixos.scx = {pkgs, ...}: {
+  flake.modules.nixos.scx = _: {
     services.scx-loader = {
       enable = true;
-      settings = {
+      config = {
         default_sched = "scx_bpfland";
         default_mode = "LowLatency";
       };
-      package = with pkgs; scx.loader;
     };
 
     # Polkit rule for "scx" group to manage schedulers
