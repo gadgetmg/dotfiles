@@ -20,6 +20,7 @@
       llama-cpp = {
         enable = true;
         settings = {
+          port = 9931;
           models-max = "1";
           device = "Vulkan0";
           spec-draft-device = "Vulkan0";
@@ -79,14 +80,14 @@
         package = with pkgs;
           caddy.withPlugins {
             plugins = ["github.com/caddy-dns/cloudflare@v0.2.4"];
-            hash = "sha256-xRJ5evsAJ2akg47j3Bt6YDXJOgX88B/rKNP50KSVyNY=";
+            hash = "sha256-EXZTsf9KrIAi9gHsBHrYQ7oIQiYmLj6sYuQP5QihPcA=";
           };
         environmentFile = "/run/secrets/caddy.env";
         globalConfig = ''
           acme_dns cloudflare {env.CF_API_TOKEN}
         '';
         virtualHosts."llama.seigra.net".extraConfig = ''
-          reverse_proxy http://localhost:8080
+          reverse_proxy http://localhost:9931
         '';
       };
     };

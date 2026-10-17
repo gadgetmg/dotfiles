@@ -41,6 +41,7 @@
         lm_sensors
         ncmpcpp
         neovim
+        net-tools
         nvtopPackages.full
         opencode
         openssl

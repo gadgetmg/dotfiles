@@ -8,6 +8,7 @@
     trunk.url = "github:nixos/nixpkgs/master";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
+    nix-caddy-withplugins.url = "github:MichailiK/nix-caddy-withplugins/nixos-unstable";
 
     gadgetmg-pkgs = {
       url = "github:gadgetmg/nix-packages";
