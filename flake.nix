@@ -82,7 +82,7 @@
       "https://mic92.cachix.org"
       "https://nix-community.cachix.org"
       "https://nix-gaming.cachix.org"
-      "https://attic.xuyh0120.win/lantian"
+      # "https://attic.xuyh0120.win/lantian"
       "https://cache.xinux.uz"
       "https://nix-cache.tokidoki.dev/tokidoki"
     ];

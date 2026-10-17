@@ -228,7 +228,7 @@ client.background        $base
 # hides the blank window xwaylandvideobridge pops up
 for_window [class="xwaylandvideobridge"] kill
 # kills Discord's startup window
-for_window [class="discord" title="^Discord$"] kill
+for_window [app_id="discord" title="^discord$"] kill
 
 # fullscreen games
 for_window [instance="steam_app_.*"] fullscreen enable
