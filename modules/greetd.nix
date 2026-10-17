@@ -47,6 +47,16 @@
       };
     };
 
-    security.pam.services.greetd.gnupg.enable = true;
+    programs.gnupg.agent.enable = true;
+    security.pam.services = let
+      gnupg_config = {
+        enable = true;
+        noAutostart = true;
+        storeOnly = true;
+      };
+    in {
+      greetd.gnupg = gnupg_config;
+      login.gnupg = gnupg_config;
+    };
   };
 }
