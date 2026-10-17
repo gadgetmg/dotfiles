@@ -1,9 +1,13 @@
-{
+{inputs, ...}: {
   flake.modules.nixos.sway = {
     pkgs,
     lib,
     ...
   }: {
+    imports = [
+      inputs.wayland-pipewire-idle-inhibit.nixosModules.default
+    ];
+
     services.displayManager.defaultSession = "sway-uwsm";
 
     programs = {
@@ -51,6 +55,7 @@
         openFirewall = true;
       };
       passSecretService.enable = true;
+      wayland-pipewire-idle-inhibit.enable = true;
     };
 
     systemd.user = {

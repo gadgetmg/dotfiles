@@ -68,6 +68,11 @@
       url = "git+https://git.madhouse-project.org/algernon/ala-lape.git";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    wayland-pipewire-idle-inhibit = {
+      url = "github:rafaelrc7/wayland-pipewire-idle-inhibit";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   nixConfig = {

@@ -230,6 +230,27 @@
         "type": "github"
       }
     },
+    "flake-parts_5": {
+      "inputs": {
+        "nixpkgs-lib": [
+          "wayland-pipewire-idle-inhibit",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1772408722,
+        "narHash": "sha256-rHuJtdcOjK7rAHpHphUb1iCvgkU3GpfvicLMwwnfMT0=",
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "rev": "f20dc5d9b8027381c474144ecabc9034d6a839a3",
+        "type": "github"
+      },
+      "original": {
+        "owner": "hercules-ci",
+        "repo": "flake-parts",
+        "type": "github"
+      }
+    },
     "gadgetmg-pkgs": {
       "inputs": {
         "flake-parts": "flake-parts_2",
@@ -691,6 +712,7 @@
         "nixvirt": "nixvirt",
         "sops-nix": "sops-nix",
         "trunk": "trunk",
+        "wayland-pipewire-idle-inhibit": "wayland-pipewire-idle-inhibit",
         "zen-browser": "zen-browser"
       }
     },
@@ -764,6 +786,21 @@
         "type": "github"
       }
     },
+    "systems_3": {
+      "locked": {
+        "lastModified": 1689347949,
+        "narHash": "sha256-12tWmuL2zgBgZkdoB6qXZsgJEH9LR3oUgpaQq2RbI80=",
+        "owner": "nix-systems",
+        "repo": "default-linux",
+        "rev": "31732fcf5e8fea42e59c2488ad31a0e651500f68",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nix-systems",
+        "repo": "default-linux",
+        "type": "github"
+      }
+    },
     "treefmt-nix": {
       "inputs": {
         "nixpkgs": [
@@ -785,6 +822,27 @@
         "type": "github"
       }
     },
+    "treefmt-nix_2": {
+      "inputs": {
+        "nixpkgs": [
+          "wayland-pipewire-idle-inhibit",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773297127,
+        "narHash": "sha256-6E/yhXP7Oy/NbXtf1ktzmU8SdVqJQ09HC/48ebEGBpk=",
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "rev": "71b125cd05fbfd78cab3e070b73544abe24c5016",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "treefmt-nix",
+        "type": "github"
+      }
+    },
     "trunk": {
       "locked": {
         "lastModified": 1790519765,
@@ -798,6 +856,29 @@
         "owner": "nixos",
         "ref": "master",
         "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "wayland-pipewire-idle-inhibit": {
+      "inputs": {
+        "flake-parts": "flake-parts_5",
+        "nixpkgs": [
+          "nixpkgs"
+        ],
+        "systems": "systems_3",
+        "treefmt-nix": "treefmt-nix_2"
+      },
+      "locked": {
+        "lastModified": 1773888879,
+        "narHash": "sha256-AIj8Ib66ej35UNlbvGh0zW2lpGQfsh2aJbnxgBNaWAY=",
+        "owner": "rafaelrc7",
+        "repo": "wayland-pipewire-idle-inhibit",
+        "rev": "948aa87003f6c94080650804a6974182e5948ca1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "rafaelrc7",
+        "repo": "wayland-pipewire-idle-inhibit",
         "type": "github"
       }
     },
