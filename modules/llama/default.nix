@@ -92,6 +92,12 @@
       };
     };
 
-    networking.firewall.allowedTCPPorts = [80 443];
+    networking = {
+      firewall.allowedTCPPorts = [80 443];
+      hosts = {
+        "127.0.0.1" = ["llama.seigra.net"];
+        "::1" = ["llama.seigra.net"];
+      };
+    };
   };
 }
