@@ -28,6 +28,11 @@
       nm-applet.enable = true;
     };
 
+    xdg.portal.wlr.settings.screencast = {
+      output_name = "DP-1";
+      chooser_type = "none";
+    };
+
     fonts = {
       enableDefaultPackages = true;
       packages = with pkgs; [adwaita-fonts roboto roboto-serif noto-fonts nerd-fonts.iosevka];
@@ -72,6 +77,7 @@
       timers = {
         windows10spotlight-background = {
           description = "Download and apply Windows 10 Spotlight background to Sway";
+          wantedBy = ["timers.target"];
           timerConfig = {
             OnCalendar = "hourly";
             Unit = "windows10spotlight-background.service";
