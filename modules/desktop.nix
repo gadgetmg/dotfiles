@@ -1,7 +1,5 @@
 {
   flake.modules.nixos.desktop = {pkgs, ...}: {
-    boot.initrd.systemd.enable = true;
-
     hardware = {
       bluetooth.enable = true;
       enableAllFirmware = true;

@@ -7,14 +7,17 @@
     }: let
       # Patched AMDGPU to allow high priority queues for SteamVR
       # Ref: https://wiki.nixos.org/wiki/VR#Patching_AMDGPU_to_allow_high_priority_queues
-      amdgpu = pkgs.callPackage (
+      amdgpu = config.boot.kernelPackages.callPackage (
         {
           stdenv,
           lib,
           kernel,
-        }:
+          kernelModuleMakeFlags,
+        }: let
+          KDIR = "${kernel.dev}/lib/modules/${kernel.modDirVersion}/build";
+        in
           stdenv.mkDerivation {
-            pname = "amdgpu-kernel-module";
+            pname = "amdgpu";
             inherit (kernel) src version postPatch nativeBuildInputs;
 
             kernel_dev = kernel.dev;
@@ -30,6 +33,15 @@
               })
             ];
 
+            makeFlags =
+              kernelModuleMakeFlags
+              ++ [
+                "KVER=${kernel.modDirVersion}"
+                "KDIR=${KDIR}"
+                "INSTALL_MOD_PATH=${placeholder "out"}"
+                "INSTALL_MOD_DIR=updates"
+              ];
+
             buildPhase = ''
               BUILT_KERNEL=$kernel_dev/lib/modules/$kernelVersion/build
 
@@ -41,13 +53,13 @@
               make "-j$NIX_BUILD_CORES" M=$modulePath modules
             '';
 
-            installPhase = ''
-              make \
-                INSTALL_MOD_PATH="$out" \
-                XZ="xz -T$NIX_BUILD_CORES" \
-                M="$modulePath" \
-                modules_install
-            '';
+            installTargets = ["modules_install"];
+
+            installFlags = [
+              "-C"
+              "${KDIR}"
+              "M=$(PWD)"
+            ];
 
             meta = {
               description = "AMD GPU kernel module";

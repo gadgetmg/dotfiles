@@ -9,9 +9,8 @@
         rocmSupport = true;
       };
       overlays = [
-        inputs.nix-cachyos-kernel.overlays.default
+        inputs.nix-cachyos-kernel.overlays.pinned
         inputs.nix-gaming-edge.overlays.proton-cachyos
-        inputs.nix-caddy-withplugins.overlays.default
         inputs.ala-lape.overlays.default
         inputs.gadgetmg-pkgs.overlays.default
         inputs.self.overlays.overrides

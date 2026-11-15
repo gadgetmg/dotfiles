@@ -8,15 +8,10 @@
     trunk.url = "github:nixos/nixpkgs/master";
 
     nixos-hardware.url = "github:NixOS/nixos-hardware";
-    nix-caddy-withplugins.url = "github:MichailiK/nix-caddy-withplugins/nixos-unstable";
+    nix-cachyos-kernel.url = "github:xddxdd/nix-cachyos-kernel/release";
 
     gadgetmg-pkgs = {
       url = "github:gadgetmg/nix-packages";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-
-    nix-cachyos-kernel = {
-      url = "github:xddxdd/nix-cachyos-kernel";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
@@ -83,7 +78,7 @@
       "https://mic92.cachix.org"
       "https://nix-community.cachix.org"
       "https://nix-gaming.cachix.org"
-      # "https://attic.xuyh0120.win/lantian"
+      "https://cache.lantian.pub/lantian"
       "https://cache.xinux.uz"
       "https://nix-cache.tokidoki.dev/tokidoki"
     ];

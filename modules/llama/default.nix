@@ -25,7 +25,6 @@
           device = "Vulkan0";
           spec-draft-device = "Vulkan0";
           sleep-idle-seconds = "1800";
-          cors-origins = "localhost,llama.seigra.net";
           models-preset = let
             mkPreset = repo: overrides:
               {
@@ -80,7 +79,7 @@
         package = with pkgs;
           caddy.withPlugins {
             plugins = ["github.com/caddy-dns/cloudflare@v0.2.4"];
-            hash = "sha256-EXZTsf9KrIAi9gHsBHrYQ7oIQiYmLj6sYuQP5QihPcA=";
+            hash = "sha256-QSiwKqKvSxhksWBF4/MlBOpyXba5xOQ2sRwA0R7399E=";
           };
         environmentFile = "/run/secrets/caddy.env";
         globalConfig = ''
