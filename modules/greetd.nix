@@ -47,7 +47,15 @@
       };
     };
 
-    programs.gnupg.agent.enable = true;
+    programs.gnupg.agent = {
+      enable = true;
+      settings = {
+        allow-preset-passphrase = "";
+        no-allow-external-cache = "";
+        default-cache-ttl = 31536000;
+        max-cache-ttl = 31536000;
+      };
+    };
     security.pam.services = let
       gnupg_config = {
         enable = true;
