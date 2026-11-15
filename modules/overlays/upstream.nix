@@ -16,8 +16,7 @@
         config.allowUnfree = true;
       };
     in {
-      inherit (trunk) caido onedrive;
-      # inherit (unstable) opencode llama-swap nixd kmscon qemu virt-manager;
+      # inherit (unstable) opencode llama-swap nixd kmscon qemu virt-manager onedrive caido;
       zen = inputs'.zen-browser.packages.default;
 
       llama-cpp = trunk.llama-cpp-vulkan;
