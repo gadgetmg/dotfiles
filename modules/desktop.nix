@@ -15,7 +15,10 @@
       DefaultTimeoutStopSec = "10s";
     };
 
-    networking.networkmanager.enable = true;
+    networking = {
+      networkmanager.enable = true;
+      nftables.enable = true;
+    };
 
     users.users."matt".extraGroups = ["networkmanager"];
 

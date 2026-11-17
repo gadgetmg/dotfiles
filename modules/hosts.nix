@@ -12,7 +12,7 @@
       wolf
       greetd
       teams
-      libvirt
+      incus
       gaming
       colemak
       ssh
