@@ -8,29 +8,23 @@
       inputs.wayland-pipewire-idle-inhibit.nixosModules.default
     ];
 
-    services.displayManager.defaultSession = "sway-uwsm";
-
     programs = {
-      sway = {
-        enable = true;
-        package = null;
-      };
-      uwsm = {
-        enable = true;
-        waylandCompositors = {
-          sway = {
-            prettyName = "Sway";
-            comment = "Sway compositor managed by UWSM";
-            binPath = lib.getExe' (with pkgs; sway) "sway";
-          };
-        };
-      };
+      sway.enable = true;
       nm-applet.enable = true;
     };
 
-    xdg.portal.wlr.settings.screencast = {
-      output_name = "DP-1";
-      chooser_type = "none";
+    xdg.portal = {
+      extraPortals = with pkgs; [xdg-desktop-portal-luminous];
+      config.sway = lib.mkForce {
+        default = "gtk";
+        "org.freedesktop.impl.portal.ScreenCast" = "luminous";
+        "org.freedesktop.impl.portal.ScreenShot" = "luminous";
+        "org.freedesktop.impl.portal.RemoteDesktop" = "luminous";
+        "org.freedesktop.impl.portal.Settings" = "gtk;luminous";
+        "org.freedesktop.impl.portal.Background" = "luminous";
+        "org.freedesktop.impl.portal.Clipboard" = "luminous";
+        "org.freedesktop.impl.portal.Usb" = "luminous";
+      };
     };
 
     fonts = {
@@ -45,6 +39,7 @@
     };
 
     services = {
+      displayManager.defaultSession = "sway";
       blueman.enable = true;
       gvfs.enable = true;
       pipewire.enable = true;

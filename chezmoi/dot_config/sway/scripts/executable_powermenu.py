@@ -33,6 +33,6 @@ elif chosen == " Reboot":
 elif chosen == "󰐥 Shutdown":
     subprocess.run(["systemctl", "poweroff"])
 elif chosen == "󰗽 Logout":
-    subprocess.run(["uwsm", "stop"])
+    subprocess.run(["loginctl", "terminate-session", "self"])
 else:
     sys.exit(0)

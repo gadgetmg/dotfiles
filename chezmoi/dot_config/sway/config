@@ -242,6 +242,8 @@ for_window [app_id="qalculate"] floating enable
 #
 # Startup:
 #
+exec dbus-update-activation-environment --systemd XDG_SESSION_ID
+exec app2unit -s s -- dex -a
 exec_always pkill -HUP kanshi || exec app2unit -s s -- kanshi
 exec_always pgrep ala-lape || exec app2unit -s s -- ala-lape
 exec_always pgrep swayidle || exec app2unit -s s -- swayidle -d -w \

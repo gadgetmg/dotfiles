@@ -94,29 +94,30 @@
       programs = {
         steam = {
           enable = true;
-          extest.enable = true;
+          package = with pkgs;
+            steam.override {
+              extraArgs = "-pipewire-dmabuf";
+            };
           platformOptimizations.enable = true;
-          protontricks.enable = true;
           remotePlay.openFirewall = true;
           localNetworkGameTransfers.openFirewall = true;
           extraPackages = with pkgs; [gamescope];
           extraCompatPackages = with pkgs; [
             proton-cachyos-x86_64-v3
           ];
-          gamescopeSession = {
-            enable = true;
-            args = ["--adaptive-sync"];
-          };
         };
         gamescope.enable = true;
         gamemode.enable = true;
+        moonlight-qt = {
+          enable = true;
+          capSysNice = true;
+        };
       };
 
       environment.systemPackages = with pkgs; [
         heroic
         mangohud
         protonup-qt
-        moonlight
       ];
 
       users.users."matt".extraGroups = ["gamemode"];
